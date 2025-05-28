@@ -21,7 +21,6 @@
 *.pdb
 *.cache
 *.ilk
-*.log
 *.iobj
 *.ipdb
 
@@ -64,7 +63,6 @@ _ReSharper*/
 *.bak
 *.backup
 *.config.user
-*.config
 
 # IIS Express SSL certificates
 *.cer
