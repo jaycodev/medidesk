@@ -23,18 +23,19 @@ git clone https://github.com/jason-vila/sistema-citas-medicas.git
 cd sistema-citas-medicas
 ```
 
-### 2. Crear tu rama (solo una vez)
+### 2. Conectar tu rama remota en local (solo la primera vez)
 
-Usa tu nombre en minúsculas:
+Las ramas personales ya están creadas en remoto, solo debes traerlas y cambiarte a ella:
 
 ```bash
-git checkout -b jason
+git fetch origin
+git checkout -b jason origin/jason
 ```
 
-Reemplaza "jason" por tu nombre: `angelo`, `andy`, `jhuli`, `david`.
+Reemplaza `jason` por tu nombre (`angelo`, `andy`, `jhuli`, `david`).
 
 > [!NOTE]
->  Solo deberías trabajar dentro de tu propia rama.
+> Solo debes trabajar dentro de tu propia rama.
 
 ### 3. Hacer cambios y guardar (commit)
 
@@ -72,17 +73,19 @@ git push origin jason
 
 ## 🔄 Mantener tu rama actualizada con `main`
 
-Antes de subir tus cambios, es importante que tengas la última versión del proyecto:
+Para evitar conflictos y mantener tu trabajo sincronizado con el proyecto, **es muy importante que, después de que tu PR sea mergeado a `main`, actualices tu rama con los últimos cambios de `main` antes de seguir trabajando o hacer otro PR.**
+
+Puedes hacerlo así:
 
 ```bash
 git checkout main
 git pull origin main
 
-git checkout jason  # reemplaza con tu nombre
+git checkout jason   # reemplaza con tu nombre
 git merge main
 ```
 
-Si hay conflictos, Git te avisará. Si no sabes cómo resolverlos, puedes pedir ayuda.
+Si hay conflictos, Git te avisará y deberás resolverlos antes de continuar. Esto asegura que tu rama tenga la base más actualizada y evita problemas en futuros PR.
 
 ## 📋 Reglas del equipo
 
