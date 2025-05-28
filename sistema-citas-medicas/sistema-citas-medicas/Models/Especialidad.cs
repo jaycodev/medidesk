@@ -6,10 +6,9 @@ using System.Web;
 
 namespace sistema_citas_medicas.Models
 {
-    public class Especialidad : Usuario
+    public class Especialidad
     {
-        [Required
-            ]
+        [Required]
         public int IdEspecialidad { get; set; }
 
         [Required]
