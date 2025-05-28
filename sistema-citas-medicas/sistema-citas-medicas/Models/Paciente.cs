@@ -12,7 +12,7 @@ namespace sistema_citas_medicas.Models
         public int IdUsuario { get; set; }
         [Required]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
-        public DateTime? FechaNacimiento { get; set; }
+        public DateTime FechaNacimiento { get; set; }
         [Required]
         public string GrupoSanguineo { get; set; }
     }

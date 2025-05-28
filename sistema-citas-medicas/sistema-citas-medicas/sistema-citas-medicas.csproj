@@ -126,7 +126,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Cita.cs" />
     <Compile Include="Models\Especialidad.cs" />
+    <Compile Include="Models\HorarioDisponible.cs" />
+    <Compile Include="Models\Medico.cs" />
     <Compile Include="Models\Paciente.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
