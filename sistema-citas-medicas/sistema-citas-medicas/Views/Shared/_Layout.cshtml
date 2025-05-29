@@ -1,40 +1,105 @@
 ﻿<!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="auto">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
+    <meta name="description" content="Sistema de citas médicas con vistas para administrador, médico y paciente, que facilita la gestión, programación y seguimiento de consultas médicas.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Mi aplicación ASP.NET</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <title>@ViewBag.Title - Hospital</title>
+    <link href="/Content/Icons/logo-dark.svg" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="/Content/Icons/logo-light.svg" rel="icon" media="(prefers-color-scheme: dark)">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="/Content/Css/Site.css" rel="stylesheet" />
 </head>
-<body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Nombre de la aplicación", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Alternar navegación" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Inicio", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Acerca de", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contacto", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+<body class="bg-body-tertiary">
+    <!-- Sidebar Offcanvas para pantallas pequeñas -->
+    <div class="offcanvas offcanvas-start offcanvas-custom bg-body" tabindex="-1" id="offcanvasSidebar" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header">
+            <a href="/" class="d-flex align-items-center text-center me-md-auto link-body-emphasis text-decoration-none ms-2">
+                <i class="fa-solid fa-hospital me-2 fs-4"></i>
+                <span class="fs-4">Hospital</span>
+            </a>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="sidebar d-flex flex-column flex-shrink-0 p-3 border-end h-100">
+                @Html.Partial("_SidebarContent")
             </div>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Mi aplicación ASP.NET</p>
-        </footer>
     </div>
 
+    <!-- Sidebar para pantallas grandes -->
+    <div class="sidebar-fixed d-flex flex-column flex-shrink-0 p-3 bg-body border-end">
+        <a href="/" class="d-flex align-items-center text-center mb-4 me-md-auto link-body-emphasis text-decoration-none ms-2">
+            <i class="fa-solid fa-hospital me-2 fs-4"></i>
+            <span class="fs-4">Hospital</span>
+        </a>
+        @Html.Partial("_SidebarContent")
+    </div>
+
+    <!-- Header -->
+    <header class="header-fixed d-flex align-items-center py-3 border-bottom bg-body">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <!-- Sección izquierda: Botón menú -->
+            <div class="d-flex align-items-center" style="min-width: 80px;">
+                <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-label="Menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <input type="search" class="form-control ms-2 d-none d-lg-block" placeholder="Buscar..." style="max-width: 220px;">
+            </div>
+
+            <!-- Sección central: Logo -->
+            <div class="text-center flex-grow-1 position-absolute start-50 translate-middle-x d-lg-none">
+                <a href="/" class="text-decoration-none link-body-emphasis">
+                    <i class="fa-solid fa-hospital me-2 fs-4"></i>
+                    <span class="fs-4">Hospital</span>
+                </a>
+            </div>
+
+            <!-- Sección derecha: Cambiar tema y usuario -->
+            <div class="d-flex align-items-center justify-content-end gap-3 ms-auto">
+                @Html.Partial("_ToggleTheme")
+
+                <div class="dropdown">
+                    <button type="button" class="btn btn-link nav-link d-flex align-items-center link-body-emphasis" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
+                        <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                        <!-- <i class="fa-solid fa-circle-user " style="font-size: 32px;"></i> -->
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end text-small gap-1 p-2 rounded-3 mx-0 shadow">
+                        <li>
+                            <a class="dropdown-item rounded-2" href="#">
+                                <i class="fa-solid fa-gear me-2 icon"></i>
+                                Configuración
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2" href="#">
+                                <i class="fa-solid fa-user me-2 icon"></i>
+                                Perfil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item dropdown-danger text-danger-emphasis rounded-2" href="#">
+                                <i class="fa-solid fa-arrow-right-from-bracket me-2 icon"></i>
+                                Cerrar sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="main-content p-4">
+        @RenderBody()
+    </main>
+
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>
