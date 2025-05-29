@@ -1,0 +1,134 @@
+﻿<div class="dropdown bd-mode-toggle bd-navbar">
+    <button class="btn btn-link nav-link py-2 d-flex align-items-center link-body-emphasis"
+            id="bd-theme"
+            type="button"
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
+            data-bs-offset="0,0"
+            aria-label="Toggle theme (auto)">
+        <i class="fas fa-tv my-1 theme-icon-active"></i>
+        <span class="visually-hidden" id="bd-theme-text">Cambiar tema</span>
+    </button>
+
+    <ul class="dropdown-menu gap-1 p-2 rounded-3 mx-0 shadow border" aria-labelledby="bd-theme-text">
+        <li class="mb-1">
+            <button type="button" class="dropdown-item rounded-2 d-flex align-items-center"
+                    data-bs-theme-value="light" data-bs-icon="fa-sun" aria-pressed="false">
+                <i class="fas fa-sun me-2 icon"></i>
+                Claro
+                <i class="fa-solid ms-auto fa-check d-none"></i>
+            </button>
+        </li>
+        <li class="mb-1">
+            <button type="button" class="dropdown-item rounded-2 d-flex align-items-center"
+                    data-bs-theme-value="dark" data-bs-icon="fa-moon" aria-pressed="false">
+                <i class="fas fa-moon me-2 icon"></i>
+                Oscuro
+                <i class="fa-solid ms-auto fa-check d-none"></i>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item rounded-2 d-flex align-items-center active"
+                    data-bs-theme-value="auto" data-bs-icon="fa-tv" aria-pressed="true">
+                <i class="fas fa-tv me-2 icon"></i>
+                Sistema
+                <i class="fa-solid ms-auto fa-check"></i>
+            </button>
+        </li>
+    </ul>
+</div>
+
+<script>
+    (() => {
+        'use strict'
+
+        const getStoredTheme = () => localStorage.getItem('theme')
+        const setStoredTheme = theme => localStorage.setItem('theme', theme)
+
+        const getPreferredTheme = () => {
+            const storedTheme = getStoredTheme()
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = theme => {
+            if (theme === 'auto') {
+                const selectedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+                document.documentElement.setAttribute('data-bs-theme', selectedTheme)
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        const showActiveTheme = (theme, focus = false) => {
+            const themeSwitcher = document.querySelector('#bd-theme')
+            if (!themeSwitcher) return
+
+            const themeSwitcherText = document.querySelector('#bd-theme-text')
+            const activeThemeIcon = document.querySelector('.theme-icon-active')
+            const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+            const newIconClass = btnToActive.getAttribute('data-bs-icon')
+
+            activeThemeIcon.classList.forEach(cls => {
+                if (cls.startsWith('fa-') && cls !== 'fa') {
+                    activeThemeIcon.classList.remove(cls)
+                }
+            })
+
+            if (!activeThemeIcon.classList.contains('fas')) {
+                activeThemeIcon.classList.add('fas')
+            }
+
+            activeThemeIcon.classList.add(newIconClass)
+
+            document.querySelectorAll('[data-bs-theme-value]').forEach(el => {
+                el.classList.remove('active')
+                el.setAttribute('aria-pressed', 'false')
+                const checkIcon = el.querySelector('.fa-check')
+                if (checkIcon) {
+                    checkIcon.classList.add('d-none')
+                }
+            })
+
+            btnToActive.classList.add('active')
+            btnToActive.setAttribute('aria-pressed', 'true')
+            const activeCheckIcon = btnToActive.querySelector('.fa-check')
+            if (activeCheckIcon) {
+                activeCheckIcon.classList.remove('d-none')
+            }
+
+            const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
+            themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+
+            if (focus) {
+                themeSwitcher.focus()
+            }
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const storedTheme = getStoredTheme()
+            if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                setTheme(getPreferredTheme())
+            }
+        })
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const preferredTheme = getPreferredTheme()
+            showActiveTheme(preferredTheme)
+
+            document.querySelectorAll('[data-bs-theme-value]')
+                .forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value')
+                        setStoredTheme(theme)
+                        setTheme(theme)
+                        showActiveTheme(theme, true)
+                    })
+                })
+        })
+    })()
+</script>

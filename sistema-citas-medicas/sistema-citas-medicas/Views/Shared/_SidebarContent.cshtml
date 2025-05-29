@@ -1,0 +1,78 @@
+﻿<ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+        <a href="#" class="nav-link active" aria-current="page">
+            <i class="fa-solid fa-gauge me-2 icon"></i>
+            Dashboard
+        </a>
+    </li>
+
+    <!-- Citas médicas con submenú -->
+    <li>
+        <a class="nav-link link-body-emphasis d-flex justify-content-between align-items-center"
+           data-bs-toggle="collapse"
+           href="#submenuCitas"
+           role="button"
+           aria-expanded="true"
+           aria-controls="submenuCitas">
+            <span>
+                <i class="fa-solid fa-calendar-days me-2 icon"></i>
+                Citas médicas
+            </span>
+            <i class="fa-solid fa-chevron-down small transition"></i>
+        </a>
+        <div class="collapse show ps-4" id="submenuCitas">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="nav-link link-body-emphasis ms-2">Mis citas</a></li>
+                <li><a href="#" class="nav-link link-body-emphasis ms-2">Citas pendientes</a></li>
+                <li><a href="#" class="nav-link link-body-emphasis ms-2">Historial de citas</a></li>
+            </ul>
+        </div>
+    </li>
+
+    <li>
+        <a href="#" class="nav-link link-body-emphasis">
+            <i class="fa-solid fa-user-doctor me-2 icon"></i>
+            Médicos
+        </a>
+    </li>
+    <li>
+        <a href="#" class="nav-link link-body-emphasis">
+            <i class="fa-solid fa-bed-pulse me-2 icon"></i>
+            Pacientes
+        </a>
+    </li>
+    <li>
+        <a href="#" class="nav-link link-body-emphasis">
+            <i class="fa-solid fa-stethoscope me-2 icon"></i>
+            Especialidades
+        </a>
+    </li>
+    <li>
+        <a href="#" class="nav-link link-body-emphasis">
+            <i class="fa-solid fa-users me-2 icon"></i>
+            Usuarios
+        </a>
+    </li>
+</ul>
+
+@{
+    string saludo;
+
+    if (DateTime.Now.Hour < 12)
+    {
+        saludo = "Buenos días";
+    }
+    else if (DateTime.Now.Hour < 18)
+    {
+        saludo = "Buenas tardes";
+    }
+    else
+    {
+        saludo = "Buenas noches";
+    }
+}
+
+<!-- Sesión iniciada -->
+<div class="text-muted small">
+    @saludo, <strong>Usuario</strong>
+</div>
