@@ -80,3 +80,6 @@ _ReSharper*/
 
 # Publish settings
 *.Publish.xml
+
+# Configuración local con credenciales sensibles
+**/connectionStrings.config
