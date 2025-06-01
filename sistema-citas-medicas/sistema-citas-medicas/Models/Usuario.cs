@@ -10,28 +10,28 @@ namespace sistema_citas_medicas.Models
     {
         [Display(Name = " ID")]
         [Required(ErrorMessage = "El campo ID es obligatorio")]
-        public int idUsuario { get; set; }
+        public int IdUsuario { get; set; }
 
         [Display(Name = " Nombres")]
         [Required(ErrorMessage = "El campo Nombre es obligatorio")]
-        public string nombre { get; set; }
+        public string Nombre { get; set; }
 
         [Display(Name = " Apellidos")]
         [Required(ErrorMessage = "El campo Apellido es obligatorio")]
-        public string apellido { get; set; }
+        public string Apellido { get; set; }
 
         [Required(ErrorMessage = "Ingrese un correo")]
-        public string correo { get; set; }
+        public string Correo { get; set; }
 
         [Required(ErrorMessage = "Ingrese una contraseña")]
-        public string contraseña { get; set; }
+        public string Contraseña { get; set; }
 
 
-        public string telefono { get; set; }
+        public string Telefono { get; set; }
 
         [Required]
-        public string rol { get; set; }
+        public string Rol { get; set; }
 
-        public string fotoPerfil { get; set; }
+        public string FotoPerfil { get; set; }
     }
 }
