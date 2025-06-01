@@ -22,7 +22,7 @@ namespace sistema_citas_medicas.Controllers
         public Usuario BuscarID(int codigo)
         {
             Usuario objUsuario = new Usuario();
-            objUsuario.idUsuario = codigo;
+            objUsuario.IdUsuario = codigo;
             Usuario objID = servicio.operacionesLectura("CONSULTAR_X_ID", objUsuario).First();
             return objID;
         }
@@ -89,7 +89,7 @@ namespace sistema_citas_medicas.Controllers
         public ActionResult Eliminar_Confirmacion(int codigo)
         {
             Usuario objUsu = new Usuario();
-            objUsu.idUsuario = codigo;
+            objUsu.IdUsuario = codigo;
 
             int procesar = servicio.operacionesEscritura("ELIMINAR", objUsu);
             if (procesar >= 0)
