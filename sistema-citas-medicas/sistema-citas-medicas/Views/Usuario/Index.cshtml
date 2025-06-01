@@ -41,33 +41,33 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.idUsuario)
+            @Html.DisplayFor(modelItem => item.IdUsuario)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.nombre)
+            @Html.DisplayFor(modelItem => item.Nombre)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.apellido)
+            @Html.DisplayFor(modelItem => item.Apellido)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.correo)
+            @Html.DisplayFor(modelItem => item.Correo)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.contraseña)
+            @Html.DisplayFor(modelItem => item.Contraseña)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.telefono)
+            @Html.DisplayFor(modelItem => item.Telefono)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.rol)
+            @Html.DisplayFor(modelItem => item.Rol)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.fotoPerfil)
+            @Html.DisplayFor(modelItem => item.FotoPerfil)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.idUsuario }) |
-            @Html.ActionLink("Details", "Details", new { id = item.idUsuario }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.idUsuario })
+            @Html.ActionLink("Edit", "Edit", new { id = item.IdUsuario }) |
+            @Html.ActionLink("Details", "Details", new { id = item.IdUsuario }) |
+            @Html.ActionLink("Delete", "Delete", new { id = item.IdUsuario })
         </td>
     </tr>
 }
