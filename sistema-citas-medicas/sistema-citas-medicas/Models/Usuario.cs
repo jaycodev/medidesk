@@ -21,13 +21,17 @@ namespace sistema_citas_medicas.Models
 
         [Display(Name = "Correo electrónico")]
         [Required(ErrorMessage = "Ingrese un correo")]
+        [EmailAddress(ErrorMessage = "Ingrese un correo válido")]
         public string Correo { get; set; }
 
         [Display(Name = "Contraseña")]
         [Required(ErrorMessage = "Ingrese una contraseña")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$",
+        ErrorMessage = "La contraseña debe tener al menos 1 mayúscula, 1 minúscula, 1 número, 1 carácter especial y mínimo 8 caracteres.")]
         public string Contraseña { get; set; }
 
         [Display(Name = "Teléfono")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Ingrese solo números en el teléfono")]
         public string Telefono { get; set; }
 
         [Display(Name = "Rol")]
