@@ -3,6 +3,7 @@ using sistema_citas_medicas.Servicio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting;
 using System.Web;
 using System.Web.Mvc;
 
@@ -33,17 +34,6 @@ namespace sistema_citas_medicas.Controllers
             return View();
         }
 
-        [HttpPost]
-        public ActionResult Crear(Usuario objUsu)
-        {
-            int procesar = servicio.operacionesEscritura("INSERTAR", objUsu);
-            if (procesar >= 0)
-            {
-                return RedirectToAction("Index");
-            }
-            return View(objUsu);
-        }
-
         [HttpGet]
         public ActionResult Editar(int id)
         {
@@ -52,17 +42,6 @@ namespace sistema_citas_medicas.Controllers
                 return RedirectToAction("Index");
             }
             return View(BuscarID(id));
-        }
-
-        [HttpPost]
-        public ActionResult Editar(Usuario objReg)
-        {
-            int procesar = servicio.operacionesEscritura("ACTUALIZAR", objReg);
-            if (procesar >= 0)
-            {
-                return RedirectToAction("Index");
-            }
-            return View(objReg);
         }
 
         [HttpGet]
@@ -85,18 +64,51 @@ namespace sistema_citas_medicas.Controllers
             return View(BuscarID(id));
         }
 
+        [HttpPost]
+        public ActionResult Crear(Usuario objUsu)
+        {
+            int procesar = servicio.operacionesEscritura("INSERTAR", objUsu);
+            if (procesar >= 0)
+            {
+                TempData["Success"] = "¡Usuario creado exitosamente!";
+                return RedirectToAction("Index");
+            }
+            
+            return View(objUsu);
+        }
+
+        [HttpPost]
+        public ActionResult Editar(Usuario objReg)
+        {
+            int procesar = servicio.operacionesEscritura("ACTUALIZAR", objReg);
+            if (procesar >= 0)
+            {
+                TempData["Success"] = "¡Usuario actualizado correctamente!";
+                return RedirectToAction("Index");
+            }
+            return View(objReg);
+        }
+
         [HttpPost, ActionName("Eliminar")]
         public ActionResult Eliminar_Confirmacion(int id)
         {
-            Usuario objUsu = new Usuario();
-            objUsu.IdUsuario = id;
+            Usuario objUsu = BuscarID(id);
 
-            int procesar = servicio.operacionesEscritura("ELIMINAR", objUsu);
-            if (procesar >= 0)
+            try
             {
-                return RedirectToAction("Index");
+                int procesar = servicio.operacionesEscritura("ELIMINAR", objUsu);
+                if (procesar >= 0)
+                {
+                    TempData["Success"] = "¡Usuario eliminado correctamente!";
+                    return RedirectToAction("Index");
+                }
             }
-            return View();
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Ocurrió un error al intentar eliminar el usuario. "+ex.Message;
+                ModelState.AddModelError("", "No se pudo eliminar el usuario.");
+            }
+            return View(objUsu);
         }
     }
 }
