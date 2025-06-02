@@ -1,0 +1,73 @@
+﻿@using sistema_citas_medicas.Models
+@model List<HorarioDisponible>
+
+@{
+    ViewBag.Title = "CrearOModificarHorario";
+}
+
+<h2 style="text-align:center;">Modificar Horarios Disponibles</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+<div class="form-horizontal">
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="panel panel-default" style="margin: 10px 0;">
+            <div class="panel-body">
+                @Html.HiddenFor(model => model[i].IdHorario)
+                @Html.HiddenFor(model => model[i].IdMedico)
+                @Html.HiddenFor(model => model[i].DiaSemana)
+
+                <div class="form-group row align-items-center">
+                    <!-- Checkbox Habilita con etiqueta Día de la semana en negrita -->
+                    <div class="col-md-2 d-flex align-items-center">
+                        <div class="checkbox mb-0">
+                            @Html.EditorFor(model => model[i].Habilita)
+                            <label class="control-label" style="margin-left: 5px; font-weight: bold;">
+                                @Model[i].DiaSemana
+                            </label>
+                            @Html.ValidationMessageFor(model => model[i].Habilita, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <!-- Hora Inicio -->
+                    <div class="col-md-5">
+                        @Html.LabelFor(model => model[i].HoraInicio, htmlAttributes: new { @class = "control-label" })
+                        <input type="time"
+                               name="[@i].HoraInicio"
+                               class="form-control"
+                               value="@(Model[i].HoraInicio.ToString(@"hh\:mm"))"
+                               min="00:00" max="23:59" />
+                        @Html.ValidationMessageFor(model => model[i].HoraInicio, "", new { @class = "text-danger" })
+                    </div>
+
+                    <!-- Hora Fin -->
+                    <div class="col-md-5">
+                        @Html.LabelFor(model => model[i].HoraFin, htmlAttributes: new { @class = "control-label" })
+                        <input type="time"
+                               name="[@i].HoraFin"
+                               class="form-control"
+                               value="@(Model[i].HoraFin.ToString(@"hh\:mm"))"
+                               min="00:00" max="23:59" />
+                        @Html.ValidationMessageFor(model => model[i].HoraFin, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="form-group text-center">
+        <input type="submit" value="Guardar Horarios" class="btn btn-primary" />
+    </div>
+
+</div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
