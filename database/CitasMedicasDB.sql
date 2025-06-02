@@ -18,17 +18,17 @@ USE CitasMedicasDB;
 GO
 
 -- =============================================
--- TABLAS DEL SISTEMA DE CITAS M蒁ICAS
+-- TABLAS DEL SISTEMA DE CITAS M脡DICAS
 -- =============================================
 
 -- Tabla: Usuarios
--- Descripci髇: Almacena informaci髇 de todos los usuarios (admin, m閐icos, pacientes)
+-- Descripci贸n: Almacena informaci贸n de todos los usuarios (admin, m茅dicos, pacientes)
 CREATE TABLE Usuarios (
     id_usuario INT PRIMARY KEY IDENTITY(1,1),
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     correo VARCHAR(100) NOT NULL UNIQUE,
-    contrase馻 VARCHAR(100) NOT NULL,
+    contrase帽a VARCHAR(100) NOT NULL,
     telefono VARCHAR(20),
     rol VARCHAR(20) NOT NULL CHECK (rol IN ('administrador', 'medicos', 'pacientes')),
     foto_perfil VARCHAR(255)
@@ -36,7 +36,7 @@ CREATE TABLE Usuarios (
 GO
 
 -- Tabla: Especialidades
--- Descripci髇: Define las especialidades m閐icas disponibles
+-- Descripci贸n: Define las especialidades m茅dicas disponibles
 CREATE TABLE Especialidades (
     id_especialidad INT PRIMARY KEY IDENTITY(1,1),
     nombre VARCHAR(100) NOT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE Especialidades (
 );
 GO
 
--- Tabla: M閐icos
--- Descripci髇: Relaci髇 entre m閐icos y sus especialidades
+-- Tabla: M茅dicos
+-- Descripci贸n: Relaci贸n entre m茅dicos y sus especialidades
 CREATE TABLE Medicos (
     id_usuario INT PRIMARY KEY,
     id_especialidad INT NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE Medicos (
 GO
 
 -- Tabla: Pacientes
--- Descripci髇: Informaci髇 adicional de pacientes
+-- Descripci贸n: Informaci贸n adicional de pacientes
 CREATE TABLE Pacientes (
     id_usuario INT PRIMARY KEY,
     fecha_nacimiento DATE,
@@ -65,7 +65,7 @@ CREATE TABLE Pacientes (
 GO
 
 -- Tabla: Citas
--- Descripci髇: Almacena informaci髇 sobre las citas m閐icas agendadas
+-- Descripci贸n: Almacena informaci贸n sobre las citas m茅dicas agendadas
 CREATE TABLE Citas (
     id_cita INT PRIMARY KEY IDENTITY(1,1),
     id_medico INT NOT NULL,
@@ -83,11 +83,11 @@ CREATE TABLE Citas (
 GO
 
 -- Tabla: HorariosDisponibles
--- Descripci髇: Registra los horarios disponibles de cada m閐ico por d韆
+-- Descripci贸n: Registra los horarios disponibles de cada m茅dico por d铆a
 CREATE TABLE HorariosDisponibles (
     id_horario INT PRIMARY KEY IDENTITY(1,1),
     id_medico INT NOT NULL,
-    dia_semana VARCHAR(10) NOT NULL CHECK (dia_semana IN ('lunes', 'martes', 'mi閞coles', 'jueves', 'viernes', 's醔ado', 'domingo')),
+    dia_semana VARCHAR(10) NOT NULL CHECK (dia_semana IN ('lunes', 'martes', 'mi茅rcoles', 'jueves', 'viernes', 's谩bado', 'domingo')),
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     FOREIGN KEY (id_medico) REFERENCES Medicos(id_usuario),
@@ -101,8 +101,8 @@ GO
 
 -- =============================================
 -- PROCEDIMIENTO: usp_usuarios_crud
--- DESCRIPCI覰 : CRUD para la tabla Usuarios
--- PAR罬ETROS  : indicador de acci髇, datos de usuario
+-- DESCRIPCI脫N : CRUD para la tabla Usuarios
+-- PAR脕METROS  : indicador de acci贸n, datos de usuario
 -- =============================================
 CREATE OR ALTER PROCEDURE usp_usuarios_crud
     @indicador VARCHAR(50),
@@ -110,18 +110,16 @@ CREATE OR ALTER PROCEDURE usp_usuarios_crud
     @nombre VARCHAR(100) = NULL,
     @apellido VARCHAR(100) = NULL,
     @correo VARCHAR(100) = NULL,
-    @contrase馻 VARCHAR(100) = NULL,
+    @contrase帽a VARCHAR(100) = NULL,
     @telefono VARCHAR(20) = NULL,
     @rol VARCHAR(20) = NULL,
     @foto_perfil VARCHAR(255) = NULL
 AS
 BEGIN
-    SET NOCOUNT ON;
-
     IF @indicador = 'INSERTAR'
     BEGIN
-        INSERT INTO Usuarios (nombre, apellido, correo, contrase馻, telefono, rol, foto_perfil)
-        VALUES (@nombre, @apellido, @correo, @contrase馻, @telefono, @rol, @foto_perfil);
+        INSERT INTO Usuarios (nombre, apellido, correo, contrase帽a, telefono, rol, foto_perfil)
+        VALUES (@nombre, @apellido, @correo, @contrase帽a, @telefono, @rol, @foto_perfil);
     END
 
     IF @indicador = 'ACTUALIZAR'
@@ -130,7 +128,7 @@ BEGIN
         SET nombre = @nombre,
             apellido = @apellido,
             correo = @correo,
-            contrase馻 = @contrase馻,
+            contrase帽a = @contrase帽a,
             telefono = @telefono,
             rol = @rol,
             foto_perfil = @foto_perfil
@@ -166,8 +164,8 @@ GO
 
 -- =============================================
 -- PROCEDIMIENTO: usp_horarios_disponibles_crud
--- DESCRIPCI覰 : CRUD para la tabla HorariosDisponibles
--- PAR罬ETROS  : indicador de acci髇, datos de horario
+-- DESCRIPCI脫N : CRUD para la tabla HorariosDisponibles
+-- PAR脕METROS  : indicador de acci贸n, datos de horario
 -- =============================================
 CREATE OR ALTER PROCEDURE usp_horarios_disponibles_crud
     @indicador VARCHAR(50),
