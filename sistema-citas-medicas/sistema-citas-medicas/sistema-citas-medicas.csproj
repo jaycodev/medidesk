@@ -123,8 +123,11 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HorarioDisponibleController.cs" />
     <Compile Include="Controllers\UsuarioController.cs" />
+    <Compile Include="Dao\DaoImpl\HorarioDisponibleDaoImpl.cs" />
     <Compile Include="Dao\DaoImpl\UsuarioDaoImpl.cs" />
+    <Compile Include="Dao\IHorarioDisponibleDao.cs" />
     <Compile Include="Dao\IUsuarioDao.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -136,6 +139,7 @@
     <Compile Include="Models\Paciente.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servicio\ServicioHorarioDisponible.cs" />
     <Compile Include="Servicio\ServicioUsuario.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +179,7 @@
     <Content Include="Views\Usuario\Editar.cshtml" />
     <Content Include="Views\Usuario\Detalle.cshtml" />
     <Content Include="Views\Usuario\Eliminar.cshtml" />
+    <Content Include="Views\HorarioDisponible\CrearOModificarHorario.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -25,5 +25,8 @@ namespace sistema_citas_medicas.Models
         [Required]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}")]
         public TimeSpan HoraFin { get; set; }
+
+        // Nueva propiedad: no requerida, valor por defecto true
+        public bool Habilita { get; set; } = true;
     }
 }
