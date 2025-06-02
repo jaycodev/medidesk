@@ -45,13 +45,13 @@ namespace sistema_citas_medicas.Controllers
         }
 
         [HttpGet]
-        public ActionResult Editar(int codigo)
+        public ActionResult Editar(int id)
         {
-            if (codigo == 0)
+            if (id == 0)
             {
                 return RedirectToAction("Index");
             }
-            return View(BuscarID(codigo));
+            return View(BuscarID(id));
         }
 
         [HttpPost]
@@ -66,30 +66,30 @@ namespace sistema_citas_medicas.Controllers
         }
 
         [HttpGet]
-        public ActionResult Detalle(int codigo)
+        public ActionResult Detalle(int id)
         {
-            if (codigo == 0)
+            if (id == 0)
             {
                 return RedirectToAction("Index");
             }
-            return View(BuscarID(codigo));
+            return View(BuscarID(id));
         }
 
         [HttpGet]
-        public ActionResult Eliminar(int codigo)
+        public ActionResult Eliminar(int id)
         {
-            if (codigo == 0)
+            if (id == 0)
             {
                 return RedirectToAction("Index");
             }
-            return View(BuscarID(codigo));
+            return View(BuscarID(id));
         }
 
         [HttpPost, ActionName("Eliminar")]
-        public ActionResult Eliminar_Confirmacion(int codigo)
+        public ActionResult Eliminar_Confirmacion(int id)
         {
             Usuario objUsu = new Usuario();
-            objUsu.IdUsuario = codigo;
+            objUsu.IdUsuario = id;
 
             int procesar = servicio.operacionesEscritura("ELIMINAR", objUsu);
             if (procesar >= 0)
