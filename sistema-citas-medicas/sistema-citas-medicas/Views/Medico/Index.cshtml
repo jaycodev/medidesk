@@ -1,0 +1,64 @@
+﻿@model IEnumerable<sistema_citas_medicas.Models.Medico>
+
+@{
+  ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+  @Html.ActionLink("Create New", "Create")
+</p>
+
+<form>
+  @Html.TextBox("txtnom", "", new { @class = "form-control" })
+  <button class="btn btn-primary">Consultar</button>
+</form>
+
+<table class="table">
+  <tr>
+    <th>
+      @Html.DisplayNameFor(model => model.Nombre)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.Apellido)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.Correo)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.Telefono)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.EspecialidadNombre)
+    </th>
+    <th></th>
+  </tr>
+
+  @foreach (var item in Model)
+  {
+    <tr>
+      <td>
+        @Html.DisplayFor(modelItem => item.Nombre)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.Apellido)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.Correo)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.Telefono)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.EspecialidadNombre)
+      </td>
+      <td>
+        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+      </td>
+    </tr>
+  }
+
+</table>

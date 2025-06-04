@@ -10,5 +10,6 @@ namespace sistema_citas_medicas.Models
     {
         [Required]
         public int IdEspecialidad { get; set; }
+        public string EspecialidadNombre { get; set; }
     }
 }

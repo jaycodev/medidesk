@@ -124,10 +124,13 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HorarioDisponibleController.cs" />
+    <Compile Include="Controllers\MedicoController.cs" />
     <Compile Include="Controllers\UsuarioController.cs" />
     <Compile Include="Dao\DaoImpl\HorarioDisponibleDaoImpl.cs" />
+    <Compile Include="Dao\DaoImpl\MedicoDaoImpl.cs" />
     <Compile Include="Dao\DaoImpl\UsuarioDaoImpl.cs" />
     <Compile Include="Dao\IHorarioDisponibleDao.cs" />
+    <Compile Include="Dao\IMedicoDao.cs" />
     <Compile Include="Dao\IUsuarioDao.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -180,6 +183,7 @@
     <Content Include="Views\Usuario\Detalle.cshtml" />
     <Content Include="Views\Usuario\Eliminar.cshtml" />
     <Content Include="Views\HorarioDisponible\CrearOModificarHorario.cshtml" />
+    <Content Include="Views\Medico\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
