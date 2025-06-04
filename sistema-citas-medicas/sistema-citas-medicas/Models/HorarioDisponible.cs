@@ -8,21 +8,25 @@ namespace sistema_citas_medicas.Models
 {
     public class HorarioDisponible
     {
-        [Required]
+        [Display(Name = "ID horario")]
         public int IdHorario { get; set; }
 
-        [Required]
+        [Display(Name = "Médico")]
+        [Required(ErrorMessage = "Ingrese un médico")]
         public int IdMedico { get; set; }
 
-        [Required]
+        [Display(Name = "Día de la semana")]
+        [Required(ErrorMessage = "Ingrese un día")]
         [StringLength(10)]
         public string DiaSemana { get; set; }
 
+        [Display(Name = "Hora de inicio")]
+        [Required(ErrorMessage = "Ingrese una hora de inicio")]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}")]
-        [Required]
         public TimeSpan HoraInicio { get; set; }
 
-        [Required]
+        [Display(Name = "Hora de fin")]
+        [Required(ErrorMessage = "Ingrese una hora de fin")]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}")]
         public TimeSpan HoraFin { get; set; }
 
