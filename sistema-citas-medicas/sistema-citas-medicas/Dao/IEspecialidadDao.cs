@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI;
 
 namespace sistema_citas_medicas.Dao
 {
-    internal interface IMedicoDao
+    internal interface IEspecialidadDao
     {
-        int operacionesEscritura(string indicador, Medico objMedico);
-        List<Medico> operacionesLectura(string indicador, Medico objMedico);
+        int operacionesEscritura(string indicador, Especialidad objEspec);
+
+        List<Especialidad> operacionesLectura(string indicador, Especialidad objEspec);
     }
 }

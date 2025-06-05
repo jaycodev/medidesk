@@ -1,46 +1,24 @@
-﻿@model IEnumerable<sistema_citas_medicas.Models.Medico>
+﻿@model IEnumerable<sistema_citas_medicas.Models.Especialidad>
 
 @{
   ViewBag.Title = "Index";
 }
 
-<h2>Lista Médico</h2>
+<h2>Index</h2>
 
 <p>
-  @Html.ActionLink("Create New", "Crear")
+  @Html.ActionLink("Agregar Especialidad", "Crear")
 </p>
-
 <table class="table">
   <tr>
     <th>
-      @Html.DisplayNameFor(model => model.IdUsuario)
+      @Html.DisplayNameFor(model => model.IdEspecialidad)
     </th>
     <th>
       @Html.DisplayNameFor(model => model.Nombre)
     </th>
     <th>
-      @Html.DisplayNameFor(model => model.Apellido)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Correo)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Contraseña)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Telefono)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Rol)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.FotoPerfil)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.IdEspecialidad)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.EspecialidadNombre)
+      @Html.DisplayNameFor(model => model.Descripcion)
     </th>
     <th></th>
   </tr>
@@ -49,42 +27,23 @@
   {
     <tr>
       <td>
-        @Html.DisplayFor(modelItem => item.IdUsuario)
+        @Html.DisplayFor(modelItem => item.IdEspecialidad)
       </td>
       <td>
         @Html.DisplayFor(modelItem => item.Nombre)
       </td>
       <td>
-        @Html.DisplayFor(modelItem => item.Apellido)
+        @Html.DisplayFor(modelItem => item.Descripcion)
       </td>
       <td>
-        @Html.DisplayFor(modelItem => item.Correo)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Contraseña)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Telefono)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Rol)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.FotoPerfil)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.EspecialidadNombre)
-      </td>
-      <td>
-        @Html.ActionLink("Editar", "Editar", new { id = item.IdUsuario }) |
-        @Html.ActionLink("Detalle", "Detalle", new { id = item.IdUsuario }) |
-        @Html.ActionLink("Eliminar", "Eliminar", new { id = item.IdUsuario })
+        @Html.ActionLink("Ediar", "Editar", new { id = item.IdEspecialidad }) |
+        @Html.ActionLink("Detalle", "Detalle", new { id = item.IdEspecialidad }) |
+        @Html.ActionLink("Eliminar", "Eliminar", new { id = item.IdEspecialidad })
       </td>
     </tr>
   }
 
 </table>
-
 
 @section Scripts {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
