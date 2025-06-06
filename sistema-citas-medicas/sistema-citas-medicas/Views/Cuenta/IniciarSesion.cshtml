@@ -22,7 +22,7 @@
             <div class="row g-0 min-vh-100">
                 <!-- Lado izquierdo: imagen completa -->
                 <div class="col-12 col-md-6 d-none d-md-block">
-                    <img src="~/Content/Img/login.jpg" alt="Imagen de inicio" class="img-fluid w-100 h-100 object-fit-cover" />
+                    <img src="~/Content/Img/login-foto.jpg" alt="Imagen de inicio" class="img-fluid w-100 h-100 object-fit-cover" />
                 </div>
 
                 <!-- Lado derecho: formulario -->
@@ -34,7 +34,7 @@
 
                         <h3 class="mb-4 text-center text-body-emphasis">Iniciar sesión</h3>
 
-                        @using (Html.BeginForm("Index", "Cuenta", FormMethod.Post))
+                        @using (Html.BeginForm("IniciarSesion", "Cuenta", FormMethod.Post))
                         {
                             @Html.AntiForgeryToken()
 
@@ -66,7 +66,7 @@
                         }
 
                         <div class="text-center">
-                            <p class="small m-0 text-body-secondary">¿No tienes una cuenta? <a href="#!" class="link-primary text-decoration-none">Crea una aquí</a></p>
+                            <p class="small m-0 text-body-secondary">¿No tienes una cuenta? <a href="@Url.Action("Registrar", "Cuenta")" class="link-primary text-decoration-none">Crea una aquí</a></p>
                         </div>
                     </div>
                 </div>

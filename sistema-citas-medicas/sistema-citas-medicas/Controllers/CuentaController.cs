@@ -12,5 +12,10 @@ namespace sistema_citas_medicas.Controllers
         {
             return View();
         }
+
+        public ActionResult Registrar()
+        {
+            return View();
+        }
     }
 }
