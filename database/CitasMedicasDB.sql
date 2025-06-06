@@ -231,3 +231,202 @@ BEGIN
     END
 END;
 GO
+-- =============================================
+-- PROCEDIMIENTO: usp_citas_crud
+-- DESCRIPCIÓN : CRUD para la tabla Citas
+-- PARÁMETROS  : Indicador, Datos de las citas
+-- =============================================
+USE CitasMedicasDB
+GO
+
+CREATE OR ALTER PROCEDURE usp_citas_crud
+    @indicador VARCHAR(50),
+    @id_cita INT = NULL,
+    @id_medico INT = NULL,
+	@id_paciente INT = NULL,
+	@id_especialidad INT = NULL,
+    @fecha Date = NULL,
+    @hora TIME(7) = NULL,
+	@tipo_consulta VARCHAR(20) = NULL,
+    @sintomas TEXT = NULL,
+    @estado VARCHAR(20) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @indicador = 'INSERTAR'
+    BEGIN
+        INSERT INTO Citas(id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta,sintomas, estado)
+        VALUES (@id_medico, @id_paciente, @id_especialidad, @fecha, @hora, @tipo_consulta,@sintomas, @estado);
+    END
+
+    IF @indicador = 'ACTUALIZAR'
+    BEGIN
+        UPDATE Citas
+        SET id_medico = @id_medico,
+            id_paciente = @id_paciente,
+            id_especialidad = @id_especialidad,
+            fecha = @fecha,
+            hora = @hora,
+            tipo_consulta = @tipo_consulta,
+            sintomas = @sintomas,
+			estado = @estado
+        WHERE id_cita = @id_cita;
+    END
+
+    ELSE IF @indicador = 'ELIMINAR'
+    BEGIN
+        UPDATE Citas
+		SET estado = 'cancelada'
+        WHERE id_cita = @id_cita
+    END
+    ELSE IF @indicador = 'CONSULTAR_TODO'
+	BEGIN
+    SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad;
+	END
+	ELSE IF @indicador = 'CONSULTAR_TODO_PENDIENTE'
+    BEGIN
+        SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+        WHERE c.estado = 'pendiente';
+    END
+	ELSE IF @indicador = 'CONSULTAR_TODO_CONFIRMADA'
+    BEGIN
+        SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+        WHERE c.estado = 'confirmada';
+    END
+	ELSE IF @indicador = 'CONSULTAR_TODOXID'
+	BEGIN
+    SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+		WHERE c.id_cita = @id_cita
+	END
+	ELSE IF @indicador = 'COMBO_TIPO_CONSULTA'
+    BEGIN
+        SELECT * FROM Citas
+        WHERE tipo_consulta = @tipo_consulta;
+    END
+END;
+GO
+
+-- =============================================
+-- PROCEDIMIENTO: INSERTS PARA PRUEBAS CON CITAS
+-- DESCRIPCIÓN : PRUEBAS
+-- PARÁMETROS  : INSERTS
+-- =============================================
+
+-- ADMIN
+INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
+VALUES ('Luis', 'Salazar', 'admin@clinicapp.com', 'admin123', '999999999', 'administrador', NULL);
+
+-- MÉDICO
+INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
+VALUES ('Dra. Ana', 'Sánchez', 'ana.sanchez@clinicapp.com', 'medico123', '988888888', 'medicos', NULL);
+
+-- PACIENTE
+INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
+VALUES ('Carlos', 'Pérez', 'carlos.perez@clinicapp.com', 'paciente123', '977777777', 'pacientes', NULL);
+
+INSERT INTO Especialidades (nombre, descripcion)
+VALUES ('Pediatría', 'Especialidad médica dedicada a la atención de niños');
+
+INSERT INTO Medicos (id_usuario, id_especialidad)
+VALUES (3, 1); -- 2 = id_usuario de la Dra. Ana
+
+INSERT INTO Pacientes (id_usuario, fecha_nacimiento, grupo_sanguineo)
+VALUES (4, '1995-06-01', 'O+'); -- 3 = id_usuario de Carlos Pérez
+
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-05', '10:30:00', 'consulta', 'Dolor de cabeza persistente', 'pendiente');
+
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-05', '10:30:00', 'consulta', 'Dolor de cabeza persistente', 'pendiente');
+
+-- CITA 1
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-07', '09:00:00', 'consulta', 'Fiebre y malestar general', 'pendiente');
+
+-- CITA 2
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-08', '11:30:00', 'examen', 'Chequeo general anual', 'confirmada');
+
+-- CITA 3
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-09', '15:00:00', 'operacion', 'Cirugía menor programada', 'pendiente');
+
+-- CITA 4
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-10', '13:45:00', 'consulta', 'Control postoperatorio', 'confirmada');
+
+-- CITA 5
+INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
+VALUES (3, 4, 1, '2025-06-11', '08:15:00', 'examen', 'Análisis de sangre de rutina', 'pendiente');
+
+USE CitasMedicasDB;
+SELECT * FROM Citas;
+SELECT * FROM Pacientes;
+
+UPDATE Citas
+		SET estado = 'cancelada'
+        WHERE id_cita = 8
