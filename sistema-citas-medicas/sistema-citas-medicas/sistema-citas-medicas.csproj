@@ -122,6 +122,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\CuentaController.cs" />
     <Compile Include="Controllers\EspecialidadController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HorarioDisponibleController.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Servicio\ServicioUsuario.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Img\login.jpg" />
     <Content Include="Content\Icons\logo-dark.svg" />
     <Content Include="Content\Icons\logo-light.svg" />
     <Content Include="favicon.ico" />
@@ -198,6 +200,7 @@
     <Content Include="Views\Medico\Eliminar.cshtml" />
     <Content Include="Views\Medico\Detalle.cshtml" />
     <Content Include="Views\Especialidad\Detalle.cshtml" />
+    <Content Include="Views\Cuenta\IniciarSesion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
