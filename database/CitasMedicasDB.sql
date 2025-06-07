@@ -237,7 +237,6 @@ GO
 -- DESCRIPCIÓN : CRUD para la tabla Medicos
 -- PARÁMETROS  : indicador de acción, datos de Medicos
 -- =============================================
-
 CREATE OR ALTER PROC usp_medico_crud
     @indicador VARCHAR(20),
     @id_usuario INT = NULL,
@@ -323,7 +322,6 @@ BEGIN
 END
 GO
 
-
 -- =============================================
 -- PROCEDIMIENTO: usp_especialidad_crud
 -- DESCRIPCIÓN : CRUD para la tabla Especialidades
@@ -362,4 +360,140 @@ BEGIN
         DELETE FROM Especialidades WHERE id_especialidad = @id_especialidad;
     END
 END
-go
+GO
+
+-- =============================================
+-- PROCEDIMIENTO: usp_citas_crud
+-- DESCRIPCIÓN : CRUD para la tabla Citas
+-- PARÁMETROS  : Indicador, Datos de las citas
+-- =============================================
+CREATE OR ALTER PROCEDURE usp_citas_crud
+    @indicador VARCHAR(50),
+    @id_cita INT = NULL,
+    @id_medico INT = NULL,
+	@id_paciente INT = NULL,
+	@id_especialidad INT = NULL,
+    @fecha Date = NULL,
+    @hora TIME(7) = NULL,
+	@tipo_consulta VARCHAR(20) = NULL,
+    @sintomas TEXT = NULL,
+    @estado VARCHAR(20) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @indicador = 'INSERTAR'
+    BEGIN
+        INSERT INTO Citas(id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta,sintomas, estado)
+        VALUES (@id_medico, @id_paciente, @id_especialidad, @fecha, @hora, @tipo_consulta,@sintomas, @estado);
+    END
+
+    IF @indicador = 'ACTUALIZAR'
+    BEGIN
+        UPDATE Citas
+        SET id_medico = @id_medico,
+            id_paciente = @id_paciente,
+            id_especialidad = @id_especialidad,
+            fecha = @fecha,
+            hora = @hora,
+            tipo_consulta = @tipo_consulta,
+            sintomas = @sintomas,
+			estado = @estado
+        WHERE id_cita = @id_cita;
+    END
+
+    ELSE IF @indicador = 'ELIMINAR'
+    BEGIN
+        UPDATE Citas
+		SET estado = 'cancelada'
+        WHERE id_cita = @id_cita
+    END
+    ELSE IF @indicador = 'CONSULTAR_TODO'
+	BEGIN
+    SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad;
+	END
+	ELSE IF @indicador = 'CONSULTAR_TODO_PENDIENTE'
+    BEGIN
+        SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+        WHERE c.estado = 'pendiente';
+    END
+	ELSE IF @indicador = 'CONSULTAR_TODO_CONFIRMADA'
+    BEGIN
+        SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+        WHERE c.estado = 'confirmada';
+    END
+	ELSE IF @indicador = 'CONSULTAR_TODOXID'
+	BEGIN
+    SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+		WHERE c.id_cita = @id_cita
+	END
+	ELSE IF @indicador = 'COMBO_TIPO_CONSULTA'
+    BEGIN
+        SELECT * FROM Citas
+        WHERE tipo_consulta = @tipo_consulta;
+    END
+END;
+GO

@@ -1,0 +1,61 @@
+﻿@model IEnumerable<sistema_citas_medicas.Models.Cita>
+
+@{
+    ViewBag.Title = "CitasConfirmadas";
+}
+
+<h2>CitasConfirmadas</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.NomMedico)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NomPaciente)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NomEspecialidad)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Fecha)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TipoConsulta)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Estado)
+        </th>
+        <th>OPCIONES</th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.NomMedico)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.NomPaciente)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.NomEspecialidad)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Fecha)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TipoConsulta)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Estado)
+        </td>
+        <td>
+            @Html.ActionLink("DetallesCita", "DetallesCita", new { id = item.IdCita })
+        </td>
+    </tr>
+}
+
+</table>
