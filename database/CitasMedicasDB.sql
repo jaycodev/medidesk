@@ -231,14 +231,142 @@ BEGIN
     END
 END;
 GO
+
+-- =============================================
+-- PROCEDIMIENTO: usp_medico_crud
+-- DESCRIPCIÓN : CRUD para la tabla Medicos
+-- PARÁMETROS  : indicador de acción, datos de Medicos
+-- =============================================
+CREATE OR ALTER PROC usp_medico_crud
+    @indicador VARCHAR(20),
+    @id_usuario INT = NULL,
+    @nombre VARCHAR(100) = NULL,
+    @apellido VARCHAR(100) = NULL,
+    @correo VARCHAR(100) = NULL,
+    @contraseña VARCHAR(100) = NULL,
+    @telefono VARCHAR(20) = NULL,
+    @id_especialidad INT = NULL,
+	@foto_perfil VARCHAR(255) = NULL,
+	@rol varchar(20) = 'medicos'
+AS
+BEGIN
+	IF @indicador = 'INSERTAR'
+    BEGIN
+        INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, foto_perfil, rol )
+        VALUES (@nombre, @apellido, @correo, @contraseña, @telefono, @foto_perfil, @rol);
+
+		SET @id_usuario = SCOPE_IDENTITY();
+
+        INSERT INTO Medicos (id_usuario, id_especialidad)
+        VALUES (@id_usuario, @id_especialidad);
+    END
+	IF @indicador = 'ACTUALIZAR'
+	BEGIN
+		UPDATE Usuarios
+		SET nombre = @nombre,
+            apellido = @apellido,
+            correo = @correo,
+            contraseña = @contraseña,
+            telefono = @telefono,
+			foto_perfil = @foto_perfil
+        WHERE id_usuario = @id_usuario and
+			rol = @rol
+		UPDATE Medicos
+        SET id_especialidad = @id_especialidad
+        WHERE id_usuario = @id_usuario;
+
+	END
+	IF @indicador = 'ELIMINAR'
+    BEGIN
+		DELETE FROM Citas WHERE id_medico = @id_usuario;
+        DELETE FROM Medicos WHERE id_usuario = @id_usuario
+		DELETE FROM Usuarios WHERE id_usuario = @id_usuario
+    END
+
+    IF @indicador = 'CONSULTAR_TODO'
+    BEGIN
+        SELECT 
+            M.id_usuario,
+            U.nombre, 
+            U.apellido, 
+            U.correo, 
+			U.contraseña,
+            U.telefono,
+			U.foto_perfil,
+			U.rol,
+			M.id_especialidad,
+            E.nombre as especialidad
+        FROM Medicos M
+        INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
+        INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
+        WHERE @nombre = '' or U.nombre like concat(@nombre, '%')
+    END
+	IF @indicador = 'CONSULTAR_X_ID'
+    BEGIN
+        SELECT 
+            M.id_usuario,
+            U.nombre, 
+            U.apellido, 
+            U.correo, 
+			U.contraseña,
+            U.telefono,
+			U.foto_perfil,
+			U.rol,
+			M.id_especialidad,
+            E.nombre as especialidad
+        FROM Medicos M
+        INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
+        INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
+		WHERE M.id_usuario = @id_usuario
+    END
+END
+GO
+
+-- =============================================
+-- PROCEDIMIENTO: usp_especialidad_crud
+-- DESCRIPCIÓN : CRUD para la tabla Especialidades
+-- PARÁMETROS  : indicador de acción, datos de Especialidades
+-- =============================================
+CREATE OR ALTER PROC usp_especialidad_crud
+@indicador VARCHAR(20),
+@id_especialidad INT = NULL,
+@nombre VARCHAR(100) = NULL,
+@descripcion VARCHAR(255) = NULL
+AS
+BEGIN
+	IF @indicador = 'CONSULTAR_TODO'
+    BEGIN
+        SELECT * FROM  Especialidades
+	END
+	IF @indicador = 'CONSULTAR_X_ID'
+    BEGIN
+        SELECT * FROM  Especialidades
+		WHERE id_especialidad = @id_especialidad
+	END
+	IF @indicador = 'INSERTAR'
+    BEGIN
+        INSERT INTO Especialidades (nombre, descripcion)
+        VALUES (@nombre, @descripcion)
+    END
+	IF @indicador = 'ACTUALIZAR'
+    BEGIN
+        UPDATE Especialidades
+        SET nombre = @nombre,
+            descripcion = @descripcion
+        WHERE id_especialidad = @id_especialidad;
+    END
+	IF @indicador = 'ELIMINAR'
+    BEGIN
+        DELETE FROM Especialidades WHERE id_especialidad = @id_especialidad;
+    END
+END
+GO
+
 -- =============================================
 -- PROCEDIMIENTO: usp_citas_crud
 -- DESCRIPCIÓN : CRUD para la tabla Citas
 -- PARÁMETROS  : Indicador, Datos de las citas
 -- =============================================
-USE CitasMedicasDB
-GO
-
 CREATE OR ALTER PROCEDURE usp_citas_crud
     @indicador VARCHAR(50),
     @id_cita INT = NULL,
@@ -369,64 +497,3 @@ BEGIN
     END
 END;
 GO
-
--- =============================================
--- PROCEDIMIENTO: INSERTS PARA PRUEBAS CON CITAS
--- DESCRIPCIÓN : PRUEBAS
--- PARÁMETROS  : INSERTS
--- =============================================
-
--- ADMIN
-INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
-VALUES ('Luis', 'Salazar', 'admin@clinicapp.com', 'admin123', '999999999', 'administrador', NULL);
-
--- MÉDICO
-INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
-VALUES ('Dra. Ana', 'Sánchez', 'ana.sanchez@clinicapp.com', 'medico123', '988888888', 'medicos', NULL);
-
--- PACIENTE
-INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
-VALUES ('Carlos', 'Pérez', 'carlos.perez@clinicapp.com', 'paciente123', '977777777', 'pacientes', NULL);
-
-INSERT INTO Especialidades (nombre, descripcion)
-VALUES ('Pediatría', 'Especialidad médica dedicada a la atención de niños');
-
-INSERT INTO Medicos (id_usuario, id_especialidad)
-VALUES (3, 1); -- 2 = id_usuario de la Dra. Ana
-
-INSERT INTO Pacientes (id_usuario, fecha_nacimiento, grupo_sanguineo)
-VALUES (4, '1995-06-01', 'O+'); -- 3 = id_usuario de Carlos Pérez
-
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-05', '10:30:00', 'consulta', 'Dolor de cabeza persistente', 'pendiente');
-
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-05', '10:30:00', 'consulta', 'Dolor de cabeza persistente', 'pendiente');
-
--- CITA 1
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-07', '09:00:00', 'consulta', 'Fiebre y malestar general', 'pendiente');
-
--- CITA 2
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-08', '11:30:00', 'examen', 'Chequeo general anual', 'confirmada');
-
--- CITA 3
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-09', '15:00:00', 'operacion', 'Cirugía menor programada', 'pendiente');
-
--- CITA 4
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-10', '13:45:00', 'consulta', 'Control postoperatorio', 'confirmada');
-
--- CITA 5
-INSERT INTO Citas (id_medico, id_paciente, id_especialidad, fecha, hora, tipo_consulta, sintomas, estado)
-VALUES (3, 4, 1, '2025-06-11', '08:15:00', 'examen', 'Análisis de sangre de rutina', 'pendiente');
-
-USE CitasMedicasDB;
-SELECT * FROM Citas;
-SELECT * FROM Pacientes;
-
-UPDATE Citas
-		SET estado = 'cancelada'
-        WHERE id_cita = 8
