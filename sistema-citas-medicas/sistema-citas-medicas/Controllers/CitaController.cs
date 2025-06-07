@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using sistema_citas_medicas.Models;
 using sistema_citas_medicas.Servicio;
@@ -11,7 +10,7 @@ namespace sistema_citas_medicas.Controllers
     public class CitaController : Controller
     {
         ServicioCitas servicio = new ServicioCitas();
-        ServicioEspecialidad servicioesp = new ServicioEspecialidad();
+        // ServicioEspecialidad servicioesp = new ServicioEspecialidad();
 
         public ActionResult HistorialdeCitas()
         {
@@ -52,7 +51,7 @@ namespace sistema_citas_medicas.Controllers
         public ActionResult Crear()
         {
             ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
-            ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura(), "IdEspecialidad", "Nombre");
+            // ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura(), "IdEspecialidad", "Nombre");
             return View(new Cita());
         }
 
@@ -61,7 +60,7 @@ namespace sistema_citas_medicas.Controllers
         {
             int procesar = servicio.operacionesEscritura("INSERTAR", citita);
             ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
-            ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura(), "IdEspecialidad", "Nombre");
+            // ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura(), "IdEspecialidad", "Nombre");
 
             if (procesar >= 0)
             {
@@ -84,23 +83,23 @@ namespace sistema_citas_medicas.Controllers
         }
 
         [HttpPost, ActionName("EliminarCita")]
-            public ActionResult EliminarCita_Confirmar(int id)
-            {
-                Cita cita = BuscarID(id);
+        public ActionResult EliminarCita_Confirmar(int id)
+        {
+            Cita cita = BuscarID(id);
 
-                try
+            try
+            {
+                int procesar = servicio.operacionesEscritura("ELIMINAR", cita);
+                if (procesar >= 0)
                 {
-                    int procesar = servicio.operacionesEscritura("ELIMINAR", cita);
-                    if (procesar >= 0)
-                    {
-                        return RedirectToAction("CitasPendiente");
-                    }
+                    return RedirectToAction("CitasPendiente");
                 }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "No se pudo eliminar el cita.");
-                }
-                return RedirectToAction("CitasPendiente");
             }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "No se pudo eliminar el cita.");
+            }
+            return RedirectToAction("CitasPendiente");
         }
     }
+}

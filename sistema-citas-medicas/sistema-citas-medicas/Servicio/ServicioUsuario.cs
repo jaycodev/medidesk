@@ -21,4 +21,3 @@ namespace sistema_citas_medicas.Servicio
         }
     }
 }
-

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using sistema_citas_medicas.Models;
 
 namespace sistema_citas_medicas.Dao.DaoImpl
@@ -89,6 +86,5 @@ namespace sistema_citas_medicas.Dao.DaoImpl
             }
             return lista;
         }
-
     }
 }
