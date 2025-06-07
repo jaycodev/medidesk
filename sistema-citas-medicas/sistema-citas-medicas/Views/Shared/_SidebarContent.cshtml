@@ -35,9 +35,15 @@
             </ul>
         </div>
     </li>
-
     <li>
         <a href="#" class="nav-link link-body-emphasis">
+            <i class="fa-solid fa-calendar-check me-2 icon"></i>
+            Reservar cita
+        </a>
+    </li>
+    <li>
+        <a href="@Url.Action("Index", "Medico")"
+           class="nav-link @(currentController == "Medico" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-user-doctor me-2 icon"></i>
             Médicos
         </a>
@@ -49,7 +55,8 @@
         </a>
     </li>
     <li>
-        <a href="#" class="nav-link link-body-emphasis">
+        <a href="@Url.Action("Index", "Especialidad")"
+           class="nav-link @(currentController == "Especialidad" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-stethoscope me-2 icon"></i>
             Especialidades
         </a>
