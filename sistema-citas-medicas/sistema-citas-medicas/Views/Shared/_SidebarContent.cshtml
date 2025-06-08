@@ -1,85 +1,14 @@
 ﻿@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-}
 
-<ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item">
-        <a href="@Url.Action("Index", "Home")"
-           class="nav-link @(currentController == "Dashboard" ? "active" : "link-body-emphasis")"
-           aria-current="page">
-            <i class="fa-solid fa-gauge me-2 icon"></i>
-            Dashboard
-        </a>
-    </li>
+    var isCitasSection = currentController == "Cita" && (
+        currentAction == "CitasConfirmadas" ||
+        currentAction == "CitasPendiente" ||
+        currentAction == "HistorialdeCitas"
+    );
 
-    <!-- Citas médicas con submenú -->
-    <li>
-        <a class="nav-link link-body-emphasis d-flex justify-content-between align-items-center"
-           data-bs-toggle="collapse"
-           href="#submenuCitas"
-           role="button"
-           aria-expanded="true"
-           aria-controls="submenuCitas">
-            <span>
-                <i class="fa-solid fa-notes-medical me-2 icon"></i>
-                Citas médicas
-            </span>
-            <i class="fa-solid fa-chevron-down small transition"></i>
-        </a>
-        <div class="collapse show ps-4" id="submenuCitas">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="nav-link link-body-emphasis ms-2">Mis citas</a></li>
-                <li><a href="#" class="nav-link link-body-emphasis ms-2">Citas pendientes</a></li>
-                <li><a href="#" class="nav-link link-body-emphasis ms-2">Historial de citas</a></li>
-            </ul>
-        </div>
-    </li>
-    <li>
-        <a href="#" class="nav-link link-body-emphasis">
-            <i class="fa-solid fa-calendar-check me-2 icon"></i>
-            Reservar cita
-        </a>
-    </li>
-    <li>
-        <a href="@Url.Action("Index", "Medico")"
-           class="nav-link @(currentController == "Medico" ? "active" : "link-body-emphasis")">
-            <i class="fa-solid fa-user-doctor me-2 icon"></i>
-            Médicos
-        </a>
-    </li>
-    <li>
-        <a href="#" class="nav-link link-body-emphasis">
-            <i class="fa-solid fa-bed-pulse me-2 icon"></i>
-            Pacientes
-        </a>
-    </li>
-    <li>
-        <a href="@Url.Action("Index", "Especialidad")"
-           class="nav-link @(currentController == "Especialidad" ? "active" : "link-body-emphasis")">
-            <i class="fa-solid fa-stethoscope me-2 icon"></i>
-            Especialidades
-        </a>
-    </li>
-    <li>
-        <a href="@Url.Action("CrearOModificarHorario", "HorarioDisponible")"
-           class="nav-link @(currentController == "HorarioDisponible" ? "active" : "link-body-emphasis")">
-            <i class="fa-solid fa-calendar-week me-2 icon"></i>
-            Horarios disponibles
-        </a>
-    </li>
-    <li>
-        <a href="@Url.Action("Index", "Usuario")"
-           class="nav-link @(currentController == "Usuario" ? "active" : "link-body-emphasis")">
-            <i class="fa-solid fa-users me-2 icon"></i>
-            Usuarios
-        </a>
-    </li>
-</ul>
-
-@{
     string saludo;
-
     if (DateTime.Now.Hour < 12)
     {
         saludo = "Buenos días";
@@ -93,6 +22,102 @@
         saludo = "Buenas noches";
     }
 }
+
+<ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+        <a href="@Url.Action("Index", "Home")"
+           class="nav-link @(currentController == "Dashboard" ? "active" : "link-body-emphasis")"
+           aria-current="page">
+            <i class="fa-solid fa-gauge me-2 icon"></i>
+            Dashboard
+        </a>
+    </li>
+
+    <!-- Citas médicas con submenú siempre expandido -->
+    <li class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center @(isCitasSection ? "active" : "link-body-emphasis")"
+           data-bs-toggle="collapse"
+           href="#submenuCitas"
+           role="button"
+           aria-expanded="true"
+           aria-controls="submenuCitas">
+            <span>
+                <i class="fa-solid fa-notes-medical me-2 icon"></i>
+                Citas médicas
+            </span>
+            <i class="fa-solid fa-chevron-down small transition"></i>
+        </a>
+        <div class="collapse show ps-4" id="submenuCitas">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li>
+                    <a href="@Url.Action("CitasConfirmadas", "Cita")"
+                       class="nav-link ms-2 @(currentAction == "CitasConfirmadas" ? "" : "link-body-emphasis")">
+                        Mis citas
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("CitasPendiente", "Cita")"
+                       class="nav-link ms-2 @(currentAction == "CitasPendiente" ? "" : "link-body-emphasis")">
+                        Citas pendientes
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("HistorialdeCitas", "Cita")"
+                       class="nav-link ms-2 @(currentAction == "HistorialdeCitas" ? "" : "link-body-emphasis")">
+                        Historial de citas
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </li>
+
+    <li>
+        <a href="@Url.Action("ReservarCita", "Cita")"
+           class="nav-link @(currentController == "Cita" && currentAction == "ReservarCita" ? "active" : "link-body-emphasis")">
+            <i class="fa-solid fa-calendar-check me-2 icon"></i>
+            Reservar cita
+        </a>
+    </li>
+
+    <li>
+        <a href="@Url.Action("Index", "Medico")"
+           class="nav-link @(currentController == "Medico" ? "active" : "link-body-emphasis")">
+            <i class="fa-solid fa-user-doctor me-2 icon"></i>
+            Médicos
+        </a>
+    </li>
+
+    <li>
+        <a href="#" class="nav-link link-body-emphasis">
+            <i class="fa-solid fa-bed-pulse me-2 icon"></i>
+            Pacientes
+        </a>
+    </li>
+
+    <li>
+        <a href="@Url.Action("Index", "Especialidad")"
+           class="nav-link @(currentController == "Especialidad" ? "active" : "link-body-emphasis")">
+            <i class="fa-solid fa-stethoscope me-2 icon"></i>
+            Especialidades
+        </a>
+    </li>
+
+    <li>
+        <a href="@Url.Action("CrearOModificarHorario", "HorarioDisponible")"
+           class="nav-link @(currentController == "HorarioDisponible" ? "active" : "link-body-emphasis")">
+            <i class="fa-solid fa-calendar-week me-2 icon"></i>
+            Horarios disponibles
+        </a>
+    </li>
+
+    <li>
+        <a href="@Url.Action("Index", "Usuario")"
+           class="nav-link @(currentController == "Usuario" ? "active" : "link-body-emphasis")">
+            <i class="fa-solid fa-users me-2 icon"></i>
+            Usuarios
+        </a>
+    </li>
+</ul>
 
 <!-- Sesión iniciada -->
 <div class="text-muted small">

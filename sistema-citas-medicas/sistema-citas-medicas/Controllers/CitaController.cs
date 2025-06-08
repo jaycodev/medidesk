@@ -10,7 +10,7 @@ namespace sistema_citas_medicas.Controllers
     public class CitaController : Controller
     {
         ServicioCitas servicio = new ServicioCitas();
-        // ServicioEspecialidad servicioesp = new ServicioEspecialidad();
+        ServicioEspecialidad servicioesp = new ServicioEspecialidad();
 
         public ActionResult HistorialdeCitas()
         {
@@ -51,7 +51,7 @@ namespace sistema_citas_medicas.Controllers
         public ActionResult Crear()
         {
             ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
-            // ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura(), "IdEspecialidad", "Nombre");
+            ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura("CONSULTAR_TODO", new Especialidad()), "IdEspecialidad", "Nombre");
             return View(new Cita());
         }
 
@@ -60,7 +60,7 @@ namespace sistema_citas_medicas.Controllers
         {
             int procesar = servicio.operacionesEscritura("INSERTAR", citita);
             ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
-            // ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura(), "IdEspecialidad", "Nombre");
+            ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura("CONSULTAR_TODO", new Especialidad()), "IdEspecialidad", "Nombre");
 
             if (procesar >= 0)
             {
