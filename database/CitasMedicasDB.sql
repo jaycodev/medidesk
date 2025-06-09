@@ -497,3 +497,57 @@ BEGIN
     END
 END;
 GO
+CREATE or ALTER PROCEDURE usp_RegistrarPaciente
+    @Nombre VARCHAR(100),
+    @Apellido VARCHAR(100),
+    @Correo VARCHAR(100),
+    @Contraseña VARCHAR(100),
+    @Telefono VARCHAR(20) = NULL,
+    @FotoPerfil VARCHAR(255) = NULL,
+    @FechaNacimiento DATE,
+    @GrupoSanguineo VARCHAR(3),
+    @IdUsuario INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- 1. Insertar en Usuarios
+        INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
+        VALUES (@Nombre, @Apellido, @Correo, @Contraseña, @Telefono, 'pacientes', @FotoPerfil);
+
+        -- Obtener el ID generado
+        SET @IdUsuario = SCOPE_IDENTITY();
+
+        -- 2. Insertar en Pacientes
+        INSERT INTO Pacientes (id_usuario, fecha_nacimiento, grupo_sanguineo)
+        VALUES (@IdUsuario, @FechaNacimiento, @GrupoSanguineo);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+CREATE OR ALTER PROCEDURE usp_ListarPacientes
+AS
+BEGIN
+    SELECT 
+        u.id_usuario,
+        u.nombre,
+        u.apellido,
+        u.correo,
+        u.contraseña,
+        u.telefono,
+        u.foto_perfil,
+        p.fecha_nacimiento,
+        p.grupo_sanguineo
+    FROM Usuarios u
+    INNER JOIN Pacientes p ON u.id_usuario = p.id_usuario
+    WHERE u.rol = 'pacientes'
+END;
+GO
