@@ -252,25 +252,21 @@ AS
 BEGIN
 	IF @indicador = 'INSERTAR'
     BEGIN
-        INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, foto_perfil, rol )
-        VALUES (@nombre, @apellido, @correo, @contraseña, @telefono, @foto_perfil, @rol);
+		IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE correo = @correo or contraseña = @contraseña)
+		BEGIN
+			INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, foto_perfil, rol )
+			VALUES (@nombre, @apellido, @correo, @contraseña, @telefono, @foto_perfil, @rol);
 
-		SET @id_usuario = SCOPE_IDENTITY();
-
-        INSERT INTO Medicos (id_usuario, id_especialidad)
-        VALUES (@id_usuario, @id_especialidad);
-    END
+			SET @id_usuario = SCOPE_IDENTITY();
+			IF @id_usuario IS NOT NULL
+			BEGIN
+				INSERT INTO Medicos (id_usuario, id_especialidad)
+				VALUES (@id_usuario, @id_especialidad);
+			END
+		END
+	END
 	IF @indicador = 'ACTUALIZAR'
 	BEGIN
-		UPDATE Usuarios
-		SET nombre = @nombre,
-            apellido = @apellido,
-            correo = @correo,
-            contraseña = @contraseña,
-            telefono = @telefono,
-			foto_perfil = @foto_perfil
-        WHERE id_usuario = @id_usuario and
-			rol = @rol
 		UPDATE Medicos
         SET id_especialidad = @id_especialidad
         WHERE id_usuario = @id_usuario;
@@ -278,9 +274,9 @@ BEGIN
 	END
 	IF @indicador = 'ELIMINAR'
     BEGIN
-		DELETE FROM Citas WHERE id_medico = @id_usuario;
-        DELETE FROM Medicos WHERE id_usuario = @id_usuario
-		DELETE FROM Usuarios WHERE id_usuario = @id_usuario
+		UPDATE Usuarios
+		SET rol = 'pacientes' 
+		WHERE id_usuario = @id_usuario
     END
 
     IF @indicador = 'CONSULTAR_TODO'
@@ -299,7 +295,7 @@ BEGIN
         FROM Medicos M
         INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
         INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
-        WHERE @nombre = '' or U.nombre like concat(@nombre, '%')
+        WHERE rol = @rol
     END
 	IF @indicador = 'CONSULTAR_X_ID'
     BEGIN
@@ -317,7 +313,8 @@ BEGIN
         FROM Medicos M
         INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
         INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
-		WHERE M.id_usuario = @id_usuario
+		WHERE M.id_usuario = @id_usuario and 
+			 rol = @rol
     END
 END
 GO

@@ -53,6 +53,18 @@ namespace sistema_citas_medicas.Controllers
         [HttpPost]
         public ActionResult Crear(Medico objMedico)
         {
+            var existeCorreo = servicio.operacionesLectura("CONSULTAR_TODO", new Medico()).Any(m => m.Correo == objMedico.Correo);
+            var existecontrasenia = servicio.operacionesLectura("CONSULTAR_TODO", new Medico()).Any(m => m.Contraseña == objMedico.Contraseña);
+
+            if (existeCorreo)
+            {
+                ModelState.AddModelError("Correo", "El correo ya existe.");
+            }
+            if (existecontrasenia)
+            {
+                ModelState.AddModelError("Contraseña", "La Contraseña ya existe.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.especialidades = new SelectList(
@@ -145,7 +157,6 @@ namespace sistema_citas_medicas.Controllers
                     TempData["Success"] = "¡Médico eliminado correctamente!";
                     return RedirectToAction("Index");
                 }
-                TempData["Error"] = "No se pudo eliminar el médico.";
             }
             catch (Exception ex)
             {
