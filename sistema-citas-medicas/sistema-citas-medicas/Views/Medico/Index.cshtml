@@ -7,16 +7,8 @@
 <h2>Lista Médico</h2>
 
 <p>
-  @Html.ActionLink("Create New", "Crear")
+  @Html.ActionLink("Agregar Médico", "Crear")
 </p>
-
-<form class="form-inline">
-  <div class="input-group mb-2 mr-sm-2">
-    <label class="sr-only" for="txtnom">Nombre</label>
-    @Html.TextBox("txtnom", "", new { @class = "form-control", placeholder = "Nombre" })
-  </div>
-  <button type="submit" class="btn btn-primary mb-2">Consultar</button>
-</form>
 
 <table class="table">
   <tr>
