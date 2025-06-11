@@ -88,7 +88,8 @@
     </li>
 
     <li>
-        <a href="#" class="nav-link link-body-emphasis">
+        <a href="@Url.Action("Index", "Paciente")"
+           class="nav-link @(currentController == "Paciente" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-bed-pulse me-2 icon"></i>
             Pacientes
         </a>

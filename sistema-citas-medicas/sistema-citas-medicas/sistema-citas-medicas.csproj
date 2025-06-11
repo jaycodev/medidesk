@@ -128,16 +128,19 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HorarioDisponibleController.cs" />
     <Compile Include="Controllers\MedicoController.cs" />
+    <Compile Include="Controllers\PacienteController.cs" />
     <Compile Include="Controllers\UsuarioController.cs" />
     <Compile Include="Dao\DaoImpl\CitaDaoImpl.cs" />
     <Compile Include="Dao\DaoImpl\EspecialidadDaoImpl.cs" />
     <Compile Include="Dao\DaoImpl\HorarioDisponibleDaoImpl.cs" />
     <Compile Include="Dao\DaoImpl\MedicoDaoImpl.cs" />
+    <Compile Include="Dao\DaoImpl\PacienteDao.cs" />
     <Compile Include="Dao\DaoImpl\UsuarioDaoImpl.cs" />
     <Compile Include="Dao\ICitaDao.cs" />
     <Compile Include="Dao\IEspecialidadDao.cs" />
     <Compile Include="Dao\IHorarioDisponibleDao.cs" />
     <Compile Include="Dao\IMedicoDao.cs" />
+    <Compile Include="Dao\IPacienteDao.cs" />
     <Compile Include="Dao\IUsuarioDao.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -212,6 +215,8 @@
     <Content Include="Views\Cita\CitasConfirmadas.cshtml" />
     <Content Include="Views\Cuenta\IniciarSesion.cshtml" />
     <Content Include="Views\Cuenta\Registrar.cshtml" />
+    <Content Include="Views\Paciente\Index.cshtml" />
+    <Content Include="Views\Paciente\Crear.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
