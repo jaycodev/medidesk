@@ -1,4 +1,4 @@
-﻿@model IEnumerable<sistema_citas_medicas.Models.ViewModel.PacienteViewModel>
+﻿@model IEnumerable<sistema_citas_medicas.Models.Paciente>
 
 @{
     ViewBag.Title = "Index";
@@ -22,9 +22,6 @@
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Correo)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Contraseña)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Telefono)
@@ -54,9 +51,6 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Correo)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Contraseña)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Telefono)

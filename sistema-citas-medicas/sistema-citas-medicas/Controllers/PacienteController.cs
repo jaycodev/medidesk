@@ -1,6 +1,6 @@
 ﻿using sistema_citas_medicas.Dao.DaoImpl;
 using sistema_citas_medicas.Dao;
-using sistema_citas_medicas.Models.ViewModel;
+using sistema_citas_medicas.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,15 +24,15 @@ namespace sistema_citas_medicas.Controllers
         }
 
         [HttpPost]
-        public ActionResult Crear(PacienteViewModel model)
+        public ActionResult Crear(Paciente objPaciente)
         {
             if (ModelState.IsValid)
             {
-                pacienteDao.Registrar(model);
-                return RedirectToAction("Index", "Home");
+                pacienteDao.Registrar(objPaciente);
+                return RedirectToAction("Index");
             }
 
-            return View(model);
+            return View(objPaciente);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using sistema_citas_medicas.Models.ViewModel;
+﻿using sistema_citas_medicas.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace sistema_citas_medicas.Dao
 {
     public interface IPacienteDao
     {
-        void Registrar(PacienteViewModel model);
-        List<PacienteViewModel> Listar();
+        void Registrar(Paciente objPaciente);
+        List<Paciente> Listar();
     }
 }
