@@ -2,53 +2,41 @@
         id="theme-toggle"
         type="button"
         aria-label="Cambiar tema">
-    <i class="fas fa-sun my-1 theme-icon-active"></i>
+    <i id="theme-icon" class="fa-solid fa-sun my-1 theme-icon-active"></i>
 </button>
 
 <script>
-    (() => {
-        'use strict'
-
-        const iconMap = {
-            light: 'fa-sun',
-            dark: 'fa-moon'
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggleButton = document.getElementById('theme-toggle')
+        const themeIcon = document.getElementById('theme-icon')
 
         const getStoredTheme = () => localStorage.getItem('theme')
-        const setStoredTheme = theme => localStorage.setItem('theme', theme)
+        const setStoredTheme = (theme) => localStorage.setItem('theme', theme)
 
-        const getPreferredTheme = () => {
-            const stored = getStoredTheme()
-            return stored ? stored : 'light'
-        }
-
-        const setTheme = theme => {
+        const setTheme = (theme) => {
             document.documentElement.setAttribute('data-bs-theme', theme)
-        }
-
-        const updateIcon = theme => {
-            const icon = document.querySelector('.theme-icon-active')
-            if (!icon) return
-
-            icon.className = `fas my-1 theme-icon-active ${iconMap[theme]}`
+            setStoredTheme(theme)
+            themeIcon.className = `fa-solid ${theme === 'dark' ? 'fa-moon' : 'fa-sun'}`
         }
 
         const toggleTheme = () => {
-            const currentTheme = getStoredTheme() || 'light'
-            const nextTheme = currentTheme === 'light' ? 'dark' : 'light'
-
-            setStoredTheme(nextTheme)
-            setTheme(nextTheme)
-            updateIcon(nextTheme)
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme')
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+            setTheme(newTheme)
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const theme = getPreferredTheme()
-            setTheme(theme)
-            updateIcon(theme)
+        const initThemeIcon = () => {
+            const theme =
+                getStoredTheme() ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches
+                    ? 'dark'
+                    : 'light')
+            themeIcon.className = `fa-solid ${theme === 'dark' ? 'fa-moon' : 'fa-sun'}`
+        }
 
-            document.getElementById('theme-toggle')
-                .addEventListener('click', toggleTheme)
-        })
-    })()
+        if (themeToggleButton && themeIcon) {
+            themeToggleButton.addEventListener('click', toggleTheme)
+            initThemeIcon()
+        }
+    })
 </script>
