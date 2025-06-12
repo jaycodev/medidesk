@@ -163,6 +163,21 @@ BEGIN
     BEGIN
         SELECT * FROM Usuarios WHERE rol = @rol;
     END
+
+	IF @indicador = 'LOGIN'
+	BEGIN
+		SELECT 
+			id_usuario,
+			nombre,
+			apellido,
+			correo,
+			'' AS contraseña,
+			telefono,
+			rol,
+			foto_perfil
+		FROM Usuarios 
+		WHERE correo = @correo AND contraseña = @contraseña;
+	END
 END;
 GO
 
