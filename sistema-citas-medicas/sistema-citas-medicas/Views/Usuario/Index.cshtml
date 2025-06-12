@@ -10,6 +10,11 @@
     @Html.ActionLink("Crear Nuevo Administrador", "Crear")
 </p>
 
+<div style="margin-bottom: 15px;">
+    <a class="btn btn-success" href="@Url.Action("ExportarExcel", "Usuario")">📊 Exportar Excel</a>
+    <a class="btn btn-danger" href="@Url.Action("ExportarPDF", "Usuario")">📄 Exportar PDF</a>
+</div>
+
 <table class="table">
     <tr>
         <th>@Html.DisplayNameFor(model => model.IdUsuario)</th>
