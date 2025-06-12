@@ -84,6 +84,6 @@ _ReSharper*/
 # Configuración local con credenciales sensibles
 **/connectionStrings.config
 
-# Ignorar archivos XML generados en bin/ excepto Roslyn
-[Bb]in//*.xml
-![Bb]in/roslyn//*.xml
+# Ignorar XML en bin/ excepto en bin/roslyn
+[Bb]in/*.xml
+![Bb]in/roslyn/*.xml

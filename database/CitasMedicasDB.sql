@@ -514,58 +514,90 @@ BEGIN
 END;
 GO
 
-CREATE or ALTER PROCEDURE usp_RegistrarPaciente
-    @Nombre VARCHAR(100),
-    @Apellido VARCHAR(100),
-    @Correo VARCHAR(100),
-    @Contraseña VARCHAR(100),
-    @Telefono VARCHAR(20) = NULL,
-    @FotoPerfil VARCHAR(255) = NULL,
-    @FechaNacimiento DATE,
-    @GrupoSanguineo VARCHAR(3),
-    @IdUsuario INT OUTPUT
+-- =============================================
+-- PROCEDIMIENTO: usp_pacientes_crud
+-- DESCRIPCIÓN : CRUD para la tabla Pacientes
+-- PARÁMETROS  : indicador de acción, datos de Pacientes
+-- =============================================
+CREATE OR ALTER PROC usp_pacientes_crud
+    @indicador VARCHAR(20),
+    @id_usuario INT = NULL,
+    @nombre VARCHAR(100) = NULL,
+    @apellido VARCHAR(100) = NULL,
+    @correo VARCHAR(100) = NULL,
+    @contraseña VARCHAR(100) = NULL,
+    @telefono VARCHAR(20) = NULL,
+	@rol varchar(20) = 'pacientes',
+	@foto_perfil VARCHAR(255) = NULL,
+	@fecha_nacimiento DATE = NULL,
+    @grupo_sanguineo VARCHAR(3) = NULL
 AS
 BEGIN
-    SET NOCOUNT ON;
+	IF @indicador = 'INSERTAR'
+	BEGIN
+		SET NOCOUNT ON;
 
-    BEGIN TRY
-        BEGIN TRANSACTION;
+		IF EXISTS (SELECT 1 FROM Usuarios WHERE correo = @correo)
+		BEGIN
+			RAISERROR('El correo electrónico ya está registrado.', 16, 1);
+			RETURN;
+		END
 
-        -- 1. Insertar en Usuarios
-        INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
-        VALUES (@Nombre, @Apellido, @Correo, @Contraseña, @Telefono, 'pacientes', @FotoPerfil);
+		BEGIN TRY
+			BEGIN TRANSACTION;
 
-        -- Obtener el ID generado
-        SET @IdUsuario = SCOPE_IDENTITY();
+			INSERT INTO Usuarios (nombre, apellido, correo, contraseña, telefono, rol, foto_perfil)
+			VALUES (@Nombre, @Apellido, @Correo, @Contraseña, @Telefono, @rol, @foto_perfil);
 
-        -- 2. Insertar en Pacientes
-        INSERT INTO Pacientes (id_usuario, fecha_nacimiento, grupo_sanguineo)
-        VALUES (@IdUsuario, @FechaNacimiento, @GrupoSanguineo);
+			SET @id_usuario = SCOPE_IDENTITY();
 
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
-END;
-GO
+			INSERT INTO Pacientes (id_usuario, fecha_nacimiento, grupo_sanguineo)
+			VALUES (@id_usuario, @fecha_nacimiento, @grupo_sanguineo);
 
-CREATE OR ALTER PROCEDURE usp_ListarPacientes
-AS
-BEGIN
-    SELECT 
-        u.id_usuario,
-        u.nombre,
-        u.apellido,
-        u.correo,
-        u.contraseña,
-        u.telefono,
-        u.foto_perfil,
-        p.fecha_nacimiento,
-        p.grupo_sanguineo
-    FROM Usuarios u
-    INNER JOIN Pacientes p ON u.id_usuario = p.id_usuario
-    WHERE u.rol = 'pacientes'
-END;
+			COMMIT TRANSACTION;
+		END TRY
+		BEGIN CATCH
+			ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
+	END
+
+	IF @indicador = 'ACTUALIZAR'
+	BEGIN
+		UPDATE Pacientes
+        SET fecha_nacimiento = @fecha_nacimiento, grupo_sanguineo = @grupo_sanguineo
+        WHERE id_usuario = @id_usuario;
+
+	END
+
+    IF @indicador = 'CONSULTAR_TODO'
+    BEGIN
+        SELECT 
+            P.id_usuario,
+            U.nombre, 
+            U.apellido, 
+			U.foto_perfil,
+			P.fecha_nacimiento,
+			P.grupo_sanguineo
+        FROM Pacientes P
+        INNER JOIN Usuarios U ON P.id_usuario = U.id_usuario
+        WHERE rol = @rol
+    END
+	IF @indicador = 'CONSULTAR_X_ID'
+    BEGIN
+	    SELECT 
+            P.id_usuario,
+            U.nombre, 
+            U.apellido, 
+            U.correo,
+            U.telefono,
+			U.foto_perfil,
+			P.fecha_nacimiento,
+			P.grupo_sanguineo
+        FROM Pacientes P
+        INNER JOIN Usuarios U ON P.id_usuario = U.id_usuario
+		WHERE P.id_usuario = @id_usuario and 
+			 rol = @rol
+    END
+END
 GO
