@@ -1,18 +1,25 @@
 ﻿@model sistema_citas_medicas.Models.Paciente
 
 @{
-    ViewBag.Title = "Crear";
+    ViewBag.Title = "Crear un paciente";
 }
 
-<h2>Crear</h2>
+<h2>Crear un paciente</h2>
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
 
 <div class="form-horizontal">
-    <h4>Paciente</h4>
-    <hr />
+    @if (ViewBag.MensajeError != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-xmark me-1"></i>
+            @ViewBag.MensajeError
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
     <div class="form-group">
         @Html.LabelFor(model => model.Nombre, htmlAttributes: new { @class = "control-label col-md-2" })

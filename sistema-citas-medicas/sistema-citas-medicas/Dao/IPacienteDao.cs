@@ -9,7 +9,7 @@ namespace sistema_citas_medicas.Dao
 {
     public interface IPacienteDao
     {
-        void Registrar(Paciente objPaciente);
-        List<Paciente> Listar();
+        int operacionesEscritura(string indicador, Paciente objPaciente);
+        List<Paciente> operacionesLectura(string indicador, Paciente objPaciente);
     }
 }

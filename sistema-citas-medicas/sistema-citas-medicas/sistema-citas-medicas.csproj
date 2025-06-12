@@ -190,6 +190,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\SqlDataReaderExtensions.cs" />
     <Compile Include="Models\Cita.cs" />
     <Compile Include="Models\Especialidad.cs" />
     <Compile Include="Models\HorarioDisponible.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="Servicio\ServicioEspecialidad.cs" />
     <Compile Include="Servicio\ServicioHorarioDisponible.cs" />
     <Compile Include="Servicio\ServicioMedico.cs" />
+    <Compile Include="Servicio\ServicioPaciente.cs" />
     <Compile Include="Servicio\ServicioUsuario.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -265,6 +267,8 @@
     <Content Include="Views\Cuenta\Registrar.cshtml" />
     <Content Include="Views\Paciente\Index.cshtml" />
     <Content Include="Views\Paciente\Crear.cshtml" />
+    <Content Include="Views\Paciente\Detalle.cshtml" />
+    <Content Include="Views\Paciente\Editar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
