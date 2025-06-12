@@ -1,10 +1,10 @@
-﻿using sistema_citas_medicas.Models;
+﻿using ClosedXML.Excel;
+using sistema_citas_medicas.Models;
 using sistema_citas_medicas.Servicio;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Runtime.Remoting;
-using System.Web;
 using System.Web.Mvc;
 
 namespace sistema_citas_medicas.Controllers
@@ -110,5 +110,85 @@ namespace sistema_citas_medicas.Controllers
             }
             return View(objUsu);
         }
+
+        public ActionResult ExportarPdf()
+        {
+            var usuarios = servicio.operacionesLectura("CONSULTAR_TODO", new Usuario());
+            using (var ms = new System.IO.MemoryStream())
+            {
+                var doc = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4);
+                iTextSharp.text.pdf.PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                doc.Add(new iTextSharp.text.Paragraph("LISTA DE USUARIOS"));
+                doc.Add(new iTextSharp.text.Paragraph(" "));
+
+                var tabla = new iTextSharp.text.pdf.PdfPTable(6);
+                tabla.WidthPercentage = 100;
+                tabla.AddCell("ID");
+                tabla.AddCell("Nombre");
+                tabla.AddCell("Apellido");
+                tabla.AddCell("Correo");
+                tabla.AddCell("Teléfono");
+                tabla.AddCell("Rol");
+
+                foreach (var u in usuarios)
+                {
+                    tabla.AddCell(u.IdUsuario.ToString());
+                    tabla.AddCell(u.Nombre);
+                    tabla.AddCell(u.Apellido);
+                    tabla.AddCell(u.Correo);
+                    tabla.AddCell(u.Telefono ?? "");
+                    tabla.AddCell(u.Rol);
+                }
+
+                doc.Add(tabla);
+                doc.Close();
+
+                return File(ms.ToArray(), "application/pdf", "Usuarios.pdf");
+            }
+        }
+
+        public ActionResult ExportarExcel()
+        {
+            var usuarios = servicio.operacionesLectura("CONSULTAR_TODO", new Usuario());
+
+            var stream = new MemoryStream(); // <-- fuera del using
+
+            using (var workbook = new XLWorkbook())
+            {
+                var hoja = workbook.Worksheets.Add("Usuarios");
+
+                hoja.Cell(1, 1).Value = "ID";
+                hoja.Cell(1, 2).Value = "Nombre";
+                hoja.Cell(1, 3).Value = "Apellido";
+                hoja.Cell(1, 4).Value = "Correo";
+                hoja.Cell(1, 5).Value = "Teléfono";
+                hoja.Cell(1, 6).Value = "Rol";
+
+                int fila = 2;
+                foreach (var u in usuarios)
+                {
+                    hoja.Cell(fila, 1).Value = u.IdUsuario;
+                    hoja.Cell(fila, 2).Value = u.Nombre;
+                    hoja.Cell(fila, 3).Value = u.Apellido;
+                    hoja.Cell(fila, 4).Value = u.Correo;
+                    hoja.Cell(fila, 5).Value = u.Telefono ?? "";
+                    hoja.Cell(fila, 6).Value = u.Rol;
+                    fila++;
+                }
+
+                hoja.Columns().AdjustToContents();
+
+                workbook.SaveAs(stream);
+            }
+
+            stream.Position = 0; // Importante: rebobinar
+
+            return File(stream,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Usuarios.xlsx");
+        }
     }
+
 }
