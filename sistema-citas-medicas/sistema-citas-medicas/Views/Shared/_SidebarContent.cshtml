@@ -8,6 +8,8 @@
         currentAction == "HistorialdeCitas"
     );
 
+    var usuario = Session["usuario"] as sistema_citas_medicas.Models.Usuario;
+
     string saludo;
     if (DateTime.Now.Hour < 12)
     {
@@ -122,5 +124,5 @@
 
 <!-- Sesión iniciada -->
 <div class="text-muted small">
-    @saludo, <strong>Usuario</strong>
+    @saludo, <strong>@usuario.Nombre</strong>
 </div>

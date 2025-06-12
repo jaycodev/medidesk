@@ -1,4 +1,4 @@
-﻿@model sistema_citas_medicas.Models.Usuario
+﻿@model sistema_citas_medicas.Models.ViewModels.LoginViewModel
 
 @{
     Layout = null;
@@ -10,6 +10,7 @@
     <meta charset="utf-8" />
     <meta name="description" content="Sistema de citas médicas con vistas para administrador, médico y paciente, que facilita la gestión, programación y seguimiento de consultas médicas.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="~/Scripts/color-modes.js"></script>
     <title>Iniciar sesión - Hospital</title>
     <link href="/Content/Icons/logo-dark.svg" rel="icon" media="(prefers-color-scheme: light)">
     <link href="/Content/Icons/logo-light.svg" rel="icon" media="(prefers-color-scheme: dark)">
@@ -34,20 +35,43 @@
 
                         <h3 class="mb-4 text-center text-body-emphasis">Iniciar sesión</h3>
 
+                        @if (TempData["Success"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                @TempData["Success"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        @if (ViewBag.Mensaje != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fa-solid fa-circle-xmark me-1"></i>
+                                @ViewBag.Mensaje
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
                         @using (Html.BeginForm("IniciarSesion", "Cuenta", FormMethod.Post))
                         {
                             @Html.AntiForgeryToken()
 
                             <div class="mb-3">
-                                @Html.LabelFor(m => m.Correo, new { @class = "form-label" })
-                                @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", @placeholder = "Correo electrónico" })
-                                @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
+                                @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Correo electrónico" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
                             </div>
 
                             <div class="mb-3">
-                                @Html.LabelFor(m => m.Contraseña, new { @class = "form-label" })
-                                @Html.PasswordFor(m => m.Contraseña, new { @class = "form-control", @placeholder = "Contraseña" })
-                                @Html.ValidationMessageFor(m => m.Contraseña, "", new { @class = "text-danger" })
+                                @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                                <div class="input-group">
+                                    @Html.PasswordFor(m => m.Password, new { @class = "form-control password-field", @placeholder = "Contraseña", data_toggle_id = "1" })
+                                    <span class="input-group-text" style="cursor: pointer;" data-toggle-id="1">
+                                        <i class="fa-solid fa-eye icon"></i>
+                                    </span>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -78,6 +102,11 @@
         @Html.Partial("_ToggleTheme")
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/password.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 </body>
 </html>
