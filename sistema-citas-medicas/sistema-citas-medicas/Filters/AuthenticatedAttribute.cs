@@ -35,7 +35,7 @@ namespace sistema_citas_medicas.Filters
 
             if (sesion != null && controller == "Cuenta")
             {
-                filterContext.Result = new RedirectResult("~/Home/Index");
+                filterContext.Result = new RedirectResult("~/Cita/TableroCitas");
                 return;
             }
 

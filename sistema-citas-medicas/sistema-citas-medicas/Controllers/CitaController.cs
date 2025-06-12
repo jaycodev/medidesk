@@ -12,6 +12,11 @@ namespace sistema_citas_medicas.Controllers
         ServicioCitas servicio = new ServicioCitas();
         ServicioEspecialidad servicioesp = new ServicioEspecialidad();
 
+        public ActionResult TableroCitas()
+        {
+            return View();
+        }
+
         public ActionResult HistorialdeCitas()
         {
             List<Cita> listacomplete = servicio.operacionesLectura("CONSULTAR_TODO", new Cita());

@@ -38,7 +38,7 @@ namespace sistema_citas_medicas.Controllers
             if (userLogged != null)
             {
                 Session["usuario"] = userLogged;
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("TableroCitas", "Cita");
             }
             else
             {
