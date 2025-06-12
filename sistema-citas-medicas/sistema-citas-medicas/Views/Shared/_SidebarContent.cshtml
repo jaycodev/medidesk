@@ -26,12 +26,11 @@
 }
 
 <ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item">
-        <a href="@Url.Action("Index", "Home")"
-           class="nav-link @(currentController == "Dashboard" ? "active" : "link-body-emphasis")"
-           aria-current="page">
-            <i class="fa-solid fa-gauge me-2 icon"></i>
-            Dashboard
+    <li>
+        <a href="@Url.Action("TableroCitas", "Cita")"
+           class="nav-link @(currentController == "Cita" && currentAction == "TableroCitas" ? "active" : "link-body-emphasis")">
+            <i class="fa-regular fa-calendar-days me-2 icon"></i>
+            Tablero
         </a>
     </li>
 

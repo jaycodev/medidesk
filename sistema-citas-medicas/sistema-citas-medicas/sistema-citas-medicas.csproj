@@ -169,7 +169,6 @@
     <Compile Include="Controllers\CitaController.cs" />
     <Compile Include="Controllers\CuentaController.cs" />
     <Compile Include="Controllers\EspecialidadController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HorarioDisponibleController.cs" />
     <Compile Include="Controllers\MedicoController.cs" />
     <Compile Include="Controllers\PacienteController.cs" />
@@ -216,6 +215,7 @@
     <Content Include="Content\Css\Layout.css" />
     <Content Include="connectionStrings.config" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
+    <Content Include="Scripts\alerts.js" />
     <Content Include="Scripts\color-modes.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -239,7 +239,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_SidebarContent.cshtml" />
     <Content Include="Views\Shared\_ToggleTheme.cshtml" />
     <Content Include="Views\Usuario\Crear.cshtml" />
@@ -269,6 +268,7 @@
     <Content Include="Views\Paciente\Crear.cshtml" />
     <Content Include="Views\Paciente\Detalle.cshtml" />
     <Content Include="Views\Paciente\Editar.cshtml" />
+    <Content Include="Views\Cita\TableroCitas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
