@@ -10,6 +10,11 @@
   @Html.ActionLink("Agregar Médico", "Crear")
 </p>
 
+<div style="margin-bottom: 15px;">
+  <a class="btn btn-success" href="@Url.Action("ExportarExcel", "Medico")">📊 Exportar Excel</a>
+  <a class="btn btn-danger" href="@Url.Action("ExportarPDF", "Medico")">📄 Exportar PDF</a>
+</div>
+
 <table class="table">
   <tr>
     <th>
