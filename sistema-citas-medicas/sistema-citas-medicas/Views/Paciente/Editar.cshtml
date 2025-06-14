@@ -1,55 +1,56 @@
 ﻿@model sistema_citas_medicas.Models.Paciente
 
 @{
-    ViewBag.Title = "Editar";
+    ViewBag.Title = "Editar paciente";
 }
 
-<h2>Editar paciente</h2>
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-pen me-1"></i>
+    Editar paciente
+</h4>
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.IdUsuario)
 
-    <div class="form-horizontal">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.IdUsuario)
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.FechaNacimiento, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextBoxFor(model => model.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                @Html.ValidationMessageFor(model => model.FechaNacimiento, "", new { @class = "text-danger" })
-            </div>
+    <p class="text-danger mb-3">
+        * Obligatorio
+    </p>
+
+    <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+            @Html.LabelFor(m => m.FechaNacimiento, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.TextBoxFor(m => m.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+            @Html.ValidationMessageFor(m => m.FechaNacimiento, "", new { @class = "text-danger" })
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.GrupoSanguineo, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.GrupoSanguineo, new SelectList(new[]
-                {
-                    new { Value = "A+", Text = "A+" },
-                    new { Value = "A-", Text = "A-" },
-                    new { Value = "B+", Text = "B+" },
-                    new { Value = "B-", Text = "B-" },
-                    new { Value = "AB+", Text = "AB+" },
-                    new { Value = "AB-", Text = "AB-" },
-                    new { Value = "O+", Text = "O+" },
-                    new { Value = "O-", Text = "O-" }
-                }, "Value", "Text", Model.GrupoSanguineo), "Seleccione un grupo sanguíneo", new { @class = "form-select" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Guardar" class="btn btn-default" />
-            </div>
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.GrupoSanguineo, new { @class = "form-label" })
+            @Html.DropDownListFor(m => m.GrupoSanguineo, new SelectList(new[] {
+                new { Value = "A+", Text = "A+" }, new { Value = "A-", Text = "A-" },
+                new { Value = "B+", Text = "B+" }, new { Value = "B-", Text = "B-" },
+                new { Value = "AB+", Text = "AB+" }, new { Value = "AB-", Text = "AB-" },
+                new { Value = "O+", Text = "O+" }, new { Value = "O-", Text = "O-" }
+            }, "Value", "Text", Model.GrupoSanguineo), "Seleccione un grupo sanguíneo", new { @class = "form-select" })
+            @Html.ValidationMessageFor(m => m.GrupoSanguineo, "", new { @class = "text-danger" })
         </div>
     </div>
-}
 
-<div>
-    @Html.ActionLink("Volver al inicio", "Index")
-</div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fa-solid fa-left-long me-1"></i>
+            Volver
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk me-1"></i>
+            Guardar
+        </button>
+    </div>
+}
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

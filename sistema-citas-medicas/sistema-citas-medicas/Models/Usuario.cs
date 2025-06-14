@@ -8,7 +8,7 @@ namespace sistema_citas_medicas.Models
 {
     public class Usuario
     {
-        [Display(Name = "ID usuario")]
+        [Display(Name = "Código")]
         public int IdUsuario { get; set; }
 
         [Display(Name = "Nombre(s)")]
