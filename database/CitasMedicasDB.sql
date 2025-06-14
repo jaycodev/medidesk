@@ -643,6 +643,3 @@ BEGIN
     END
 END
 GO
-
-select * from Citas
-select * from Usuarios
