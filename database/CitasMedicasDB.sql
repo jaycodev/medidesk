@@ -576,6 +576,7 @@ BEGIN
             P.id_usuario,
             U.nombre, 
             U.apellido, 
+			U.correo, 
 			U.foto_perfil,
 			P.fecha_nacimiento,
 			P.grupo_sanguineo

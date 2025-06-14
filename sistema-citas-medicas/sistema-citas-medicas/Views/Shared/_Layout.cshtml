@@ -9,8 +9,9 @@
     <title>@ViewBag.Title - Hospital</title>
     <link href="~/Content/Icons/logo-dark.svg" rel="icon" media="(prefers-color-scheme: light)">
     <link href="~/Content/Icons/logo-light.svg" rel="icon" media="(prefers-color-scheme: dark)">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="~/Content/Css/Theme.css" rel="stylesheet" />
     <link href="~/Content/Css/Layout.css" rel="stylesheet" />
 </head>
 <body class="bg-body-tertiary" data-success="@TempData["Success"]" data-error="@TempData["Error"]">
@@ -19,7 +20,7 @@
         <div class="offcanvas-header">
             <a href="/" class="d-flex align-items-center text-center me-md-auto link-body-emphasis text-decoration-none ms-2">
                 <i class="fa-solid fa-hospital me-2 fs-4"></i>
-                <span class="fs-4">Hospital</span>
+                <span class="fs-4 fw-semibold">Hospital</span>
             </a>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
         </div>
@@ -34,7 +35,7 @@
     <div class="sidebar-fixed d-flex flex-column flex-shrink-0 p-3 bg-body border-end">
         <a href="/" class="d-flex align-items-center text-center mb-4 me-md-auto link-body-emphasis text-decoration-none ms-2">
             <i class="fa-solid fa-hospital me-2 fs-4"></i>
-            <span class="fs-4">Hospital</span>
+            <span class="fs-4 fw-semibold">Hospital</span>
         </a>
         @Html.Partial("_SidebarContent")
     </div>
@@ -42,7 +43,7 @@
     <!-- Header -->
     <header class="header-fixed d-flex align-items-center py-3 border-bottom bg-body">
         <div class="container-fluid d-flex justify-content-between align-items-center">
-            <!-- Sección izquierda: Botón menú -->
+            <!-- Sección izquierda: Botón menú e input en pantallas grandes -->
             <div class="d-flex align-items-center" style="min-width: 80px;">
                 <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-label="Menú">
                     <i class="fas fa-bars"></i>
@@ -51,12 +52,8 @@
                 <input type="search" class="form-control ms-2 d-none d-lg-block" placeholder="Buscar..." style="max-width: 220px;">
             </div>
 
-            <!-- Sección central: Logo -->
-            <div class="text-center flex-grow-1 position-absolute start-50 translate-middle-x d-lg-none">
-                <a href="/" class="text-decoration-none link-body-emphasis">
-                    <i class="fa-solid fa-hospital me-2 fs-4"></i>
-                    <span class="fs-4">Hospital</span>
-                </a>
+            <div class="text-center flex-grow-1 position-absolute start-50 translate-middle-x">
+                <input type="search" class="form-control mx-auto d-block d-lg-none" placeholder="Buscar..." style="max-width: 220px;">
             </div>
 
             <!-- Sección derecha: Cambiar tema y usuario -->
@@ -143,7 +140,7 @@
     </main>
 
     @Scripts.Render("~/bundles/jquery")
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/Scripts/alerts.js"></script>
     @RenderSection("scripts", required: false)

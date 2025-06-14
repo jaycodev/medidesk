@@ -1,63 +1,95 @@
 ﻿@model IEnumerable<sistema_citas_medicas.Models.Paciente>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Pacientes";
 }
 
-<h2>Pacientes</h2>
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-bed-pulse me-1"></i>
+    Pacientes
+</h4>
 
-<p>
-    @Html.ActionLink("Crear", "Crear")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.IdUsuario)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Apellido)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FotoPerfil)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FechaNacimiento)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.GrupoSanguineo)
-        </th>
-        <th></th>
-    </tr>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="@Url.Action("Crear")" class="btn btn-primary">
+        <i class="fa-solid fa-circle-plus me-1"></i>
+        Crear
+    </a>
 
-    @foreach (var item in Model)
-    {
+    <div>
+        <a href="@Url.Action("ExportarPdf")" class="btn btn-danger me-1">
+            <i class="fa-solid fa-file-pdf me-1"></i>
+            PDF
+        </a>
+        <a href="@Url.Action("ExportarExcel")" class="btn btn-success">
+            <i class="fa-solid fa-file-excel me-1"></i>
+            Excel
+        </a>
+    </div>
+</div>
+
+<div class="rounded overflow-hidden border">
+    <table class="table mb-0">
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdUsuario)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Apellido)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FotoPerfil)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaNacimiento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GrupoSanguineo)
-            </td>
-            <td>
-                @Html.ActionLink("Editar", "Editar", new { id = item.IdUsuario }) |
-                @Html.ActionLink("Detalle", "Detalle", new { id = item.IdUsuario })
-            </td>
+            <th>
+                @Html.DisplayNameFor(model => model.IdUsuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Apellido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Correo)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.FechaNacimiento)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.GrupoSanguineo)
+            </th>
+            <th></th>
         </tr>
-    }
 
-</table>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdUsuario)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Apellido)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Correo)
+                </td>
+
+                @{
+                    var cultura = new System.Globalization.CultureInfo("es-PE");
+                    var fechaNacimientoFormateada = item.FechaNacimiento?.ToString("dd MMM yyyy", cultura) ?? "";
+                }
+
+                <td class="text-center">
+                    @fechaNacimientoFormateada
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.GrupoSanguineo)
+                </td>
+                <td class="text-center">
+                    <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1">
+                        <i class="fa-solid fa-pen"></i>
+                        Editar
+                    </a>
+                    <a href="@Url.Action("Detalle", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Detalle
+                    </a>
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

@@ -206,6 +206,7 @@
     <Compile Include="Servicio\ServicioUsuario.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Css\Theme.css" />
     <Content Include="Content\Img\login-foto.jpg" />
     <Content Include="Content\Icons\logo-dark.svg" />
     <Content Include="Content\Icons\logo-light.svg" />
