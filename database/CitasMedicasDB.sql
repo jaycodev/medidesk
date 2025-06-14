@@ -506,6 +506,48 @@ BEGIN
     INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
 		WHERE c.id_cita = @id_cita
 	END
+	ELSE IF @indicador = 'CONSULTAR_TODO_X_ID_PACIENTE'
+	BEGIN
+    SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+		WHERE c.id_paciente = @id_paciente
+	END
+	ELSE IF @indicador = 'CONSULTAR_TODO_X_ID_MEDICO'
+	BEGIN
+    SELECT 
+        c.id_cita,
+        c.id_medico,
+        u_m.nombre + ' ' + u_m.apellido,
+        c.id_paciente,
+        u_p.nombre + ' ' + u_p.apellido,
+        c.id_especialidad,
+        e.nombre,
+        c.fecha,
+        c.hora,
+        c.tipo_consulta,
+        c.sintomas,
+        c.estado
+    FROM Citas c
+    INNER JOIN Usuarios u_m ON c.id_medico = u_m.id_usuario
+    INNER JOIN Usuarios u_p ON c.id_paciente = u_p.id_usuario
+    INNER JOIN Especialidades e ON c.id_especialidad = e.id_especialidad
+		WHERE c.id_medico = @id_medico
+	END
 	ELSE IF @indicador = 'COMBO_TIPO_CONSULTA'
     BEGIN
         SELECT * FROM Citas
@@ -601,3 +643,6 @@ BEGIN
     END
 END
 GO
+
+select * from Citas
+select * from Usuarios

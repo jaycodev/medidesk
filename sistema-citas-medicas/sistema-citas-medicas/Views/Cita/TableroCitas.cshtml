@@ -1,7 +1,54 @@
-﻿
-@{
-    ViewBag.Title = "TableroCitas";
+﻿@model IEnumerable<sistema_citas_medicas.Models.Cita>
+
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" />
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+
+<!-- ESTILOS PARA FORZAR MAYÚSCULAS -->
+<style>
+    .fc-toolbar-title,
+    .fc-button,
+    .fc-col-header-cell-cushion {
+        text-transform: uppercase !important;
+    }
+</style>
+
+<div id="calendar"></div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                firstDay: 1,
+                height: '1200px',
+                dayMaxEventRows: true,
+                dayMaxEvents: 3,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                },
+                events: [
+                    @foreach (var cita in Model)
+                    {
+                        <text>
+                        {
+                            title: 'Cita @cita.Hora.ToString("hh\\:mm")',
+                            start: '@cita.Fecha.ToString("yyyy-MM-dd")',
+                            color: '@(cita.Estado == "confirmada" ? "#3B82F6" : cita.Estado == "cancelada" ? "#EF4444" : cita.Estado == "pendiente" ? "#F59E0B" : "#10B981")'
+                        },
+                        </text>
+                    }
+                ]
+            });
+
+            calendar.render();
+        });
+    </script>
 }
-
-<h2>TableroCitas</h2>
-
