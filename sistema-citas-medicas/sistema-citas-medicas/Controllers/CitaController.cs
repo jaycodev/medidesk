@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web.Mvc;
 using sistema_citas_medicas.Models;
 using sistema_citas_medicas.Servicio;
+using static ClosedXML.Excel.XLPredefinedFormat;
 
 namespace sistema_citas_medicas.Controllers
 {
@@ -11,10 +12,38 @@ namespace sistema_citas_medicas.Controllers
     {
         ServicioCitas servicio = new ServicioCitas();
         ServicioEspecialidad servicioesp = new ServicioEspecialidad();
+        ServicioPaciente serviciopac = new ServicioPaciente();
+        ServicioMedico serviciomed = new ServicioMedico();
+
 
         public ActionResult TableroCitas()
         {
-            return View();
+            Usuario usuario = Session["usuario"] as Usuario;
+            List<Cita> listacitasporpaciente = new List<Cita>();
+
+            if (usuario == null)
+            {
+                return RedirectToAction("IniciarSesion", "Cuenta");
+            }
+
+            Cita cita = new Cita();
+
+            if (usuario.Rol == "pacientes")
+            {
+                cita.IdPaciente = usuario.IdUsuario;
+                listacitasporpaciente = servicio.operacionesLectura("CONSULTAR_TODO_X_ID_PACIENTE", cita);
+            }
+            if (usuario.Rol == "medicos")
+            {
+                cita.IdMedico = usuario.IdUsuario;
+                listacitasporpaciente = servicio.operacionesLectura("CONSULTAR_TODO_X_ID_MEDICO", cita);
+            }
+            else
+            {
+                listacitasporpaciente = servicio.operacionesLectura("CONSULTAR_TODO", cita);
+            }
+
+            return View(listacitasporpaciente);
         }
 
         public ActionResult HistorialdeCitas()
@@ -53,19 +82,24 @@ namespace sistema_citas_medicas.Controllers
         }
 
         [HttpGet]
-        public ActionResult Crear()
+        public ActionResult ReservarCita()
         {
             ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
             ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura("CONSULTAR_TODO", new Especialidad()), "IdEspecialidad", "Nombre");
+            ViewBag.Medicos = new SelectList(serviciomed.operacionesLectura("CONSULTAR_TODO", new Medico()), "IdUsuario", "Nombre");
+            ViewBag.Paciente = new SelectList(serviciopac.operacionesLectura("CONSULTAR_TODO", new Paciente()), "IdUsuario", "Nombre");
             return View(new Cita());
         }
 
         [HttpPost]
-        public ActionResult Crear(Cita citita)
+        public ActionResult ReservarCita(Cita citita)
         {
-            int procesar = servicio.operacionesEscritura("INSERTAR", citita);
             ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
             ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura("CONSULTAR_TODO", new Especialidad()), "IdEspecialidad", "Nombre");
+            ViewBag.Medicos = new SelectList(serviciomed.operacionesLectura("CONSULTAR_TODO", new Medico()), "IdUsuario", "Nombre");
+            ViewBag.Paciente = new SelectList(serviciopac.operacionesLectura("CONSULTAR_TODO", new Paciente()), "IdUsuario", "Nombre");
+
+            int procesar = servicio.operacionesEscritura("INSERTAR", citita);
 
             if (procesar >= 0)
             {
@@ -73,7 +107,7 @@ namespace sistema_citas_medicas.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(citita);
+            return RedirectToAction("TableroCitas",citita);
         }
 
 
