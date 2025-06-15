@@ -49,6 +49,7 @@ GO
 CREATE TABLE Medicos (
     id_usuario INT PRIMARY KEY,
     id_especialidad INT NOT NULL,
+	estado BIT NOT NULL DEFAULT(1),
     FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
     FOREIGN KEY (id_especialidad) REFERENCES Especialidades(id_especialidad)
 );
@@ -279,8 +280,8 @@ BEGIN
 			SET @id_usuario = SCOPE_IDENTITY();
 			IF @id_usuario IS NOT NULL
 			BEGIN
-				INSERT INTO Medicos (id_usuario, id_especialidad)
-				VALUES (@id_usuario, @id_especialidad);
+				INSERT INTO Medicos (id_usuario, id_especialidad, estado)
+				VALUES (@id_usuario, @id_especialidad, 1);
 			END
 		END
 	END
@@ -296,6 +297,10 @@ BEGIN
 		UPDATE Usuarios
 		SET rol = 'pacientes' 
 		WHERE id_usuario = @id_usuario
+
+		UPDATE Medicos
+        SET estado = 0
+        WHERE id_usuario = @id_usuario;
     END
 
     IF @indicador = 'CONSULTAR_TODO'
@@ -310,11 +315,12 @@ BEGIN
 			U.foto_perfil,
 			U.rol,
 			M.id_especialidad,
-            E.nombre as especialidad
+            E.nombre as especialidad,
+			M.estado
         FROM Medicos M
         INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
         INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
-        WHERE rol = @rol
+        WHERE M.estado = 1 AND U.rol = @rol
     END
 	IF @indicador = 'CONSULTAR_X_ID'
     BEGIN
@@ -333,7 +339,7 @@ BEGIN
         INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
         INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
 		WHERE M.id_usuario = @id_usuario and 
-			 rol = @rol
+			 rol = @rol AND M.estado = 1
     END
 END
 GO
