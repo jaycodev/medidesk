@@ -44,6 +44,9 @@
     <th>
       @Html.DisplayNameFor(model => model.EspecialidadNombre)
     </th>
+    <th>
+      @Html.DisplayNameFor(model => model.Estado)
+    </th>
     <th></th>
   </tr>
 
@@ -73,6 +76,11 @@
       </td>
       <td>
         @Html.DisplayFor(modelItem => item.EspecialidadNombre)
+      </td>
+      <td class="text-center">
+        <span class="badge @(item.Estado ? "bg-success" : "bg-danger")">
+          @(item.Estado ? "Activo" : "Inactivo")
+        </span>
       </td>
       <td>
         @Html.ActionLink("Editar", "Editar", new { id = item.IdUsuario }) |

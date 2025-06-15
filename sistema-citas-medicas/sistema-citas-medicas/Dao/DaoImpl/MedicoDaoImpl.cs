@@ -35,6 +35,7 @@ namespace sistema_citas_medicas.Dao.DaoImpl
                         cmd.Parameters.AddWithValue("@foto_perfil", objMedico.FotoPerfil);
                         cmd.Parameters.AddWithValue("@rol", objMedico.Rol);
                         cmd.Parameters.AddWithValue("@id_especialidad", objMedico.IdEspecialidad);
+                        cmd.Parameters.AddWithValue("@estado", objMedico.Estado);
 
                         procesar = cmd.ExecuteNonQuery();
 
@@ -67,7 +68,8 @@ namespace sistema_citas_medicas.Dao.DaoImpl
                     cmd.Parameters.AddWithValue("@foto_perfil", objMedico.FotoPerfil);
                     cmd.Parameters.AddWithValue("@rol", objMedico.Rol);
                     cmd.Parameters.AddWithValue("@id_especialidad", objMedico.IdEspecialidad);
-                    
+                    cmd.Parameters.AddWithValue("@estado", objMedico.Estado);
+
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -83,7 +85,8 @@ namespace sistema_citas_medicas.Dao.DaoImpl
                                 FotoPerfil = reader.IsDBNull(6) ? string.Empty : reader.GetString(6),
                                 Rol = reader.IsDBNull(7) ? string.Empty : reader.GetString(7),
                             IdEspecialidad = reader.IsDBNull(8) ? 0 : reader.GetInt32(8),
-                                EspecialidadNombre = reader.IsDBNull(9) ? string.Empty : reader.GetString(9)
+                                EspecialidadNombre = reader.IsDBNull(9) ? string.Empty : reader.GetString(9),
+                                Estado = reader.IsDBNull(10) ? false : reader.GetBoolean(10)
                             });
                         }
                     }
