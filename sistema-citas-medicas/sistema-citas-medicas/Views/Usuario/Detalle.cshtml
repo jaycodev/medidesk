@@ -2,6 +2,8 @@
 
 @{
     ViewBag.Title = "Detalle";
+    var medico = ViewBag.Medico as sistema_citas_medicas.Models.Medico;
+    var paciente = ViewBag.Paciente as sistema_citas_medicas.Models.Paciente;
 }
 
 <h2>Detalle</h2>
@@ -10,73 +12,60 @@
     <h4>Usuario</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.IdUsuario)
-        </dt>
+        <dt>@Html.DisplayNameFor(model => model.IdUsuario)</dt>
+        <dd>@Html.DisplayFor(model => model.IdUsuario)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.IdUsuario)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.Nombre)</dt>
+        <dd>@Html.DisplayFor(model => model.Nombre)</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
+        <dt>@Html.DisplayNameFor(model => model.Apellido)</dt>
+        <dd>@Html.DisplayFor(model => model.Apellido)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.Correo)</dt>
+        <dd>@Html.DisplayFor(model => model.Correo)</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Apellido)
-        </dt>
+        <dt>@Html.DisplayNameFor(model => model.Contraseña)</dt>
+        <dd>@Html.DisplayFor(model => model.Contraseña)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.Apellido)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.Telefono)</dt>
+        <dd>@Html.DisplayFor(model => model.Telefono)</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Correo)
-        </dt>
+        <dt>@Html.DisplayNameFor(model => model.Rol)</dt>
+        <dd>@Html.DisplayFor(model => model.Rol)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.Correo)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Contraseña)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Contraseña)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Telefono)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Telefono)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Rol)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Rol)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.FotoPerfil)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FotoPerfil)
-        </dd>
-
+        <dt>@Html.DisplayNameFor(model => model.FotoPerfil)</dt>
+        <dd>@Html.DisplayFor(model => model.FotoPerfil)</dd>
     </dl>
 </div>
+
+@if (medico != null)
+{
+    <div>
+        <h4>Datos como Médico</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>Especialidad</dt>
+            <dd>@medico.EspecialidadNombre</dd>
+        </dl>
+    </div>
+}
+
+@if (paciente != null)
+{
+    <div>
+        <h4>Datos como Paciente</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>Fecha de nacimiento</dt>
+            <dd>@paciente.FechaNacimiento?.ToShortDateString()</dd>
+
+            <dt>Grupo sanguíneo</dt>
+            <dd>@paciente.GrupoSanguineo</dd>
+        </dl>
+    </div>
+}
+
 <p>
-    @Html.ActionLink("Editar", "Editar", new {  id = Model.IdUsuario }) |
+    @Html.ActionLink("Editar", "Editar", new { id = Model.IdUsuario }) |
     @Html.ActionLink("Back to List", "Index")
 </p>

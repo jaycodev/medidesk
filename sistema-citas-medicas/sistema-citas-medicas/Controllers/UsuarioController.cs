@@ -12,6 +12,34 @@ namespace sistema_citas_medicas.Controllers
     public class UsuarioController : Controller
     {
         ServicioUsuario servicio = new ServicioUsuario();
+        ServicioPaciente servicioPaciente = new ServicioPaciente();
+        ServicioMedico servicioMedico = new ServicioMedico();
+
+        public Medico BuscarIdMedico(int id)
+        {
+            Medico objMedico = new Medico { IdUsuario = id };
+            var resultado = servicioMedico.operacionesLectura("CONSULTAR_X_ID", objMedico).FirstOrDefault();
+
+            if (resultado != null)
+            {
+                return resultado;
+            }
+            return null;
+
+        }
+
+        private Paciente BuscarIdPaciente(int id)
+        {
+            Paciente objPaciente = new Paciente { IdUsuario = id };
+            var resultado = servicioPaciente.operacionesLectura("CONSULTAR_X_ID", objPaciente).FirstOrDefault();
+
+            if (resultado != null)
+            {
+                return resultado;
+            }
+            return null;
+        }
+
         // GET: Usuarios
         public ActionResult Index()
         {
@@ -51,6 +79,10 @@ namespace sistema_citas_medicas.Controllers
             {
                 return RedirectToAction("Index");
             }
+
+            ViewBag.Medico = BuscarIdMedico(id);
+            ViewBag.Paciente = BuscarIdPaciente(id);
+
             return View(BuscarID(id));
         }
 
