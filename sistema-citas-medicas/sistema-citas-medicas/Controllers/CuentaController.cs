@@ -12,7 +12,8 @@ namespace sistema_citas_medicas.Controllers
 {
     public class CuentaController : Controller
     {
-        ServicioUsuario servicio = new ServicioUsuario();
+        ServicioUsuario servicioUsuario = new ServicioUsuario();
+        ServicioPaciente servicioPaciente = new ServicioPaciente();
 
         public ActionResult IniciarSesion()
         {
@@ -34,7 +35,7 @@ namespace sistema_citas_medicas.Controllers
                 Contraseña = model.Password
             };
 
-            Usuario userLogged = servicio.operacionesLectura("LOGIN", objUsuario).FirstOrDefault();
+            Usuario userLogged = servicioUsuario.operacionesLectura("LOGIN", objUsuario).FirstOrDefault();
             if (userLogged != null)
             {
                 Session["usuario"] = userLogged;
@@ -58,12 +59,37 @@ namespace sistema_citas_medicas.Controllers
 
         public ActionResult Registrar()
         {
-            return View(new Usuario());
+            return View(new Paciente());
+        }
+
+        public ActionResult Crear(Paciente objPaciente)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(objPaciente);
+            }
+
+            try
+            {
+                servicioPaciente.operacionesEscritura("INSERTAR", objPaciente);
+                TempData["Success"] = "¡Paciente creado correctamente!";
+                return RedirectToAction("Index");
+            }
+            catch (ApplicationException ex)
+            {
+                ViewBag.MensajeError = ex.Message;
+            }
+            catch (Exception)
+            {
+                ViewBag.MensajeError = "Ocurrió un error inesperado. Intenta más tarde.";
+            }
+
+            return View(objPaciente);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Registrar(Usuario model)
+        public ActionResult Registrar(Paciente model)
         {
             if (!ModelState.IsValid)
             {
@@ -72,28 +98,16 @@ namespace sistema_citas_medicas.Controllers
 
             try
             {
-                int procesar = servicio.operacionesEscritura("INSERTAR", model);
+                int procesar = servicioPaciente.operacionesEscritura("INSERTAR", model);
 
-                if (procesar >= 0)
-                {
-                    TempData["Success"] = "¡Usuario creado exitosamente!";
-                    return RedirectToAction("IniciarSesion", "Cuenta");
-                }
-
-                ViewBag.Mensaje = "Hubo un error al crear el usuario.";
+                TempData["Success"] = "¡Usuario creado exitosamente!";
+                return RedirectToAction("IniciarSesion", "Cuenta");
             }
-            catch (SqlException ex)
+            catch (ApplicationException ex)
             {
-                if (ex.Number == 2627 || ex.Number == 2601)
-                {
-                    ViewBag.Mensaje = "El correo electrónico ya está registrado. Por favor, usa otro.";
-                }
-                else
-                {
-                    ViewBag.Mensaje = "Ocurrió un error al procesar tu solicitud. Intenta nuevamente.";
-                }
+                ViewBag.Mensaje = ex.Message;
             }
-            catch
+            catch (Exception)
             {
                 ViewBag.Mensaje = "Ocurrió un error inesperado. Intenta más tarde.";
             }

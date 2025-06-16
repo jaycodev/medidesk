@@ -1,4 +1,4 @@
-﻿@model sistema_citas_medicas.Models.Usuario
+﻿@model sistema_citas_medicas.Models.Paciente
 
 @{
     Layout = null;
@@ -46,24 +46,28 @@
 
                             <div class="mb-3">
                                 @Html.LabelFor(m => m.Nombre, new { @class = "form-label" })
+                                <span class="text-danger">*</span>
                                 @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", placeholder = "Nombre(s)" })
                                 @Html.ValidationMessageFor(m => m.Nombre, "", new { @class = "text-danger" })
                             </div>
 
                             <div class="mb-3">
                                 @Html.LabelFor(m => m.Apellido, new { @class = "form-label" })
+                                <span class="text-danger">*</span>
                                 @Html.TextBoxFor(m => m.Apellido, new { @class = "form-control", placeholder = "Apellido(s)" })
                                 @Html.ValidationMessageFor(m => m.Apellido, "", new { @class = "text-danger" })
                             </div>
 
                             <div class="mb-3">
                                 @Html.LabelFor(m => m.Correo, new { @class = "form-label" })
+                                <span class="text-danger">*</span>
                                 @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", placeholder = "Correo electrónico" })
                                 @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
                             </div>
 
                             <div class="mb-3">
                                 @Html.LabelFor(m => m.Contraseña, new { @class = "form-label" })
+                                <span class="text-danger">*</span>
                                 <div class="input-group">
                                     @Html.PasswordFor(m => m.Contraseña, new { @class = "form-control password-field", placeholder = "Contraseña", data_toggle_id = "1" })
                                     <span class="input-group-text" style="cursor: pointer;" data-toggle-id="1">
@@ -71,6 +75,13 @@
                                     </span>
                                 </div>
                                 @Html.ValidationMessageFor(m => m.Contraseña, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.FechaNacimiento, new { @class = "form-label" })
+                                <span class="text-danger">*</span>
+                                @Html.TextBoxFor(m => m.FechaNacimiento, new { @class = "form-control", type = "date" })
+                                @Html.ValidationMessageFor(m => m.FechaNacimiento, "", new { @class = "text-danger" })
                             </div>
 
                             @Html.HiddenFor(model => model.Rol, new { Value = "pacientes" })
