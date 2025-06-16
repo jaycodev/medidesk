@@ -62,3 +62,28 @@ div.dataTables_wrapper table.dataTable {
 .bs-searchbox input::-webkit-search-cancel-button {
     cursor: pointer;
 }
+
+a {
+    color: var(--brand-primary);
+}
+
+textarea {
+    field-sizing: content;
+    resize: none;
+}
+
+.active > .page-link,
+.page-link.active {
+    background-color: var(--brand-primary) !important;
+    border-color: var(--brand-primary) !important;
+    color: var(--brand-primary-text) !important;
+}
+
+.page-link {
+	color: var(--bs-emphasis-color) !important;
+}
+
+.page-link:focus,
+.nav-link:focus-visible {
+	box-shadow: none;
+}

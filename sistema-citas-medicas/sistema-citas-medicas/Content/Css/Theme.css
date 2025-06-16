@@ -112,3 +112,20 @@
     box-shadow: none;
     border-color: var(--brand-primary) !important;
 }
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.field-validation-error {
+    font-size: 0.85rem;
+    animation: fadeSlideIn 0.3s ease-out;
+}
