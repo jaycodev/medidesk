@@ -206,6 +206,7 @@
     <Compile Include="Servicio\ServicioUsuario.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Css\Authenticated.css" />
     <Content Include="Content\Css\Theme.css" />
     <Content Include="Content\Img\login-foto.jpg" />
     <Content Include="Content\Icons\logo-dark.svg" />
@@ -218,6 +219,7 @@
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\alerts.js" />
     <Content Include="Scripts\color-modes.js" />
+    <Content Include="Scripts\dataTable-init.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
