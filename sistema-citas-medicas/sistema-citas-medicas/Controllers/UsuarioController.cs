@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using sistema_citas_medicas.Models;
+using sistema_citas_medicas.Models.ViewModels;
 using sistema_citas_medicas.Servicio;
 using System;
 using System.Collections.Generic;
@@ -80,10 +81,14 @@ namespace sistema_citas_medicas.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Medico = BuscarIdMedico(id);
-            ViewBag.Paciente = BuscarIdPaciente(id);
+            var viewModel = new UsuarioDetalleViewModel
+            {
+                Usuario = BuscarID(id),
+                Medico = BuscarIdMedico(id),
+                Paciente = BuscarIdPaciente(id)
+            };
 
-            return View(BuscarID(id));
+            return View(viewModel);
         }
 
         [HttpGet]
