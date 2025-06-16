@@ -92,9 +92,12 @@
                         <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1" title="Editar">
                             <i class="fa-solid fa-pen"></i>
                         </a>
-                        <a href="@Url.Action("Eliminar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Eliminar">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
+                        @if (item.Rol?.ToLower() == "administrador")
+                        {
+                            <a href="@Url.Action("Eliminar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        }
                     </td>
                 </tr>
             }
