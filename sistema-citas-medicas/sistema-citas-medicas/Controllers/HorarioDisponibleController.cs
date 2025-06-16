@@ -42,7 +42,7 @@ namespace sistema_citas_medicas.Controllers
                         IdMedico = codigo,
                         Habilita = false,
                         HoraInicio = TimeSpan.Zero,   // 00:00
-                        HoraFin = TimeSpan.Zero       // 00:00
+                        HoraFin = new TimeSpan(1, 0, 0) // 01:00
                     };
                 }
             }).ToList();
@@ -54,22 +54,36 @@ namespace sistema_citas_medicas.Controllers
         [HttpPost]
         public ActionResult CrearOModificarHorario(List<HorarioDisponible> horarios)
         {
-            bool exito = true;
+            try {
+                string comentarioError = string.Empty;
 
-            foreach (var horario in horarios)
-            {
-                int procesar = servicio.operacionesEscritura("INSERTAR_O_ACTUALIZAR", horario);
-
-                if (procesar < 0)
+                foreach (var horario in horarios)
                 {
-                    exito = false;
+                    if (horario.HoraInicio >= horario.HoraFin)
+                    {
+                        ModelState.AddModelError("HoraInicio", "La hora de inicio debe ser menor que la hora de fin.");
+                        if(horario.Habilita)
+                            comentarioError += ("En el dia " + horario.DiaSemana + " la hora de inicio debe ser menor a la hora final\n");
+                        continue;
+                    }
+
+                    int procesar = servicio.operacionesEscritura("INSERTAR_O_ACTUALIZAR", horario);
                 }
+
+                if (comentarioError == string.Empty)
+                {
+                    TempData["Success"] = "Horarios actualizados correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                    TempData["Error"] = comentarioError;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Ocurrió un error al procesar la solicitud: " + ex.Message);
+                TempData["Error"] = ex.Message;
             }
 
-            if (exito)
-            {
-                return RedirectToAction("Index");
-            }
             return View(horarios);
         }
     }
