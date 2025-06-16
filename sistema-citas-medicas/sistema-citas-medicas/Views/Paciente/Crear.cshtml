@@ -1,7 +1,7 @@
 ﻿@model sistema_citas_medicas.Models.Paciente
 
 @{
-    ViewBag.Title = "Crear un paciente";
+    ViewBag.Title = "Crear paciente";
 }
 
 <h4 class="text-center mb-3 text-body-emphasis">
@@ -32,13 +32,13 @@
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.Nombre, new { @class = "form-label" })
             <span class="text-danger">*</span>
-            @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", placeholder = "Ingrese un nombre" })
+            @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", placeholder = "Ingrese un(os) nombre(s)" })
             @Html.ValidationMessageFor(m => m.Nombre, "", new { @class = "text-danger" })
         </div>
         <div class="col-md-6">
             @Html.LabelFor(m => m.Apellido, new { @class = "form-label" })
             <span class="text-danger">*</span>
-            @Html.TextBoxFor(m => m.Apellido, new { @class = "form-control", placeholder = "Ingrese un apellido" })
+            @Html.TextBoxFor(m => m.Apellido, new { @class = "form-control", placeholder = "Ingrese un(os) apellido(s)" })
             @Html.ValidationMessageFor(m => m.Apellido, "", new { @class = "text-danger" })
         </div>
     </div>
@@ -70,7 +70,7 @@
             {
                 @class = "form-control",
                 type = "number",
-                placeholder = "Ingrese un teléfono",
+                placeholder = "Ingrese un número de telefóno",
                 min = "0"
             })
             @Html.ValidationMessageFor(m => m.Telefono, "", new { @class = "text-danger" })
@@ -78,7 +78,7 @@
         <div class="col-md-6">
             @Html.LabelFor(m => m.FechaNacimiento, new { @class = "form-label" })
             <span class="text-danger">*</span>
-            @Html.TextBoxFor(m => m.FechaNacimiento, new { @class = "form-control", type = "date", placeholder = "Seleccione fecha" })
+            @Html.TextBoxFor(m => m.FechaNacimiento, new { @class = "form-control", type = "date" })
             @Html.ValidationMessageFor(m => m.FechaNacimiento, "", new { @class = "text-danger" })
         </div>
     </div>

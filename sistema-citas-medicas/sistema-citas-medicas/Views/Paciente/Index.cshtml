@@ -9,87 +9,77 @@
     Pacientes
 </h4>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="@Url.Action("Crear")" class="btn btn-primary">
+<div id="buttonGroupHeader" class="d-flex justify-content-between align-items-center mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Crear")'" disabled>
         <i class="fa-solid fa-circle-plus me-1"></i>
         Crear
-    </a>
+    </button>
 
     <div>
-        <a href="@Url.Action("ExportarPdf")" class="btn btn-danger me-1">
+        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPDF")'" disabled>
             <i class="fa-solid fa-file-pdf me-1"></i>
             PDF
-        </a>
-        <a href="@Url.Action("ExportarExcel")" class="btn btn-success">
+        </button>
+
+        <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportarExcel")'" disabled>
             <i class="fa-solid fa-file-excel me-1"></i>
             Excel
-        </a>
+        </button>
     </div>
 </div>
 
-<div class="rounded overflow-hidden border">
-    <table class="table mb-0">
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdUsuario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Apellido)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Correo)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.FechaNacimiento)
-            </th>
-            <th class="text-center">
-                @Html.DisplayNameFor(model => model.GrupoSanguineo)
-            </th>
-            <th></th>
-        </tr>
-
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdUsuario)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Nombre)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Apellido)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Correo)
-                </td>
-
-                @{
-                    var cultura = new System.Globalization.CultureInfo("es-PE");
-                    var fechaNacimientoFormateada = item.FechaNacimiento?.ToString("dd MMM yyyy", cultura) ?? "";
-                }
-
-                <td class="text-center">
-                    @fechaNacimientoFormateada
-                </td>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.GrupoSanguineo)
-                </td>
-                <td class="text-center">
-                    <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1">
-                        <i class="fa-solid fa-pen"></i>
-                        Editar
-                    </a>
-                    <a href="@Url.Action("Detalle", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm">
-                        <i class="fa-solid fa-circle-info"></i>
-                        Detalle
-                    </a>
-                </td>
-            </tr>
-        }
-
-    </table>
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
 </div>
+
+<section id="tableContainer" class="d-none">
+    <table id="tablaPacientes" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.IdUsuario)</th>
+                <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+                <th>@Html.DisplayNameFor(model => model.Correo)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.FechaNacimiento)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.GrupoSanguineo)</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.IdUsuario)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Correo)</td>
+                    @{
+                        var cultura = new System.Globalization.CultureInfo("es-PE");
+                        var fechaNacimientoFormateada = item.FechaNacimiento?.ToString("dd MMM yyyy", cultura) ?? "";
+                    }
+                    <td class="text-center">@fechaNacimientoFormateada</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.GrupoSanguineo)</td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Detalle", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Detalle">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#tablaPacientes');
+        });
+    </script>
+}

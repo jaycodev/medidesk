@@ -143,7 +143,7 @@ namespace sistema_citas_medicas.Controllers
             return View(objUsu);
         }
 
-        public ActionResult ExportarPdf()
+        public ActionResult ExportarPDF()
         {
             var usuarios = servicio.operacionesLectura("CONSULTAR_TODO", new Usuario());
             using (var ms = new System.IO.MemoryStream())

@@ -11,7 +11,11 @@ namespace sistema_citas_medicas.Models
         [Display(Name = "Especialidad")]
         [Required(ErrorMessage = "Ingrese una especialidad")]
         public int IdEspecialidad { get; set; }
+
+        [Display(Name = "Especialidad")]
         public string EspecialidadNombre { get; set; }
+
+        [Display(Name = "Estado")]
         public bool Estado { get; set; }
     }
 }

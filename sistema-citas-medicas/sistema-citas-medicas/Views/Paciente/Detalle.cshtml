@@ -1,44 +1,44 @@
 ﻿@model sistema_citas_medicas.Models.Paciente
 
 @{
-    ViewBag.Title = "Detalle";
+    ViewBag.Title = "Detalle paciente";
 }
 
 <h4 class="mb-4 text-body-emphasis text-center">
     <i class="fa-solid fa-circle-info me-1"></i>
-    Detalles del paciente
+    Detalle paciente
 </h4>
 
 <div class="container">
     <div class="row">
         <dl class="row">
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.IdUsuario)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.IdUsuario)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.IdUsuario)</dd>
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.Nombre)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Nombre)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Nombre)</dd>
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.Apellido)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Apellido)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Apellido)</dd>
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.Correo)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Correo)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Correo)</dd>
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.Telefono)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Telefono)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Telefono)</dd>
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.FotoPerfil)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.FotoPerfil)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.FotoPerfil)</dd>
             </div>
 
@@ -48,12 +48,12 @@
             }
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.FechaNacimiento)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.FechaNacimiento)</dt>
                 <dd class="text-body">@fechaNacimientoFormateada</dd>
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="fw-semibold">@Html.DisplayNameFor(m => m.GrupoSanguineo)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.GrupoSanguineo)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.GrupoSanguineo)</dd>
             </div>
         </dl>
