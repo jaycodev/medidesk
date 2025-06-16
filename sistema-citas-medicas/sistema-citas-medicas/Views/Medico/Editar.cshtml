@@ -20,7 +20,7 @@
         * Obligatorio
     </p>
 
-    <div class="row mb-3">
+    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(model => model.Nombre, new { @class = "form-label" })
             @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control", placeholder = "Ingrese nombre", disabled = "disabled" })
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <div class="row mb-3">
+    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(model => model.Correo, new { @class = "form-label" })
             @Html.TextBoxFor(model => model.Correo, new { @class = "form-control", placeholder = "correo@ejemplo.com", disabled = "disabled" })
@@ -49,8 +49,8 @@
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
             @Html.LabelFor(model => model.Estado, new { @class = "form-label" })
             <span class="text-danger">*</span>
             @Html.DropDownListFor(model => model.Estado,
@@ -68,6 +68,7 @@
             <i class="fa-solid fa-left-long me-1"></i>
             Volver
         </a>
+
         <button type="submit" class="btn btn-primary">
             <i class="fa-solid fa-floppy-disk me-1"></i>
             Guardar

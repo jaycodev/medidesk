@@ -25,6 +25,7 @@
             @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", placeholder = "Nombre de la especialidad" })
             @Html.ValidationMessageFor(m => m.Nombre, "", new { @class = "text-danger" })
         </div>
+
         <div class="col-md-6">
             @Html.LabelFor(m => m.Descripcion, new { @class = "form-label" })
             @Html.TextAreaFor(m => m.Descripcion, new
@@ -41,6 +42,7 @@
             <i class="fa-solid fa-left-long me-1"></i>
             Volver
         </a>
+
         <button type="submit" class="btn btn-primary">
             <i class="fa-solid fa-circle-plus me-1"></i>
             Agregar
