@@ -49,6 +49,7 @@ GO
 CREATE TABLE Medicos (
     id_usuario INT PRIMARY KEY,
     id_especialidad INT NOT NULL,
+	estado BIT NOT NULL DEFAULT(1),
     FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
     FOREIGN KEY (id_especialidad) REFERENCES Especialidades(id_especialidad)
 );
@@ -266,7 +267,8 @@ CREATE OR ALTER PROC usp_medico_crud
     @telefono VARCHAR(20) = NULL,
     @id_especialidad INT = NULL,
 	@foto_perfil VARCHAR(255) = NULL,
-	@rol varchar(20) = 'medicos'
+	@rol varchar(20) = 'medicos',
+	@estado BIT = 1 
 AS
 BEGIN
 	IF @indicador = 'INSERTAR'
@@ -279,23 +281,28 @@ BEGIN
 			SET @id_usuario = SCOPE_IDENTITY();
 			IF @id_usuario IS NOT NULL
 			BEGIN
-				INSERT INTO Medicos (id_usuario, id_especialidad)
-				VALUES (@id_usuario, @id_especialidad);
+				INSERT INTO Medicos (id_usuario, id_especialidad, estado)
+				VALUES (@id_usuario, @id_especialidad, @estado);
 			END
 		END
 	END
 	IF @indicador = 'ACTUALIZAR'
 	BEGIN
 		UPDATE Medicos
-        SET id_especialidad = @id_especialidad
+        SET id_especialidad = @id_especialidad,
+            estado = @estado
         WHERE id_usuario = @id_usuario;
 
 	END
 	IF @indicador = 'ELIMINAR'
     BEGIN
-		UPDATE Usuarios
+		/*UPDATE Usuarios
 		SET rol = 'pacientes' 
 		WHERE id_usuario = @id_usuario
+		*/
+		UPDATE Medicos
+        SET estado = 0
+        WHERE id_usuario = @id_usuario;
     END
 
     IF @indicador = 'CONSULTAR_TODO'
@@ -310,11 +317,12 @@ BEGIN
 			U.foto_perfil,
 			U.rol,
 			M.id_especialidad,
-            E.nombre as especialidad
+            E.nombre as especialidad,
+			M.estado
         FROM Medicos M
         INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
         INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
-        WHERE rol = @rol
+        WHERE U.rol = @rol
     END
 	IF @indicador = 'CONSULTAR_X_ID'
     BEGIN
@@ -328,7 +336,8 @@ BEGIN
 			U.foto_perfil,
 			U.rol,
 			M.id_especialidad,
-            E.nombre as especialidad
+            E.nombre as especialidad,
+            M.estado
         FROM Medicos M
         INNER JOIN Usuarios U ON M.id_usuario = U.id_usuario
         INNER JOIN Especialidades E ON M.id_especialidad = E.id_especialidad
