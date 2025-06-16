@@ -8,7 +8,7 @@ namespace sistema_citas_medicas.Models
 {
     public class Especialidad
     {
-        [Display(Name = "ID especialidad")]
+        [Display(Name = "Código")]
         public int IdEspecialidad { get; set; }
 
         [Display(Name = "Nombre")]
@@ -16,7 +16,6 @@ namespace sistema_citas_medicas.Models
         public string Nombre { get; set; }
 
         [Display(Name = "Descripción")]
-        [Required(ErrorMessage = "Ingrese una descripción")]
         public string Descripcion { get; set; }
     }
 }

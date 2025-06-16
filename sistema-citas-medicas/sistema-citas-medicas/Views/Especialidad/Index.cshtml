@@ -1,46 +1,77 @@
 ﻿@model IEnumerable<sistema_citas_medicas.Models.Especialidad>
 
 @{
-  ViewBag.Title = "Index";
+    ViewBag.Title = "Especialidades";
 }
 
-<h2>Index</h2>
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-stethoscope me-1"></i>
+    Especialidades
+</h4>
 
-<p>
-  @Html.ActionLink("Agregar Especialidad", "Crear")
-</p>
-<table class="table">
-  <tr>
-    <th>
-      @Html.DisplayNameFor(model => model.IdEspecialidad)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Nombre)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Descripcion)
-    </th>
-    <th></th>
-  </tr>
+<div id="buttonGroupHeader" class="d-flex justify-content-between align-items-center mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Crear")'" disabled>
+        <i class="fa-solid fa-circle-plus me-1"></i>
+        Crear
+    </button>
 
-  @foreach (var item in Model)
-  {
-    <tr>
-      <td>
-        @Html.DisplayFor(modelItem => item.IdEspecialidad)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Nombre)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Descripcion)
-      </td>
-      <td>
-        @Html.ActionLink("Editar", "Editar", new { id = item.IdEspecialidad }) |
-        @Html.ActionLink("Detalle", "Detalle", new { id = item.IdEspecialidad }) |
-        @Html.ActionLink("Eliminar", "Eliminar", new { id = item.IdEspecialidad })
-      </td>
-    </tr>
-  }
+    <div>
+        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPDF")'" disabled>
+            <i class="fa-solid fa-file-pdf me-1"></i>
+            PDF
+        </button>
 
-</table>
+        <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportarExcel")'" disabled>
+            <i class="fa-solid fa-file-excel me-1"></i>
+            Excel
+        </button>
+    </div>
+</div>
+
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+
+<section id="tableContainer" class="d-none">
+    <table id="tablaEspecialidades" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.IdEspecialidad)</th>
+                <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                <th>@Html.DisplayNameFor(model => model.Descripcion)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.IdEspecialidad)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Descripcion)</td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Detalle", new { id = item.IdEspecialidad })" class="btn btn-secondary btn-sm" title="Detalle">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Editar", new { id = item.IdEspecialidad })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a href="@Url.Action("Eliminar", new { id = item.IdEspecialidad })" class="btn btn-secondary btn-sm" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#tablaEspecialidades');
+        });
+    </script>
+}
