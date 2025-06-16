@@ -294,17 +294,6 @@ BEGIN
         WHERE id_usuario = @id_usuario;
 
 	END
-	IF @indicador = 'ELIMINAR'
-    BEGIN
-		/*UPDATE Usuarios
-		SET rol = 'pacientes' 
-		WHERE id_usuario = @id_usuario
-		*/
-		UPDATE Medicos
-        SET estado = 0
-        WHERE id_usuario = @id_usuario;
-    END
-
     IF @indicador = 'CONSULTAR_TODO'
     BEGIN
         SELECT 

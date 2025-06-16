@@ -257,7 +257,6 @@
     <Content Include="Views\Especialidad\Eliminar.cshtml" />
     <Content Include="Views\Medico\Crear.cshtml" />
     <Content Include="Views\Medico\Editar.cshtml" />
-    <Content Include="Views\Medico\Eliminar.cshtml" />
     <Content Include="Views\Medico\Detalle.cshtml" />
     <Content Include="Views\Especialidad\Detalle.cshtml" />
     <Content Include="Views\Cita\HistorialdeCitas.cshtml" />

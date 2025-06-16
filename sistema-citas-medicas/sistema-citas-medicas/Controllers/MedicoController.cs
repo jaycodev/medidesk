@@ -135,39 +135,6 @@ namespace sistema_citas_medicas.Controllers
             }
             return View(BuscarId(id));
         }
-        [HttpGet]
-        public ActionResult Eliminar(int id)
-        {
-            if (id == 0)
-            {
-                return RedirectToAction("Index");
-            }
-            return View(BuscarId(id));
-        }
-
-        [HttpPost, ActionName("Eliminar")]
-        public ActionResult Eliminar_Confirmacion(int id)
-        {
-            Medico objMedico = BuscarId(id);
-            
-
-            try
-            {
-                int procesar = servicio.operacionesEscritura("ELIMINAR", objMedico);
-                if (procesar >= 0)
-                {
-                    TempData["Success"] = "¡Médico eliminado correctamente!";
-                    return RedirectToAction("Index");
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Ocurrió un error al intentar eliminar Médico. " + ex.Message;
-                ModelState.AddModelError("", "No se pudo eliminar el Médico.");
-            }
-            return View(objMedico);
-        }
-
 
         public ActionResult ExportarPdf()
         {
