@@ -56,7 +56,13 @@
 
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.Telefono, new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.Telefono, new { @class = "form-control", placeholder = "Ingrese un número de telefóno" })
+            @Html.TextBoxFor(m => m.Telefono, new
+            {
+                @class = "form-control",
+                type = "number",
+                placeholder = "Ingrese un número de teléfono",
+                min = "0"
+            })
             @Html.ValidationMessageFor(m => m.Telefono, "", new { @class = "text-danger" })
         </div>
 

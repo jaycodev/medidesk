@@ -42,7 +42,7 @@
                 <th>@Html.DisplayNameFor(model => model.Nombre)</th>
                 <th>@Html.DisplayNameFor(model => model.Apellido)</th>
                 <th>@Html.DisplayNameFor(model => model.Correo)</th>
-                <th>@Html.DisplayNameFor(model => model.Telefono)</th>
+                <th class="text-start">@Html.DisplayNameFor(model => model.Telefono)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.Rol)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.FotoPerfil)</th>
                 <th></th>
@@ -57,7 +57,7 @@
                     <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
                     <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
                     <td>@Html.DisplayFor(modelItem => item.Correo)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Telefono)</td>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.Telefono)</td>
                     <td class="text-center">
                         @{
                             var rol = item.Rol?.ToLower();
