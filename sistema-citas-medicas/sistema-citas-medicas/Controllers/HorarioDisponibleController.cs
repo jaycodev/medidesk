@@ -14,9 +14,24 @@ namespace sistema_citas_medicas.Controllers
 
         // GET: HorarioDisponible
 
-        [HttpGet]
-        public ActionResult CrearOModificarHorario(int codigo=2)
+        public int codigoValidacionRol()
         {
+            Usuario usuario = Session["usuario"] as Usuario;
+            if (usuario == null || usuario.Rol != "medicos")
+            {
+                TempData["Error"] = "No tienes permiso para acceder a esta página.";
+                RedirectToAction("TableroCitas", "Cita");
+            }
+
+            return usuario.IdUsuario;
+        }
+
+
+        [HttpGet]
+        public ActionResult CrearOModificarHorario()
+        {
+            int codigo=codigoValidacionRol();
+
             //Extraer la lista de horarios disponibles para el médico con el código proporcionado
             HorarioDisponible horarioIdMedico = new HorarioDisponible { IdMedico = codigo };
             List<HorarioDisponible> listaDisponibleActual = servicio.operacionesLectura("CONSULTAR_X_MEDICO", horarioIdMedico);
