@@ -16,7 +16,7 @@
     </button>
 
     <div>
-        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPdf")'" disabled>
+        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPDF")'" disabled>
             <i class="fa-solid fa-file-pdf me-1"></i>
             PDF
         </button>
@@ -38,24 +38,12 @@
     <table id="tablaPacientes" class="table mb-0">
         <thead>
             <tr>
-                <th class="text-start">
-                    @Html.DisplayNameFor(model => model.IdUsuario)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Nombre)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Apellido)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Correo)
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.FechaNacimiento)
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.GrupoSanguineo)
-                </th>
+                <th class="text-start">@Html.DisplayNameFor(model => model.IdUsuario)</th>
+                <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+                <th>@Html.DisplayNameFor(model => model.Correo)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.FechaNacimiento)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.GrupoSanguineo)</th>
                 <th></th>
             </tr>
         </thead>
@@ -64,36 +52,22 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td class="text-start">
-                        @Html.DisplayFor(modelItem => item.IdUsuario)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Nombre)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Apellido)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Correo)
-                    </td>
-
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.IdUsuario)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Correo)</td>
                     @{
                         var cultura = new System.Globalization.CultureInfo("es-PE");
                         var fechaNacimientoFormateada = item.FechaNacimiento?.ToString("dd MMM yyyy", cultura) ?? "";
                     }
-
+                    <td class="text-center">@fechaNacimientoFormateada</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.GrupoSanguineo)</td>
                     <td class="text-center">
-                        @fechaNacimientoFormateada
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(modelItem => item.GrupoSanguineo)
-                    </td>
-                    <td class="text-center">
-                        <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1" title="Editar">
-                            <i class="fa-solid fa-pen"></i>
-                        </a>
                         <a href="@Url.Action("Detalle", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Detalle">
                             <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
                         </a>
                     </td>
                 </tr>

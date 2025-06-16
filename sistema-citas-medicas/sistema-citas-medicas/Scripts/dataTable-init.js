@@ -1,4 +1,4 @@
-function toggleTableLoadingState(action) {
+function toggleTableLoadingState(action, selector) {
     const $spinner = $('#spinnerLoad');
     const $allButtons = $('#buttonGroupHeader button');
     const $exportButtons = $('[data-export]');
@@ -10,7 +10,7 @@ function toggleTableLoadingState(action) {
         $spinner.addClass('d-none');
         $allButtons.prop('disabled', false);
 
-        const table = $('#tablaPacientes').DataTable();
+        const table = $(selector).DataTable();
         const hasRows = table.rows().count() > 0;
         $exportButtons.prop('disabled', !hasRows);
     }
@@ -37,7 +37,7 @@ function initCustomDataTable(selector) {
             emptyTable: 'No hay datos disponibles en la tabla',
         },
         initComplete: function () {
-            toggleTableLoadingState('loaded')
+            toggleTableLoadingState('loaded', selector)
             $('#tableContainer').removeClass('d-none')
 
             table.wrap('<div class="rounded overflow-hidden border mt-2 mb-2 p-0"></div>');
@@ -55,7 +55,7 @@ function initCustomDataTable(selector) {
 
     setTimeout(function () {
         if ($('#spinnerLoad').is(':visible')) {
-            toggleTableLoadingState('loaded')
+            toggleTableLoadingState('loaded', selector)
             $('#tableContainer').removeClass('d-none')
         }
     }, 3000)

@@ -1,48 +1,111 @@
 ﻿@model IEnumerable<sistema_citas_medicas.Models.Usuario>
 
 @{
-    ViewBag.Title = "Listado Usuarios";
+    ViewBag.Title = "Usuarios";
 }
 
-<h2>Listado Usuarios</h2>
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-users me-1"></i>
+    Usuarios
+</h4>
 
-<p>
-    @Html.ActionLink("Crear Nuevo Administrador", "Crear")
-</p>
+<div id="buttonGroupHeader" class="d-flex justify-content-between align-items-center mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Crear")'" disabled>
+        <i class="fa-solid fa-circle-plus me-1"></i>
+        Crear administrador
+    </button>
 
-<div style="margin-bottom: 15px;">
-    <a class="btn btn-success" href="@Url.Action("ExportarExcel", "Usuario")">📊 Exportar Excel</a>
-    <a class="btn btn-danger" href="@Url.Action("ExportarPDF", "Usuario")">📄 Exportar PDF</a>
+    <div>
+        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPDF")'" disabled>
+            <i class="fa-solid fa-file-pdf me-1"></i>
+            PDF
+        </button>
+
+        <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportarExcel")'" disabled>
+            <i class="fa-solid fa-file-excel me-1"></i>
+            Excel
+        </button>
+    </div>
 </div>
 
-<table class="table">
-    <tr>
-        <th>@Html.DisplayNameFor(model => model.IdUsuario)</th>
-        <th>@Html.DisplayNameFor(model => model.Nombre)</th>
-        <th>@Html.DisplayNameFor(model => model.Apellido)</th>
-        <th>@Html.DisplayNameFor(model => model.Correo)</th>
-        <th>@Html.DisplayNameFor(model => model.Telefono)</th>
-        <th>@Html.DisplayNameFor(model => model.Rol)</th>
-        <th>@Html.DisplayNameFor(model => model.FotoPerfil)</th>
-        <th></th>
-    </tr>
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@Html.DisplayFor(modelItem => item.IdUsuario)</td>
-            <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
-            <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
-            <td>@Html.DisplayFor(modelItem => item.Correo)</td>
-            <td>@Html.DisplayFor(modelItem => item.Telefono)</td>
-            <td>@Html.DisplayFor(modelItem => item.Rol)</td>
-            <td>@Html.DisplayFor(modelItem => item.FotoPerfil)</td>
-            <td>
-                @Html.ActionLink("Editar", "Editar", new { id = item.IdUsuario }) |
-                @Html.ActionLink("Detalle", "Detalle", new { id = item.IdUsuario }) |
-                @Html.ActionLink("Eliminar", "Eliminar", new { id = item.IdUsuario })
-            </td>
-        </tr>
-    }
-</table>
+<section id="tableContainer" class="d-none">
+    <table id="tablaUsuarios" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.IdUsuario)</th>
+                <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+                <th>@Html.DisplayNameFor(model => model.Correo)</th>
+                <th>@Html.DisplayNameFor(model => model.Telefono)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Rol)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.FotoPerfil)</th>
+                <th></th>
+            </tr>
+        </thead>
 
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.IdUsuario)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Correo)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Telefono)</td>
+                    <td class="text-center">
+                        @{
+                            var rol = item.Rol?.ToLower();
+                            var icon = "fa-user";
+                            var text = "Desconocido";
+
+                            switch (rol)
+                            {
+                                case "pacientes":
+                                    icon = "fa-bed-pulse";
+                                    text = "Paciente";
+                                    break;
+                                case "medicos":
+                                    icon = "fa-user-doctor";
+                                    text = "Médico";
+                                    break;
+                                case "administrador":
+                                    icon = "fa-user-shield";
+                                    text = "Administrador";
+                                    break;
+                            }
+                        }
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            <i class="fa-solid @icon me-1"></i>@text
+                        </span>
+                    </td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.FotoPerfil)</td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Detalle", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Detalle">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a href="@Url.Action("Eliminar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#tablaUsuarios');
+        });
+    </script>
+}

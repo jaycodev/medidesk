@@ -1,89 +1,86 @@
 ﻿@model sistema_citas_medicas.Models.Usuario
 
 @{
-    ViewBag.Title = "Eliminar";
+    ViewBag.Title = "Eliminar usuario";
 }
 
-<h2>Eliminar</h2>
+<h4 class="mb-4 text-center text-body-emphasis">
+    <i class="fa-solid fa-circle-exclamation me-1 text-danger"></i>
+    ¿Estás seguro de que deseas eliminar este usuario?
+</h4>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Usuario</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.IdUsuario)
-        </dt>
+<div class="container">
+    <div class="row">
+        <dl class="row">
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.IdUsuario)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.IdUsuario)</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Nombre)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Nombre)</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Apellido)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Apellido)</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Correo)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Correo)</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Telefono)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Telefono)</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Rol)</dt>
+                <dd class="text-body">
+                    @{
+                        var rol = Model.Rol?.ToLower();
+                        var icon = "fa-user";
+                        var text = "Desconocido";
 
-        <dd>
-            @Html.DisplayFor(model => model.IdUsuario)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Apellido)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Apellido)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Correo)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Correo)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Contraseña)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Contraseña)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Telefono)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Telefono)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Rol)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Rol)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.FotoPerfil)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FotoPerfil)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
-        </div>
-    }
+                        switch (rol)
+                        {
+                            case "pacientes":
+                                icon = "fa-bed-pulse";
+                                text = "Paciente";
+                                break;
+                            case "medicos":
+                                icon = "fa-user-doctor";
+                                text = "Médico";
+                                break;
+                            case "administrador":
+                                icon = "fa-user-shield";
+                                text = "Administrador";
+                                break;
+                        }
+                    }
+                    <span class="badge bg-body-tertiary text-body-emphasis border">
+                        <i class="fa-solid @icon me-1"></i>@text
+                    </span>
+                </dd>
+            </div>
+            <div class="col-md-6">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.FotoPerfil)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.FotoPerfil)</dd>
+            </div>
+        </dl>
+    </div>
 </div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="d-flex justify-content-end gap-2 mt-4 container">
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fa-solid fa-left-long me-1"></i>
+            Cancelar
+        </a>
+        <button type="submit" class="btn btn-danger">
+            <i class="fa-solid fa-trash me-1"></i>
+            Eliminar
+        </button>
+    </div>
+}
