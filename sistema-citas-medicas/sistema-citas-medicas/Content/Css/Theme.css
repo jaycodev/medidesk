@@ -1,4 +1,8 @@
-﻿:root {
+﻿body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
     --brand-primary: #0A76D8;
     --brand-primary-hover: #006DD3;
     --brand-primary-text: #FFFFFF;
