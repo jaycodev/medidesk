@@ -1,93 +1,95 @@
 ﻿@model IEnumerable<sistema_citas_medicas.Models.Medico>
 
 @{
-  ViewBag.Title = "Index";
+    ViewBag.Title = "Médicos";
 }
 
-<h2>Lista Médico</h2>
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-user-doctor me-1"></i>
+    Médicos
+</h4>
 
-<p>
-  @Html.ActionLink("Agregar Médico", "Crear")
-</p>
+<div id="buttonGroupHeader" class="d-flex justify-content-between align-items-center mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Crear")'" disabled>
+        <i class="fa-solid fa-circle-plus me-1"></i>
+        Crear
+    </button>
 
-<div style="margin-bottom: 15px;">
-  <a class="btn btn-success" href="@Url.Action("ExportarExcel", "Medico")">📊 Exportar Excel</a>
-  <a class="btn btn-danger" href="@Url.Action("ExportarPDF", "Medico")">📄 Exportar PDF</a>
+    <div>
+        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPDF")'" disabled>
+            <i class="fa-solid fa-file-pdf me-1"></i>
+            PDF
+        </button>
+
+        <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportarExcel")'" disabled>
+            <i class="fa-solid fa-file-excel me-1"></i>
+            Excel
+        </button>
+    </div>
 </div>
 
-<table class="table">
-  <tr>
-    <th>
-      @Html.DisplayNameFor(model => model.IdUsuario)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Nombre)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Apellido)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Correo)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Telefono)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Rol)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.FotoPerfil)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.IdEspecialidad)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.EspecialidadNombre)
-    </th>
-    <th>
-      @Html.DisplayNameFor(model => model.Estado)
-    </th>
-    <th></th>
-  </tr>
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
 
-  @foreach (var item in Model)
-  {
-    <tr>
-      <td>
-        @Html.DisplayFor(modelItem => item.IdUsuario)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Nombre)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Apellido)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Correo)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Telefono)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Rol)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.FotoPerfil)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.EspecialidadNombre)
-      </td>
-      <td class="text-center">
-        <span class="badge @(item.Estado ? "bg-success" : "bg-danger")">
-          @(item.Estado ? "Activo" : "Inactivo")
-        </span>
-      </td>
-      <td>
-        @Html.ActionLink("Editar", "Editar", new { id = item.IdUsuario }) |
-        @Html.ActionLink("Detalle", "Detalle", new { id = item.IdUsuario }) |
-        @Html.ActionLink("Eliminar", "Eliminar", new { id = item.IdUsuario })
-      </td>
-    </tr>
-  }
+<section id="tableContainer" class="d-none">
+    <table id="tablaMedicos" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.IdUsuario)</th>
+                <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+                <th>@Html.DisplayNameFor(model => model.Correo)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.FotoPerfil)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.EspecialidadNombre)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Estado)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.IdUsuario)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Correo)</td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.FotoPerfil)</td>
+                    <td class="text-center">
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            @Html.DisplayFor(modelItem => item.EspecialidadNombre)
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge rounded-pill border
+                            @(item.Estado
+                                ? "bg-success-subtle border-success-subtle text-success-emphasis"
+                                : "bg-danger-subtle border-danger-subtle text-danger-emphasis")">
 
-</table>
+                            <i class="fa-solid @(item.Estado ? "fa-check" : "fa-ban") me-1"></i>
+                            @(item.Estado ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Detalle", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm" title="Detalle">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Editar", new { id = item.IdUsuario })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#tablaMedicos');
+        });
+    </script>
+}

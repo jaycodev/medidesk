@@ -1,59 +1,138 @@
 ﻿@model IEnumerable<sistema_citas_medicas.Models.Cita>
 
 @{
-    ViewBag.Title = "HistorialdeCitas";
+    ViewBag.Title = "Historial de citas";
+
+    var usuario = Session["usuario"] as sistema_citas_medicas.Models.Usuario;
+    var esPaciente = usuario?.Rol?.ToLower() == "pacientes";
+    var esMedico = usuario?.Rol?.ToLower() == "medicos";
+
+    var cultura = new System.Globalization.CultureInfo("es-PE");
 }
 
-<h2>Historial de Citas</h2>
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-clock-rotate-left me-1"></i>
+    Historial de citas
+</h4>
 
+<div class="mb-3">
+    <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportarPDF")'" disabled>
+        <i class="fa-solid fa-file-pdf me-1"></i>
+        PDF
+    </button>
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.NomMedico)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NomPaciente)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NomEspecialidad)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Fecha)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TipoConsulta)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Estado)
-        </th>
-        <th> OPCIONES </th>
-    </tr>
+    <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportarExcel")'" disabled>
+        <i class="fa-solid fa-file-excel me-1"></i>
+        Excel
+    </button>
+</div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.NomMedico)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.NomPaciente)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.NomEspecialidad)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Fecha)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TipoConsulta)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Estado)
-        </td>
-        <td>
-            @Html.ActionLink("DetallesCita", "DetallesCita", new { id=item.IdCita }) 
-        </td>
-    </tr>
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+
+<section id="tableContainer" class="d-none">
+    <table id="tablaCitas" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-center">@Html.DisplayNameFor(model => model.NomEspecialidad)</th>
+                @if (!esMedico)
+                {
+                    <th>@Html.DisplayNameFor(model => model.NomMedico)</th>
+                }
+                @if (!esPaciente)
+                {
+                    <th>@Html.DisplayNameFor(model => model.NomPaciente)</th>
+                }
+                <th class="text-center">@Html.DisplayNameFor(model => model.TipoConsulta)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Fecha)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Hora)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Estado)</th>
+                <th class="text-center"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-center">
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            @Html.DisplayFor(modelItem => item.NomEspecialidad)
+                        </span>
+                    </td>
+                    @if (!esMedico)
+                    {
+                        <td>@Html.DisplayFor(modelItem => item.NomMedico)</td>
+                    }
+                    @if (!esPaciente)
+                    {
+                        <td>@Html.DisplayFor(modelItem => item.NomPaciente)</td>
+                    }
+                    <td class="text-center">
+                        @{
+                            var tipo = item.TipoConsulta?.ToLower() ?? "";
+                            var icon = "fa-question-circle";
+                            var texto = "";
+
+                            switch (tipo)
+                            {
+                                case "consulta":
+                                    icon = "fa-stethoscope";
+                                    texto = "Consulta";
+                                    break;
+                                case "examen":
+                                    icon = "fa-file-waveform";
+                                    texto = "Examen";
+                                    break;
+                                case "operacion":
+                                    icon = "fa-syringe";
+                                    texto = "Operación";
+                                    break;
+                            }
+                        }
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            <i class="fa-solid @icon me-1"></i>
+                            @texto
+                        </span>
+                    </td>
+                    @{
+                        var fechaFormateada = item.Fecha.ToString("dd MMM yyyy", cultura);
+                    }
+                    <td class="text-center">@fechaFormateada</td>
+                    @{
+                        var horaInicio = DateTime.Today.Add(item.Hora);
+                        var horaFin = horaInicio.AddHours(1);
+                    }
+                    <td class="text-center">
+                        @horaInicio.ToString("hh:mm tt", cultura) - @horaFin.ToString("hh:mm tt", cultura)
+                    </td>
+                    <td class="text-center">
+                        <span class="badge rounded-pill border 
+                            @(item.Estado == "atendida"
+                                ? "bg-success-subtle border-success-subtle text-success-emphasis"
+                                : "bg-danger-subtle border-danger-subtle text-danger-emphasis")">
+        
+                            <i class="fa-solid @(item.Estado == "atendida" ? "fa-check" : "fa-ban") me-1"></i>
+                            @(item.Estado == "atendida" ? "Atendida" : "Cancelada")
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <a href="@Url.Action("DetallesCita", "Cita", new { id = item.IdCita })" class="btn btn-secondary btn-sm" title="Detalle">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#tablaCitas');
+        });
+    </script>
 }
-
-</table>

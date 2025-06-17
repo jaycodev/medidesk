@@ -1,9 +1,9 @@
-﻿@model sistema_citas_medicas.Models.Usuario
+﻿@model sistema_citas_medicas.Models.ViewModels.UsuarioDetalleViewModel
 
 @{
     ViewBag.Title = "Detalle usuario";
-    var medico = ViewBag.Medico as sistema_citas_medicas.Models.Medico;
-    var paciente = ViewBag.Paciente as sistema_citas_medicas.Models.Paciente;
+    var medico = Model.Medico;
+    var paciente = Model.Paciente;
 }
 
 <h4 class="mb-4 text-body-emphasis text-center">
@@ -15,30 +15,35 @@
     <div class="row">
         <dl class="row">
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.IdUsuario)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.IdUsuario)</dd>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.IdUsuario)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Usuario.IdUsuario)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Nombre)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.Nombre)</dd>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.Nombre)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Usuario.Nombre)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Apellido)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.Apellido)</dd>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.Apellido)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Usuario.Apellido)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Correo)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.Correo)</dd>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.Correo)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Usuario.Correo)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Telefono)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.Telefono)</dd>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.Telefono)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Usuario.Telefono)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Rol)</dt>
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.Rol)</dt>
                 <dd class="text-body">
                     @{
-                        var rol = Model.Rol?.ToLower();
+                        var rol = Model.Usuario.Rol?.ToLower();
                         var icon = "fa-user";
                         var text = "Desconocido";
 
@@ -63,9 +68,10 @@
                     </span>
                 </dd>
             </div>
-            <div class="col-md-6">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.FotoPerfil)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.FotoPerfil)</dd>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Usuario.FotoPerfil)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Usuario.FotoPerfil)</dd>
             </div>
         </dl>
     </div>
@@ -79,6 +85,7 @@
             <i class="fa-solid fa-user-doctor me-1"></i>
             Detalle médico
         </h4>
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => medico.EspecialidadNombre)</dt>
@@ -98,11 +105,13 @@
             <i class="fa-solid fa-bed-pulse me-1"></i>
             Detalle paciente
         </h4>
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => paciente.FechaNacimiento)</dt>
                 <dd class="text-body">@fechaNacimiento</dd>
             </div>
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => paciente.GrupoSanguineo)</dt>
                 <dd class="text-body">@paciente.GrupoSanguineo</dd>
@@ -116,7 +125,8 @@
         <i class="fa-solid fa-left-long me-1"></i>
         Volver
     </a>
-    <a href="@Url.Action("Editar", new { id = Model.IdUsuario })" class="btn btn-primary">
+
+    <a href="@Url.Action("Editar", new { id = Model.Usuario.IdUsuario })" class="btn btn-primary">
         <i class="fa-solid fa-pen me-1"></i>
         Editar
     </a>

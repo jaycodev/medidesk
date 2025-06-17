@@ -59,6 +59,8 @@ namespace sistema_citas_medicas.Dao.DaoImpl
                     cmd.Parameters.AddWithValue("@tipo_consulta", cita.TipoConsulta);
                     cmd.Parameters.AddWithValue("@sintomas", cita.Sintomas);
                     cmd.Parameters.AddWithValue("@estado", cita.Estado);
+                    cmd.Parameters.AddWithValue("@id_usuario", cita.IdUsuario);
+                    cmd.Parameters.AddWithValue("@tipo_usuario", cita.TipoUsuario);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {

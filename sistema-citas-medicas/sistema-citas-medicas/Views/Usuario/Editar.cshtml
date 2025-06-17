@@ -9,18 +9,18 @@
     Editar usuario
 </h4>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-    @Html.HiddenFor(m => m.IdUsuario)
-
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
     <p class="text-danger mb-3">
         * Obligatorio
     </p>
 
-    <div class="row mb-3">
+    @Html.HiddenFor(m => m.IdUsuario)
+
+    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.Nombre, new { @class = "form-label" })
             <span class="text-danger">*</span>
@@ -28,13 +28,15 @@
             @Html.ValidationMessageFor(m => m.Nombre, "", new { @class = "text-danger" })
         </div>
 
-        <div class="col-md-6 mb-2">
+        <div class="col-md-6">
             @Html.LabelFor(m => m.Apellido, new { @class = "form-label" })
             <span class="text-danger">*</span>
             @Html.TextBoxFor(m => m.Apellido, new { @class = "form-control", placeholder = "Ingrese un(os) apellido(s)" })
             @Html.ValidationMessageFor(m => m.Apellido, "", new { @class = "text-danger" })
         </div>
+    </div>
 
+    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.Correo, new { @class = "form-label" })
             <span class="text-danger">*</span>
@@ -42,7 +44,7 @@
             @Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
         </div>
 
-        <div class="col-md-6 mb-2">
+        <div class="col-md-6">
             @Html.LabelFor(m => m.Contraseña, new { @class = "form-label" })
             <span class="text-danger">*</span>
             <div class="input-group">
@@ -53,7 +55,9 @@
             </div>
             @Html.ValidationMessageFor(m => m.Contraseña, "", new { @class = "text-danger" })
         </div>
+    </div>
 
+    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.Telefono, new { @class = "form-label" })
             @Html.TextBoxFor(m => m.Telefono, new
@@ -66,7 +70,7 @@
             @Html.ValidationMessageFor(m => m.Telefono, "", new { @class = "text-danger" })
         </div>
 
-        <div class="col-md-6 mb-2">
+        <div class="col-md-6">
             @Html.LabelFor(m => m.Rol, new { @class = "form-label" })
             <span class="text-danger">*</span>
             @Html.DropDownListFor(m => m.Rol, new SelectList(new[] {
@@ -76,14 +80,12 @@
             }, "Value", "Text", Model.Rol), "Seleccione un rol", new { @class = "form-select" })
             @Html.ValidationMessageFor(m => m.Rol, "", new { @class = "text-danger" })
         </div>
+    </div>
 
+    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.FotoPerfil, new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.FotoPerfil, new
-            {
-                @type = "file",
-                @class = "form-control"
-            })
+            @Html.TextBoxFor(m => m.FotoPerfil, new { @type = "file", @class = "form-control" })
             @Html.ValidationMessageFor(m => m.FotoPerfil, "", new { @class = "text-danger" })
         </div>
     </div>
@@ -93,6 +95,7 @@
             <i class="fa-solid fa-left-long me-1"></i>
             Volver
         </a>
+
         <button type="submit" class="btn btn-primary">
             <i class="fa-solid fa-floppy-disk me-1"></i>
             Guardar

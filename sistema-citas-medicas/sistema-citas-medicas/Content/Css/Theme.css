@@ -1,4 +1,8 @@
-﻿:root {
+﻿body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
     --brand-primary: #0A76D8;
     --brand-primary-hover: #006DD3;
     --brand-primary-text: #FFFFFF;
@@ -128,4 +132,14 @@
 .field-validation-error {
     font-size: 0.85rem;
     animation: fadeSlideIn 0.3s ease-out;
+}
+
+[data-bs-theme='light'] .bg-success-subtle,
+[data-bs-theme='light'] .alert-success {
+    background-color: #b8dfc9 !important;
+}
+
+[data-bs-theme='light'] .bg-danger-subtle,
+[data-bs-theme='light'] .alert-danger {
+    background-color: #f4c2c6 !important;
 }

@@ -16,22 +16,27 @@
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.IdUsuario)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.IdUsuario)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Nombre)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Nombre)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Apellido)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Apellido)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Correo)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Correo)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Telefono)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.Telefono)</dd>
             </div>
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Rol)</dt>
                 <dd class="text-body">
@@ -61,7 +66,8 @@
                     </span>
                 </dd>
             </div>
-            <div class="col-md-6">
+
+            <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.FotoPerfil)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.FotoPerfil)</dd>
             </div>
@@ -74,10 +80,11 @@
     @Html.AntiForgeryToken()
 
     <div class="d-flex justify-content-end gap-2 mt-4 container">
-        <a href="@Url.Action("Index")" class="btn btn-secondary">
+        <a href="@Url.Action("Index")" class="btn">
             <i class="fa-solid fa-left-long me-1"></i>
             Cancelar
         </a>
+
         <button type="submit" class="btn btn-danger">
             <i class="fa-solid fa-trash me-1"></i>
             Eliminar
