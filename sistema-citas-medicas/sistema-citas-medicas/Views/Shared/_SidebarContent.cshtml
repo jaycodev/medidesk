@@ -53,18 +53,21 @@
                 <li>
                     <a href="@Url.Action("CitasConfirmadas", "Cita")"
                        class="nav-link ms-2 @(currentAction == "CitasConfirmadas" ? "" : "link-body-emphasis")">
+                        <i class="fa-solid fa-calendar-days me-1 icon"></i>
                         Mis citas
                     </a>
                 </li>
                 <li>
                     <a href="@Url.Action("CitasPendiente", "Cita")"
                        class="nav-link ms-2 @(currentAction == "CitasPendiente" ? "" : "link-body-emphasis")">
+                        <i class="fa-solid fa-hourglass-half me-1 icon"></i>
                         Citas pendientes
                     </a>
                 </li>
                 <li>
                     <a href="@Url.Action("HistorialdeCitas", "Cita")"
                        class="nav-link ms-2 @(currentAction == "HistorialdeCitas" ? "" : "link-body-emphasis")">
+                        <i class="fa-solid fa-clock-rotate-left me-1 icon"></i>
                         Historial de citas
                     </a>
                 </li>

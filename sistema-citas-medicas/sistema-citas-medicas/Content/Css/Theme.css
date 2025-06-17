@@ -133,3 +133,13 @@
     font-size: 0.85rem;
     animation: fadeSlideIn 0.3s ease-out;
 }
+
+[data-bs-theme='light'] .bg-success-subtle,
+[data-bs-theme='light'] .alert-success {
+    background-color: #b8dfc9 !important;
+}
+
+[data-bs-theme='light'] .bg-danger-subtle,
+[data-bs-theme='light'] .alert-danger {
+    background-color: #f4c2c6 !important;
+}

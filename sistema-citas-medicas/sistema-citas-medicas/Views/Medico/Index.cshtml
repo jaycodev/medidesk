@@ -63,7 +63,12 @@
                         </span>
                     </td>
                     <td class="text-center">
-                        <span class="badge @(item.Estado ? "bg-success" : "bg-danger")">
+                        <span class="badge rounded-pill border
+                            @(item.Estado
+                                ? "bg-success-subtle border-success-subtle text-success-emphasis"
+                                : "bg-danger-subtle border-danger-subtle text-danger-emphasis")">
+
+                            <i class="fa-solid @(item.Estado ? "fa-check" : "fa-ban") me-1"></i>
                             @(item.Estado ? "Activo" : "Inactivo")
                         </span>
                     </td>

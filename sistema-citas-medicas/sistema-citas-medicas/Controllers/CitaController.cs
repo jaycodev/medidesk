@@ -15,60 +15,70 @@ namespace sistema_citas_medicas.Controllers
         ServicioPaciente serviciopac = new ServicioPaciente();
         ServicioMedico serviciomed = new ServicioMedico();
 
+        private Usuario usuario;
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            usuario = Session["usuario"] as Usuario;
+        }
 
         public ActionResult TableroCitas()
         {
-            Usuario usuario = Session["usuario"] as Usuario;
-            List<Cita> listacitasporpaciente = new List<Cita>();
-
-            if (usuario == null)
+            var filtro = new Cita
             {
-                return RedirectToAction("IniciarSesion", "Cuenta");
-            }
+                IdUsuario = usuario.IdUsuario,
+                TipoUsuario = usuario.Rol,
+                Estado = null
+            };
 
-            Cita cita = new Cita();
-
-            if (usuario.Rol == "pacientes")
-            {
-                cita.IdPaciente = usuario.IdUsuario;
-                listacitasporpaciente = servicio.operacionesLectura("CONSULTAR_TODO_X_ID_PACIENTE", cita);
-            }
-            if (usuario.Rol == "medicos")
-            {
-                cita.IdMedico = usuario.IdUsuario;
-                listacitasporpaciente = servicio.operacionesLectura("CONSULTAR_TODO_X_ID_MEDICO", cita);
-            }
-            else
-            {
-                listacitasporpaciente = servicio.operacionesLectura("CONSULTAR_TODO", cita);
-            }
-
-            return View(listacitasporpaciente);
+            var lista = servicio.operacionesLectura("CONSULTAR_X_USUARIO_Y_ESTADO", filtro);
+            return View(lista);
         }
 
         public ActionResult HistorialdeCitas()
         {
-            List<Cita> listacomplete = servicio.operacionesLectura("CONSULTAR_TODO", new Cita());
-            return View(listacomplete);
+            var filtro = new Cita
+            {
+                IdUsuario = usuario.IdUsuario,
+                TipoUsuario = usuario.Rol
+            };
+
+            var lista = servicio.operacionesLectura("CONSULTAR_CANCELADAS_Y_ATENDIDAS_X_USUARIO", filtro);
+            return View(lista);
         }
 
         public ActionResult CitasPendiente()
         {
-            List<Cita> listacomplete = servicio.operacionesLectura("CONSULTAR_TODO_PENDIENTE", new Cita());
-            return View(listacomplete);
+            var filtro = new Cita
+            {
+                IdUsuario = usuario.IdUsuario,
+                TipoUsuario = usuario.Rol,
+                Estado = "pendiente"
+            };
+
+            var lista = servicio.operacionesLectura("CONSULTAR_X_USUARIO_Y_ESTADO", filtro);
+            return View(lista);
         }
 
         public ActionResult CitasConfirmadas()
         {
-            List<Cita> listacomplete = servicio.operacionesLectura("CONSULTAR_TODO_CONFIRMADA", new Cita());
-            return View(listacomplete);
+            var filtro = new Cita
+            {
+                IdUsuario = usuario.IdUsuario,
+                TipoUsuario = usuario.Rol,
+                Estado = "confirmada"
+            };
+
+            var lista = servicio.operacionesLectura("CONSULTAR_X_USUARIO_Y_ESTADO", filtro);
+            return View(lista);
         }
 
         public Cita BuscarID(int codigo)
         {
             Cita objcita = new Cita();
             objcita.IdCita = codigo;
-            Cita objID = servicio.operacionesLectura("CONSULTAR_TODOXID", objcita).First();
+            Cita objID = servicio.operacionesLectura("CONSULTAR_X_ID", objcita).First();
             return objID;
         }
 
@@ -84,7 +94,6 @@ namespace sistema_citas_medicas.Controllers
         [HttpGet]
         public ActionResult ReservarCita()
         {
-            ViewBag.TiposConsulta = new List<SelectListItem> { new SelectListItem { Text = "Consulta", Value = "consulta" }, new SelectListItem { Text = "Examen", Value = "examen" }, new SelectListItem { Text = "Operación", Value = "operacion" } };
             ViewBag.TiposEspecialidad = new SelectList(servicioesp.operacionesLectura("CONSULTAR_TODO", new Especialidad()), "IdEspecialidad", "Nombre");
             ViewBag.Medicos = new SelectList(serviciomed.operacionesLectura("CONSULTAR_TODO", new Medico()), "IdUsuario", "Nombre");
             ViewBag.Paciente = new SelectList(serviciopac.operacionesLectura("CONSULTAR_TODO", new Paciente()), "IdUsuario", "Nombre");
