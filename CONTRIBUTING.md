@@ -19,8 +19,8 @@ Este documento explica cómo vamos a trabajar juntos usando **Git y GitHub**. Es
 ### 1. Clonar el repositorio (solo la primera vez)
 
 ```bash
-git clone https://github.com/jason-vila/sistema-citas-medicas.git
-cd sistema-citas-medicas
+git clone https://github.com/jason-vila/medical-appointment-system.git
+cd medical-appointment-system
 ```
 
 ### 2. Conectar tu rama remota en local (solo la primera vez)

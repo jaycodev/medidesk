@@ -1,0 +1,65 @@
+﻿@model IEnumerable<medical_appointment_system.Models.Specialty>
+
+@{
+    ViewBag.Title = "Especialidades";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-stethoscope me-1"></i>
+    Especialidades
+</h4>
+
+<div id="buttonGroupHeader" class="mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create")'" disabled>
+        <i class="fa-solid fa-circle-plus me-1"></i>
+        Crear
+    </button>
+</div>
+
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+
+<section id="tableContainer" class="d-none">
+    <table id="specialtyTable" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.SpecialtyId)</th>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.Description)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.SpecialtyId)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Details", new { id = item.SpecialtyId })" class="btn btn-secondary btn-sm" title="Detalles">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Edit", new { id = item.SpecialtyId })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a href="@Url.Action("Delete", new { id = item.SpecialtyId })" class="btn btn-secondary btn-sm" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#specialtyTable');
+        });
+    </script>
+}

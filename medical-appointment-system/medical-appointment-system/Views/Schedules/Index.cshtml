@@ -1,0 +1,112 @@
+﻿@using medical_appointment_system.Models
+@model List<Schedule>
+
+@{
+    ViewBag.Title = "Horarios";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-calendar-week me-1"></i>
+    Horarios
+</h4>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var isEnabled = Model[i].IsActive;
+            var clasePanel = isEnabled ? "" : "horario-inactivo";
+
+            <div class="panel panel-default @(Model[i].IsActive ? "" : "horario-inactivo")"
+                 data-index="@i"
+                 style="margin: 10px 0;">
+
+                <div class="panel-body">
+                    @Html.HiddenFor(model => model[i].ScheduleId)
+                    @Html.HiddenFor(model => model[i].DoctorId)
+                    @Html.HiddenFor(model => model[i].Weekday)
+
+                    <div class="form-group row align-items-center">
+                        <div class="col-md-2 d-flex align-items-center">
+                            <div class="checkbox mb-0">
+                                @Html.EditorFor(model => model[i].IsActive)
+                                <label class="control-label" style="margin-left: 5px; font-weight: bold;">
+                                    @Model[i].Weekday
+                                </label>
+                                @Html.ValidationMessageFor(model => model[i].IsActive, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            @Html.LabelFor(model => model[i].StartTime, htmlAttributes: new { @class = "control-label" })
+                            <input type="time"
+                                   name="[@i].HoraInicio"
+                                   class="form-control"
+                                   step="3600"
+                                   value="@(Model[i].StartTime.ToString(@"hh\:mm"))"
+                                   min="00:00" max="23:00" />
+                            @Html.ValidationMessageFor(model => model[i].StartTime, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="col-md-5">
+                            @Html.LabelFor(model => model[i].EndTime, htmlAttributes: new { @class = "control-label" })
+                            <input type="time"
+                                   name="[@i].HoraFin"
+                                   class="form-control"
+                                   step="3600"
+                                   value="@(Model[i].EndTime.ToString(@"hh\:mm"))"
+                                   min="01:00" max="23:59" />
+                            @Html.ValidationMessageFor(model => model[i].EndTime, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="form-group text-center">
+            <input type="submit" value="Guardar Horarios" class="btn btn-primary" />
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Mantener horas en formato HH:00
+            const timeInputs = document.querySelectorAll('input[type="time"]');
+            timeInputs.forEach(input => {
+                input.addEventListener("change", () => {
+                    const [hour, _] = input.value.split(":");
+                    input.value = `${hour.padStart(2, '0')}:00`;
+                });
+            });
+
+            // Manejar opacidad al marcar/desmarcar los checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][name$=".IsActive"]');
+            checkboxes.forEach((checkbox, index) => {
+                checkbox.addEventListener("change", function () {
+                    const panel = document.querySelector(`div.panel[data-index="${index}"]`);
+                    if (this.checked) {
+                        panel.classList.remove("horario-inactivo");
+                    } else {
+                        panel.classList.add("horario-inactivo");
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .horario-inactivo {
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+    }
+</style>

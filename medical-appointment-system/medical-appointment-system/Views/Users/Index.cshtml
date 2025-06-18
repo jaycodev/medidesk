@@ -1,0 +1,115 @@
+﻿@model IEnumerable<medical_appointment_system.Models.User>
+
+@{
+    ViewBag.Title = "Usuarios";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-users me-1"></i>
+    Usuarios
+</h4>
+
+<div id="buttonGroupHeader" class="d-flex justify-content-between align-items-center mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create")'" disabled>
+        <i class="fa-solid fa-circle-plus me-1"></i>
+        Crear administrador
+    </button>
+
+    <div>
+        <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportToPDF")'" disabled>
+            <i class="fa-solid fa-file-pdf me-1"></i>
+            PDF
+        </button>
+
+        <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportToExcel")'" disabled>
+            <i class="fa-solid fa-file-excel me-1"></i>
+            Excel
+        </button>
+    </div>
+</div>
+
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+
+<section id="tableContainer" class="d-none">
+    <table id="userTable" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.UserId)</th>
+                <th>@Html.DisplayNameFor(model => model.FirstName)</th>
+                <th>@Html.DisplayNameFor(model => model.LastName)</th>
+                <th>@Html.DisplayNameFor(model => model.Email)</th>
+                <th class="text-start">@Html.DisplayNameFor(model => model.Phone)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Role)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.ProfilePicture)</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.UserId)</td>
+                    <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td class="text-start">@Html.DisplayFor(modelItem => item.Phone)</td>
+                    <td class="text-center">
+                        @{
+                            var rol = item.Role?.ToLower();
+                            var icon = "fa-user";
+                            var text = "";
+
+                            switch (rol)
+                            {
+                                case "paciente":
+                                    icon = "fa-bed-pulse";
+                                    text = "Paciente";
+                                    break;
+                                case "medico":
+                                    icon = "fa-user-doctor";
+                                    text = "Médico";
+                                    break;
+                                case "administrador":
+                                    icon = "fa-user-shield";
+                                    text = "Administrador";
+                                    break;
+                            }
+                        }
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            <i class="fa-solid @icon me-1"></i>
+                            @text
+                        </span>
+                    </td>
+                    <td class="text-center">@Html.DisplayFor(modelItem => item.ProfilePicture)</td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Details", new { id = item.UserId })" class="btn btn-secondary btn-sm" title="Detalles">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                        <a href="@Url.Action("Edit", new { id = item.UserId })" class="btn btn-secondary btn-sm me-1" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        @if (item.Role?.ToLower() == "administrador")
+                        {
+                            <a href="@Url.Action("Delete", new { id = item.UserId })" class="btn btn-secondary btn-sm" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#userTable');
+        });
+    </script>
+}
