@@ -1,0 +1,135 @@
+﻿@model sistema_citas_medicas.Models.Appointment
+
+@{
+    ViewBag.Title = "Reservar cita";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-calendar-check me-1"></i>
+    Reservar cita
+</h4>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <p class="text-danger mb-3">
+        * Obligatorio
+    </p>
+
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
+            @Html.LabelFor(m => m.SpecialtyName, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.DropDownListFor(m => m.SpecialtyId, (SelectList)ViewBag.Specialties, "Seleccione una especialidad", new { @class = "form-select" })
+            @Html.ValidationMessageFor(m => m.SpecialtyId, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.DoctorName, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.DropDownListFor(m => m.DoctorId, (SelectList)ViewBag.Doctors, "Seleccione un médico", new { @class = "form-select" })
+            @Html.ValidationMessageFor(m => m.DoctorId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-4 mb-2">
+            <label class="form-label d-flex align-items-center">
+                @Html.DisplayNameFor(m => m.Date)
+                <span class="text-danger ms-1">*</span>
+            </label>
+            @Html.TextBoxFor(m => m.Date, new { @class = "form-control", type = "date" })
+            @Html.ValidationMessageFor(m => m.Date, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-4 mb-2">
+            <label class="form-label d-flex align-items-center">
+                @Html.DisplayNameFor(m => m.ConsultationType)
+                <span class="text-danger ms-1">*</span>
+            </label>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(m => m.ConsultationType, "examen", new { @class = "form-check-input", id = "tipoExamen" })
+                <label class="form-check-label" for="tipoExamen">Examen</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(m => m.ConsultationType, "consulta", new { @class = "form-check-input", id = "tipoConsulta" })
+                <label class="form-check-label" for="tipoConsulta">Consulta</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(m => m.ConsultationType, "operacion", new { @class = "form-check-input", id = "tipoOperacion" })
+                <label class="form-check-label" for="tipoOperacion">Operación</label>
+            </div>
+            @Html.ValidationMessageFor(m => m.ConsultationType, "", new { @class = "text-danger d-block" })
+        </div>
+
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Symptoms, new { @class = "form-label" })
+            @Html.TextAreaFor(m => m.Symptoms, new { @class = "form-control", placeholder = "Describa brevemente los síntomas", rows = 3 })
+            @Html.ValidationMessageFor(m => m.Symptoms, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mb-2">
+        <div class="col-md-12">
+            <label class="form-label d-block">
+                Horario de atención <span class="text-danger">*</span>
+            </label>
+
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <strong class="d-block mb-1">En la mañana</strong>
+                    <div class="form-check mb-2">
+                        @Html.RadioButtonFor(m => m.Time, "08:00", new { @class = "form-check-input", id = "hora0800" })
+                        <label class="form-check-label" for="hora0800">8:00 a.m. - 9:00 a.m.</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        @Html.RadioButtonFor(m => m.Time, "09:00", new { @class = "form-check-input", id = "hora0900" })
+                        <label class="form-check-label" for="hora0900">9:00 a.m. - 10:00 a.m.</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        @Html.RadioButtonFor(m => m.Time, "10:00", new { @class = "form-check-input", id = "hora1000" })
+                        <label class="form-check-label" for="hora1000">10:00 a.m. - 11:00 a.m.</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <strong class="d-block mb-1">En la tarde</strong>
+                    <div class="form-check mb-2">
+                        @Html.RadioButtonFor(m => m.Time, "14:00", new { @class = "form-check-input", id = "hora1400" })
+                        <label class="form-check-label" for="hora1400">2:00 p. m. - 3:00 p. m.</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        @Html.RadioButtonFor(m => m.Time, "15:00", new { @class = "form-check-input", id = "hora1500" })
+                        <label class="form-check-label" for="hora1500">3:00 p. m. - 4:00 p. m.</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        @Html.RadioButtonFor(m => m.Time, "16:00", new { @class = "form-check-input", id = "hora1600" })
+                        <label class="form-check-label" for="hora1600">4:00 p. m. - 5:00 p. m.</label>
+                    </div>
+                </div>
+            </div>
+
+            @Html.ValidationMessageFor(m => m.Time, "", new { @class = "text-danger d-block" })
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="@Url.Action("Dashboard", "Appointments")" class="btn btn-secondary">
+            <i class="fa-solid fa-left-long me-1"></i>
+            Volver
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-calendar-check me-1"></i>
+            Reservar
+        </button>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

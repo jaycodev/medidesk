@@ -1,0 +1,105 @@
+﻿@model sistema_citas_medicas.Models.User
+
+@{
+    ViewBag.Title = "Crear administrador";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-circle-plus me-1"></i>
+    Crear administrador
+</h4>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    if (ViewBag.Message != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-xmark me-1"></i>
+            @ViewBag.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <p class="text-danger mb-3">
+        * Obligatorio
+    </p>
+
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
+            @Html.LabelFor(m => m.FirstName, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", placeholder = "Ingrese un(os) nombre(s)" })
+            @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.LastName, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", placeholder = "Ingrese un(os) apellido(s)" })
+            @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
+            @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "correo@ejemplo.com", type = "email" })
+            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            <div class="input-group">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control password-field", placeholder = "Ingrese una contraseña", data_toggle_id = "1" })
+                <span class="input-group-text" style="cursor: pointer;" data-toggle-id="1">
+                    <i class="fa-solid fa-eye icon"></i>
+                </span>
+            </div>
+            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
+            @Html.LabelFor(m => m.Phone, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.Phone, new
+            {
+                @class = "form-control",
+                type = "number",
+                placeholder = "Ingrese un número de teléfono",
+                min = "0"
+            })
+            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.ProfilePicture, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.ProfilePicture, new { @type = "file", @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.ProfilePicture, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    @Html.HiddenFor(m => m.Role, new { Value = "administrador" })
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fa-solid fa-left-long me-1"></i>
+            Volver
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-circle-plus me-1"></i>
+            Crear
+        </button>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/password.js"></script>
+}

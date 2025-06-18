@@ -14,5 +14,40 @@ namespace sistema_citas_medicas.Helpers
             }
             return false;
         }
+
+        public static string SafeGetString(this SqlDataReader reader, string column)
+        {
+            return reader.HasColumn(column) && reader[column] != DBNull.Value
+                ? reader[column].ToString()
+                : string.Empty;
+        }
+
+        public static int SafeGetInt(this SqlDataReader reader, string column)
+        {
+            return reader.HasColumn(column) && reader[column] != DBNull.Value
+                ? Convert.ToInt32(reader[column])
+                : 0;
+        }
+
+        public static DateTime SafeGetDateTime(this SqlDataReader reader, string column)
+        {
+            return reader.HasColumn(column) && reader[column] != DBNull.Value
+                ? Convert.ToDateTime(reader[column])
+                : DateTime.MinValue;
+        }
+
+        public static bool SafeGetBool(this SqlDataReader reader, string column)
+        {
+            return reader.HasColumn(column) && reader[column] != DBNull.Value
+                ? Convert.ToBoolean(reader[column])
+                : false;
+        }
+
+        public static TimeSpan SafeGetTimeSpan(this SqlDataReader reader, string column)
+        {
+            return reader.HasColumn(column) && reader[column] != DBNull.Value
+                ? (TimeSpan)reader[column]
+                : TimeSpan.Zero;
+        }
     }
 }

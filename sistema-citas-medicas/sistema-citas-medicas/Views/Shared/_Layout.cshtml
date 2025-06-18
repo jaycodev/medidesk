@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
 </head>
 <body class="bg-body-tertiary" data-success="@TempData["Success"]" data-error="@TempData["Error"]">
-    <!-- Sidebar Offcanvas para pantallas pequeñas -->
+    <!-- Offcanvas Sidebar for small screens -->
     <div class="offcanvas offcanvas-start offcanvas-custom bg-body" tabindex="-1" id="offcanvasSidebar" aria-labelledby="sidebarOffcanvasLabel">
         <div class="offcanvas-header">
             <a href="/" class="d-flex align-items-center text-center me-md-auto link-body-emphasis text-decoration-none ms-2">
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <!-- Sidebar para pantallas grandes -->
+    <!-- Sidebar for large screens -->
     <div class="sidebar-fixed d-flex flex-column flex-shrink-0 p-3 bg-body border-end">
         <a href="/" class="d-flex align-items-center text-center mb-4 me-md-auto link-body-emphasis text-decoration-none ms-2">
             <i class="fa-solid fa-hospital me-2 fs-4"></i>
@@ -46,7 +46,7 @@
     <!-- Header -->
     <header class="header-fixed d-flex align-items-center py-3 border-bottom bg-body">
         <div class="container-fluid d-flex justify-content-between align-items-center">
-            <!-- Sección izquierda: Botón menú e input en pantallas grandes -->
+            <!-- Left section: Menu and input button on large screens -->
             <div class="d-flex align-items-center" style="min-width: 80px;">
                 <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-label="Menú">
                     <i class="fas fa-bars"></i>
@@ -59,19 +59,19 @@
                 <input type="search" class="form-control mx-auto d-block d-lg-none" placeholder="Buscar..." style="max-width: 220px;">
             </div>
 
-            <!-- Sección derecha: Cambiar tema y usuario -->
+            <!-- Right section: Change theme and user -->
             <div class="d-flex align-items-center justify-content-end gap-3 ms-auto">
                 @Html.Partial("_ToggleTheme")
 
                 <div class="dropdown">
                     @{
-                        var usuario = Session["usuario"] as sistema_citas_medicas.Models.Usuario;
-                        bool tieneFoto = !string.IsNullOrEmpty(usuario?.FotoPerfil);
+                        var user = Session["user"] as sistema_citas_medicas.Models.User;
+                        bool hasPhoto = !string.IsNullOrEmpty(user?.ProfilePicture);
                     }
                     <button type="button" class="btn btn-link nav-link d-flex align-items-center link-body-emphasis" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
-                        @if (tieneFoto)
+                        @if (hasPhoto)
                         {
-                            <img src="@usuario.FotoPerfil" alt="Foto de perfil" width="28" height="28" class="rounded-circle" />
+                            <img src="@user.ProfilePicture" alt="Foto de perfil" width="28" height="28" class="rounded-circle" />
                         }
                         else
                         {
@@ -98,32 +98,30 @@
         </div>
     </header>
 
-    <!-- Modal de Confirmación para Cerrar Sesión -->
+    <!-- Confirmation modal to close session -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
 
-                <!-- Encabezado del Modal -->
+                <!-- Modal Header -->
                 <div class="modal-header">
                     <h5 class="modal-title text-body-emphasis" id="logoutModalLabel">Confirmar cierre de sesión</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
-                <!-- Cuerpo del Modal -->
+                <!-- Modal body -->
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
                 </div>
 
-                <!-- Pie del Modal -->
+                <!-- Modal footer -->
                 <div class="modal-footer">
 
-                    <!-- Botón Cancelar -->
                     <button type="button" class="btn d-flex align-items-center" data-bs-dismiss="modal">
                         Cancelar
                     </button>
 
-                    <!-- Formulario para cerrar sesión -->
-                    @using (Html.BeginForm("CerrarSesion", "Cuenta", FormMethod.Post))
+                    @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
                     {
                         @Html.AntiForgeryToken()
 
@@ -137,7 +135,7 @@
         </div>
     </div>
 
-    <!-- Contenido principal -->
+    <!-- Main content -->
     <main class="main-content p-4">
         @RenderBody()
     </main>

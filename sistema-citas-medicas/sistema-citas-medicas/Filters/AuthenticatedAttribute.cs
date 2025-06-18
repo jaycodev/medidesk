@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Antlr.Runtime.Misc;
 
 namespace sistema_citas_medicas.Filters
 {
@@ -11,31 +8,31 @@ namespace sistema_citas_medicas.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var sesion = HttpContext.Current.Session["usuario"];
+            var sesion = HttpContext.Current.Session["user"];
             string controller = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
             string action = filterContext.ActionDescriptor.ActionName;
 
-            if (controller == "Cuenta" && action == "CerrarSesion" && sesion == null)
+            if (controller == "Account" && action == "Logout" && sesion == null)
             {
-                filterContext.Result = new RedirectResult("~/Cuenta/IniciarSesion");
+                filterContext.Result = new RedirectResult("~/Account/Login");
                 return;
             }
 
-            if (controller == "Cuenta" && action == "CerrarSesion" && sesion != null)
+            if (controller == "Account" && action == "Logout" && sesion != null)
             {
                 base.OnActionExecuting(filterContext);
                 return;
             }
 
-            if (sesion == null && controller != "Cuenta")
+            if (sesion == null && controller != "Account")
             {
-                filterContext.Result = new RedirectResult("~/Cuenta/IniciarSesion");
+                filterContext.Result = new RedirectResult("~/Account/Login");
                 return;
             }
 
-            if (sesion != null && controller == "Cuenta")
+            if (sesion != null && controller == "Account")
             {
-                filterContext.Result = new RedirectResult("~/Cita/TableroCitas");
+                filterContext.Result = new RedirectResult("~/Appointments/Dashboard");
                 return;
             }
 

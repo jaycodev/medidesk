@@ -2,41 +2,38 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    var isCitasSection = currentController == "Cita" && (
-        currentAction == "CitasConfirmadas" ||
-        currentAction == "CitasPendiente" ||
-        currentAction == "HistorialdeCitas"
-    );
+    var isAppointmentsSection = currentController == "Appointments" &&
+        currentAction != "Reserve" &&
+        currentAction != "Dashboard";
 
-    var usuario = Session["usuario"] as sistema_citas_medicas.Models.Usuario;
+    var user = Session["user"] as sistema_citas_medicas.Models.User;
 
-    string saludo;
+    string greeting;
     if (DateTime.Now.Hour < 12)
     {
-        saludo = "Buenos días";
+        greeting = "Buenos días";
     }
     else if (DateTime.Now.Hour < 18)
     {
-        saludo = "Buenas tardes";
+        greeting = "Buenas tardes";
     }
     else
     {
-        saludo = "Buenas noches";
+        greeting = "Buenas noches";
     }
 }
 
 <ul class="nav nav-pills flex-column mb-auto">
     <li>
-        <a href="@Url.Action("TableroCitas", "Cita")"
-           class="nav-link @(currentController == "Cita" && currentAction == "TableroCitas" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Dashboard", "Appointments")"
+           class="nav-link @(currentController == "Appointments" && currentAction == "Dashboard" ? "active" : "link-body-emphasis")">
             <i class="fa-regular fa-calendar-days me-2 icon"></i>
             Tablero
         </a>
     </li>
 
-    <!-- Citas médicas con submenú siempre expandido -->
     <li class="nav-item">
-        <a class="nav-link d-flex justify-content-between align-items-center @(isCitasSection ? "active" : "link-body-emphasis")"
+        <a class="nav-link d-flex justify-content-between align-items-center @(isAppointmentsSection ? "active" : "link-body-emphasis")"
            data-bs-toggle="collapse"
            href="#submenuCitas"
            role="button"
@@ -48,25 +45,28 @@
             </span>
             <i class="fa-solid fa-chevron-down small transition"></i>
         </a>
+
         <div class="collapse show ps-4" id="submenuCitas">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                 <li>
-                    <a href="@Url.Action("CitasConfirmadas", "Cita")"
-                       class="nav-link ms-2 @(currentAction == "CitasConfirmadas" ? "" : "link-body-emphasis")">
+                    <a href="@Url.Action("MyAppointments", "Appointments")"
+                       class="nav-link ms-2 @(currentAction == "MyAppointments" ? "" : "link-body-emphasis")">
                         <i class="fa-solid fa-calendar-days me-1 icon"></i>
                         Mis citas
                     </a>
                 </li>
+
                 <li>
-                    <a href="@Url.Action("CitasPendiente", "Cita")"
-                       class="nav-link ms-2 @(currentAction == "CitasPendiente" ? "" : "link-body-emphasis")">
+                    <a href="@Url.Action("Pending", "Appointments")"
+                       class="nav-link ms-2 @(currentAction == "Pending" ? "" : "link-body-emphasis")">
                         <i class="fa-solid fa-hourglass-half me-1 icon"></i>
                         Citas pendientes
                     </a>
                 </li>
+
                 <li>
-                    <a href="@Url.Action("HistorialdeCitas", "Cita")"
-                       class="nav-link ms-2 @(currentAction == "HistorialdeCitas" ? "" : "link-body-emphasis")">
+                    <a href="@Url.Action("Historial", "Appointments")"
+                       class="nav-link ms-2 @(currentAction == "Historial" ? "" : "link-body-emphasis")">
                         <i class="fa-solid fa-clock-rotate-left me-1 icon"></i>
                         Historial de citas
                     </a>
@@ -76,55 +76,54 @@
     </li>
 
     <li>
-        <a href="@Url.Action("ReservarCita", "Cita")"
-           class="nav-link @(currentController == "Cita" && currentAction == "ReservarCita" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Reserve", "Appointments")"
+           class="nav-link @(currentController == "Appointments" && currentAction == "Reserve" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-calendar-check me-2 icon"></i>
             Reservar cita
         </a>
     </li>
 
     <li>
-        <a href="@Url.Action("Index", "Medico")"
-           class="nav-link @(currentController == "Medico" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Index", "Doctors")"
+           class="nav-link @(currentController == "Doctors" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-user-doctor me-2 icon"></i>
             Médicos
         </a>
     </li>
 
     <li>
-        <a href="@Url.Action("Index", "Paciente")"
-           class="nav-link @(currentController == "Paciente" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Index", "Patients")"
+           class="nav-link @(currentController == "Patients" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-bed-pulse me-2 icon"></i>
             Pacientes
         </a>
     </li>
 
     <li>
-        <a href="@Url.Action("Index", "Especialidad")"
-           class="nav-link @(currentController == "Especialidad" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Index", "Specialties")"
+           class="nav-link @(currentController == "Specialties" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-stethoscope me-2 icon"></i>
             Especialidades
         </a>
     </li>
 
     <li>
-        <a href="@Url.Action("CrearOModificarHorario", "HorarioDisponible")"
-           class="nav-link @(currentController == "HorarioDisponible" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Set", "Schedules")"
+           class="nav-link @(currentController == "Schedules" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-calendar-week me-2 icon"></i>
-            Horarios disponibles
+            Horarios
         </a>
     </li>
 
     <li>
-        <a href="@Url.Action("Index", "Usuario")"
-           class="nav-link @(currentController == "Usuario" ? "active" : "link-body-emphasis")">
+        <a href="@Url.Action("Index", "Users")"
+           class="nav-link @(currentController == "Users" ? "active" : "link-body-emphasis")">
             <i class="fa-solid fa-users me-2 icon"></i>
             Usuarios
         </a>
     </li>
 </ul>
 
-<!-- Sesión iniciada -->
 <div class="text-muted small">
-    @saludo, <strong>@usuario.Nombre</strong>
+    @greeting, <strong>@user.FirstName</strong>
 </div>

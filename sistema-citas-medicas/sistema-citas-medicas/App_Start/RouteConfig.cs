@@ -16,7 +16,7 @@ namespace sistema_citas_medicas
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Cita", action = "TableroCitas", id = UrlParameter.Optional }
+                defaults: new { controller = "Appointments", action = "Dashboard", id = UrlParameter.Optional }
             );
         }
     }
