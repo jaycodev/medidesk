@@ -1,0 +1,144 @@
+﻿@model IEnumerable<medical_appointment_system.Models.Appointment>
+
+@{
+    ViewBag.Title = "Historial de citas";
+
+    var user = Session["user"] as medical_appointment_system.Models.User;
+    var isDoctor = user?.Role?.ToLower() == "medico";
+    var isPatient = user?.Role?.ToLower() == "paciente";
+
+    var culture = new System.Globalization.CultureInfo("es-PE");
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-clock-rotate-left me-1"></i>
+    Historial de citas
+</h4>
+
+<div class="mb-3">
+    <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportToPDF")'" disabled>
+        <i class="fa-solid fa-file-pdf me-1"></i>
+        PDF
+    </button>
+
+    <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportToExcel")'" disabled>
+        <i class="fa-solid fa-file-excel me-1"></i>
+        Excel
+    </button>
+</div>
+
+<div id="spinnerLoad" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+
+<section id="tableContainer" class="d-none">
+    <table id="appointmentTable" class="table mb-0">
+        <thead>
+            <tr>
+                <th class="text-start">@Html.DisplayNameFor(model => model.AppointmentId)</th>
+                <th class="text-start">@Html.DisplayNameFor(model => model.SpecialtyName)</th>
+                @if (!isDoctor)
+                {
+                    <th>@Html.DisplayNameFor(model => model.DoctorName)</th>
+                }
+                @if (!isPatient)
+                {
+                    <th>@Html.DisplayNameFor(model => model.PatientName)</th>
+                }
+                <th class="text-center">@Html.DisplayNameFor(model => model.ConsultationType)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Date)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Time)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Status)</th>
+                <th class="text-center"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-start">
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            @Html.DisplayFor(modelItem => item.AppointmentId)
+                        </span>
+                    </td>
+                    <td class="text-start">
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            @Html.DisplayFor(modelItem => item.SpecialtyName)
+                        </span>
+                    </td>
+                    @if (!isDoctor)
+                    {
+                        <td>@Html.DisplayFor(modelItem => item.DoctorName)</td>
+                    }
+                    @if (!isPatient)
+                    {
+                        <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
+                    }
+                    <td class="text-center">
+                        @{
+                            var type = item.ConsultationType?.ToLower() ?? "";
+                            var icon = "fa-question-circle";
+                            var text = "";
+
+                            switch (type)
+                            {
+                                case "consulta":
+                                    icon = "fa-stethoscope";
+                                    text = "Consulta";
+                                    break;
+                                case "examen":
+                                    icon = "fa-file-waveform";
+                                    text = "Examen";
+                                    break;
+                                case "operacion":
+                                    icon = "fa-syringe";
+                                    text = "Operación";
+                                    break;
+                            }
+                        }
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            <i class="fa-solid @icon me-1"></i>
+                            @text
+                        </span>
+                    </td>
+                    @{
+                        var formattedDate = item.Date.ToString("dd MMM yyyy", culture);
+                    }
+                    <td class="text-center">@formattedDate</td>
+                    @{
+                        var startTime = DateTime.Today.Add(item.Time);
+                        var endTime = startTime.AddHours(1);
+                    }
+                    <td class="text-center">
+                        @startTime.ToString("hh:mm tt", culture) - @endTime.ToString("hh:mm tt", culture)
+                    </td>
+                    <td class="text-center">
+                        <span class="badge rounded-pill border
+                            @(item.Status == "atendida"
+                                ? "bg-success-subtle border-success-subtle text-success-emphasis"
+                                : "bg-danger-subtle border-danger-subtle text-danger-emphasis")">
+
+                            <i class="fa-solid @(item.Status == "atendida" ? "fa-check" : "fa-ban") me-1"></i>
+                            @(item.Status == "atendida" ? "Atendida" : "Cancelada")
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <a href="@Url.Action("Details", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Detalles">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initCustomDataTable('#appointmentTable');
+        });
+    </script>
+}

@@ -1,0 +1,76 @@
+﻿@model medical_appointment_system.Models.Doctor
+
+@{
+    ViewBag.Title = "Detalles médico";
+}
+
+<h4 class="mb-4 text-body-emphasis text-center">
+    <i class="fa-solid fa-circle-info me-1"></i>
+    Detalles médico
+</h4>
+
+<div class="container">
+    <div class="row">
+        <dl class="row">
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.UserId)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.UserId)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.FirstName)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.FirstName)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.LastName)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.LastName)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Email)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Email)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Phone)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Phone)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ProfilePicture)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.ProfilePicture)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.SpecialtyName)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.SpecialtyName)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Status)</dt>
+                <dd>
+                    <span class="badge rounded-pill border 
+                        @(Model.Status 
+                            ? "bg-success-subtle border-success-subtle text-success-emphasis" 
+                            : "bg-danger-subtle border-danger-subtle text-danger-emphasis")">
+                        <i class="fa-solid @(Model.Status ? "fa-check" : "fa-ban") me-1"></i>
+                        @(Model.Status ? "Activo" : "Inactivo")
+                    </span>
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a href="@Url.Action("Index")" class="btn btn-secondary">
+        <i class="fa-solid fa-left-long me-1"></i>
+        Volver
+    </a>
+
+    <a href="@Url.Action("Edit", new { id = Model.UserId })" class="btn btn-primary">
+        <i class="fa-solid fa-pen me-1"></i>
+        Editar
+    </a>
+</div>
