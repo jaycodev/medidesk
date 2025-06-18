@@ -9,6 +9,7 @@ namespace medical_appointment_system
         {
             filters.Add(new HandleErrorAttribute());
             filters.Add(new AuthenticatedAttribute());
+            filters.Add(new ForceLowercaseUrlAttribute());
         }
     }
 }

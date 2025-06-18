@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
+using medical_appointment_system.App_Start;
 
 namespace medical_appointment_system
 {
@@ -9,11 +10,13 @@ namespace medical_appointment_system
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            routes.MapRoute(
-                name: "Default",
+            routes.Add("Default", new LowercaseRoute(
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Appointments", action = "Dashboard", id = UrlParameter.Optional }
-            );
+                routeHandler: new MvcRouteHandler()
+            )
+            {
+                Defaults = new RouteValueDictionary(new { controller = "Appointments", action = "Dashboard", id = UrlParameter.Optional })
+            });
         }
     }
 }
