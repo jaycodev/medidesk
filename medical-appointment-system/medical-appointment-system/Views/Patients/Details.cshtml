@@ -14,7 +14,9 @@
         <dl class="row">
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.UserId)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.UserId)</dd>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">@Model.UserId</span>
+                </dd>
             </div>
 
             <div class="col-md-6 mb-3">

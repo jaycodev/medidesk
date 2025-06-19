@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using medical_appointment_system.Models;
 using medical_appointment_system.Services;
 
@@ -74,9 +76,70 @@ namespace medical_appointment_system.Controllers
         public ActionResult Reserve()
         {
             ViewBag.Specialties = new SelectList(specialtyService.ExecuteRead("GET_ALL", new Specialty()), "SpecialtyId", "Name");
-            ViewBag.Doctors = new SelectList(doctorService.ExecuteRead("GET_ALL", new Doctor()), "UserId", "FirstName");
 
             return View(new Appointment());
+        }
+
+        public JsonResult GetDoctorsBySpecialty(int id)
+        {
+            var doctors = doctorService.ExecuteRead("GET_BY_SPECIALTY", new Doctor { SpecialtyId = id });
+            var result = doctors.Select(d => new {
+                d.UserId,
+                FullName = $"{d.FirstName} {d.LastName}"
+            });
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public Tuple<TimeSpan, TimeSpan> GetDoctorScheduleByDay(int doctorId, DateTime date)
+        {
+            var result = appointmentService.ExecuteRead("GET_SCHEDULE_BY_DOCTOR_AND_DAY", new Appointment
+            {
+                DoctorId = doctorId,
+                Date = date
+            });
+
+            if (result.Any())
+            {
+                var row = result.First();
+                return Tuple.Create(row.StartTime, row.EndTime);
+            }
+
+            return null;
+        }
+
+        public JsonResult GetAvailableTimes(int doctorId, DateTime date)
+        {
+            var schedule = GetDoctorScheduleByDay(doctorId, date);
+
+            if (schedule == null)
+            {
+                return Json(new { error = "El médico no tiene horario asignado ese día." }, JsonRequestBehavior.AllowGet);
+            }
+
+            var start = schedule.Item1;
+            var end = schedule.Item2;
+
+            var allTimes = new List<string>();
+            for (var time = start; time < end; time = time.Add(TimeSpan.FromHours(1)))
+            {
+                allTimes.Add(time.ToString(@"hh\:mm"));
+            }
+
+            var appointments = appointmentService.ExecuteRead("GET_BY_DOCTOR_AND_DATE", new Appointment
+            {
+                DoctorId = doctorId,
+                Date = date
+            });
+
+            var takenTimes = appointments.Select(a => a.Time.ToString(@"hh\:mm")).ToList();
+
+            var available = allTimes.Select(t => new
+            {
+                Time = t,
+                IsAvailable = !takenTimes.Contains(t)
+            });
+
+            return Json(available, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

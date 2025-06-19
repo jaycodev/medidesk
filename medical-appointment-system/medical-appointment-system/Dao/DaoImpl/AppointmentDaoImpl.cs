@@ -75,7 +75,9 @@ namespace medical_appointment_system.Dao.DaoImpl
                                 Time = reader.SafeGetTimeSpan("time"),
                                 ConsultationType = reader.SafeGetString("consultation_type"),
                                 Symptoms = reader.SafeGetString("symptoms"),
-                                Status = reader.SafeGetString("status")
+                                Status = reader.SafeGetString("status"),
+                                StartTime = reader.SafeGetTimeSpan("start_time"),
+                                EndTime = reader.SafeGetTimeSpan("end_time")
                             });
                         }
                     }

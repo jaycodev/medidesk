@@ -52,7 +52,11 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td class="text-start">@Html.DisplayFor(modelItem => item.UserId)</td>
+                    <td class="text-start">
+                        <span class="badge bg-body-tertiary text-body-emphasis border">
+                            @Html.DisplayFor(modelItem => item.UserId)
+                        </span>
+                    </td>
                     <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
                     <td>@Html.DisplayFor(modelItem => item.LastName)</td>
                     <td>@Html.DisplayFor(modelItem => item.Email)</td>

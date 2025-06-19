@@ -22,35 +22,40 @@
 
     <div class="row mb-2">
         <div class="col-md-6 mb-2">
-            @Html.LabelFor(model => model.FirstName, new { @class = "form-label" })
-            @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", placeholder = "Ingrese nombre", disabled = "disabled" })
-            @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+            @Html.Label("Código", htmlAttributes: new { @class = "form-label" })
+            <input type="text" class="form-control" value="@Model.UserId" disabled />
         </div>
 
         <div class="col-md-6">
-            @Html.LabelFor(model => model.LastName, new { @class = "form-label" })
-            @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", placeholder = "Ingrese apellido", disabled = "disabled" })
-            @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+            @Html.LabelFor(model => model.FirstName, new { @class = "form-label" })
+            @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", placeholder = "Ingrese nombre", disabled = "disabled" })
+            @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
         </div>
     </div>
 
     <div class="row mb-2">
         <div class="col-md-6 mb-2">
+            @Html.LabelFor(model => model.LastName, new { @class = "form-label" })
+            @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", placeholder = "Ingrese apellido", disabled = "disabled" })
+            @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-6">
             @Html.LabelFor(model => model.Email, new { @class = "form-label" })
             @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "correo@ejemplo.com", disabled = "disabled" })
             @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
         </div>
+    </div>
 
-        <div class="col-md-6">
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.BirthDate, new { @class = "form-label" })
             <span class="text-danger">*</span>
             @Html.TextBoxFor(m => m.BirthDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
             @Html.ValidationMessageFor(m => m.BirthDate, "", new { @class = "text-danger" })
         </div>
-    </div>
 
-    <div class="row mb-2">
-        <div class="col-md-6 mb-2">
+        <div class="col-md-6">
             @Html.LabelFor(m => m.BloodType, new { @class = "form-label" })
             @Html.DropDownListFor(m => m.BloodType, new SelectList(new[] {
                 new { Value = "A+", Text = "A+" }, new { Value = "A-", Text = "A-" },

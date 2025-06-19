@@ -30,6 +30,8 @@ BEGIN
 
         INSERT INTO Users (first_name, last_name, email, password, phone, role, profile_picture)
         VALUES (@first_name, @last_name, @email, @password, @phone, @role, @profile_picture);
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'UPDATE'
@@ -43,11 +45,15 @@ BEGIN
             role = @role,
             profile_picture = @profile_picture
         WHERE user_id = @user_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'DELETE'
     BEGIN
         DELETE FROM Users WHERE user_id = @user_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_ID'
@@ -62,6 +68,8 @@ BEGIN
             profile_picture
         FROM Users 
 		WHERE user_id = @user_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_ALL'
@@ -75,6 +83,8 @@ BEGIN
             role,
             profile_picture
         FROM Users;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'LOGIN'
@@ -89,11 +99,14 @@ BEGIN
             profile_picture
         FROM Users 
         WHERE email = @email AND password = @password;
+
+		RETURN;
     END
 
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
     END
 END;
 GO
@@ -113,18 +126,24 @@ BEGIN
     IF @indicator = 'GET_ALL'
     BEGIN
         SELECT specialty_id, name, description FROM Specialties;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_ID'
     BEGIN
         SELECT specialty_id, name, description FROM Specialties 
         WHERE specialty_id = @specialty_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'INSERT'
     BEGIN
         INSERT INTO Specialties (name, description)
         VALUES (@name, @description);
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'UPDATE'
@@ -133,16 +152,21 @@ BEGIN
         SET name = @name,
             description = @description
         WHERE specialty_id = @specialty_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'DELETE'
     BEGIN
         DELETE FROM Specialties WHERE specialty_id = @specialty_id;
+
+		RETURN;
     END
 
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
     END
 END;
 GO
@@ -193,6 +217,8 @@ BEGIN
             ROLLBACK TRANSACTION;
             THROW;
         END CATCH
+		
+		RETURN;
     END
 
     ELSE IF @indicator = 'UPDATE'
@@ -201,6 +227,8 @@ BEGIN
         SET specialty_id = @specialty_id,
             status = @status
         WHERE user_id = @user_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_ALL'
@@ -217,6 +245,8 @@ BEGIN
         INNER JOIN Users U ON D.user_id = U.user_id
         INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
         WHERE U.role = @role;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_ID'
@@ -228,12 +258,15 @@ BEGIN
             U.email,
             U.phone,
             U.profile_picture,
+			D.specialty_id,
             S.name AS specialty_name,
             D.status
         FROM Doctors D
         INNER JOIN Users U ON D.user_id = U.user_id
         INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
         WHERE D.user_id = @user_id AND U.role = @role;
+
+		RETURN;
     END
 
 	ELSE IF @indicator = 'GET_DETAILS_BY_ID'
@@ -242,11 +275,28 @@ BEGIN
 		FROM Doctors D
 		INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
 		WHERE D.user_id = @user_id;
+
+		RETURN;
 	END
+
+	IF @indicator = 'GET_BY_SPECIALTY'
+    BEGIN
+        SELECT 
+            d.user_id,
+            u.first_name,
+            u.last_name,
+            d.specialty_id
+        FROM Doctors d
+        INNER JOIN Users u ON d.user_id = u.user_id
+        WHERE d.specialty_id = @specialty_id AND u.role = 'medico' AND d.status = 1;
+
+		RETURN;
+    END
 
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
     END
 END;
 GO
@@ -297,6 +347,8 @@ BEGIN
             ROLLBACK TRANSACTION;
             THROW;
         END CATCH
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'UPDATE'
@@ -305,6 +357,8 @@ BEGIN
         SET birth_date = @birth_date,
             blood_type = @blood_type
         WHERE user_id = @user_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_ALL'
@@ -320,6 +374,8 @@ BEGIN
         FROM Patients P
         INNER JOIN Users U ON P.user_id = U.user_id
         WHERE role = @role;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_ID'
@@ -336,16 +392,21 @@ BEGIN
         FROM Patients P
         INNER JOIN Users U ON P.user_id = U.user_id
         WHERE P.user_id = @user_id AND role = @role;
+
+		RETURN;
     END
 
 	ELSE IF @indicator = 'GET_DETAILS_BY_ID'
     BEGIN
         SELECT birth_date, blood_type FROM Patients WHERE user_id = @user_id;
+
+		RETURN;
     END
 
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
     END
 END;
 GO
@@ -378,23 +439,32 @@ BEGIN
         VALUES (@doctor_id, @patient_id, @specialty_id, @date, @time, @consultation_type, @symptoms, @status);
 
 		SELECT SCOPE_IDENTITY() AS appointment_id;
+
+		RETURN;
     END
 
-    ELSE IF @indicator = 'UPDATE'
-    BEGIN
-        UPDATE Appointments
-        SET doctor_id = @doctor_id,
-            patient_id = @patient_id,
-            specialty_id = @specialty_id,
-            date = @date,
-            time = @time,
-            consultation_type = @consultation_type,
-            symptoms = @symptoms,
-            status = @status
-        WHERE appointment_id = @appointment_id;
+	ELSE IF @indicator = 'GET_BY_DOCTOR_AND_DATE'
+	BEGIN
+		SELECT time
+		FROM Appointments
+		WHERE doctor_id = @doctor_id AND date = @date AND status != 'cancelada';
 
-		SELECT @@ROWCOUNT AS affected_rows;
-    END
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'GET_SCHEDULE_BY_DOCTOR_AND_DAY'
+	BEGIN
+		SET LANGUAGE Spanish;
+
+		DECLARE @weekday VARCHAR(10)
+		SET @weekday = LOWER(DATENAME(weekday, @date))
+
+		SELECT start_time, end_time
+		FROM Schedules
+		WHERE doctor_id = @doctor_id AND weekday = @weekday;
+
+		RETURN;
+	END
 
 	ELSE IF @indicator = 'CANCEL'
 	BEGIN
@@ -403,6 +473,8 @@ BEGIN
 		WHERE appointment_id = @appointment_id AND status != 'cancelada';
 
 		SELECT @@ROWCOUNT AS affected_rows;
+
+		RETURN;
 	END
 
     ELSE IF @indicator = 'GET_BY_ID'
@@ -422,6 +494,8 @@ BEGIN
         INNER JOIN Users u_p ON a.patient_id = u_p.user_id
         INNER JOIN Specialties s ON a.specialty_id = s.specialty_id
         WHERE a.appointment_id = @appointment_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_USER_AND_STATUS'
@@ -453,6 +527,8 @@ BEGIN
             (
                 @status IS NULL OR @status = '' OR a.status = @status
             );
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_COMPLETED_OR_CANCELLED_BY_USER'
@@ -481,11 +557,14 @@ BEGIN
                 (@user_type = 'medico' AND a.doctor_id = @user_id)
             )
             AND a.status IN ('cancelada', 'atendida');
+
+		RETURN;
     END
 
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
     END
 END;
 GO
@@ -527,40 +606,53 @@ BEGIN
                 INSERT (doctor_id, weekday, start_time, end_time)
                 VALUES (@doctor_id, @weekday, @start_time, @end_time);
         END
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'DELETE'
     BEGIN
         DELETE FROM Schedules
         WHERE schedule_id = @schedule_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_ALL'
     BEGIN
         SELECT * FROM Schedules;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_ID'
     BEGIN
         SELECT * FROM Schedules
         WHERE schedule_id = @schedule_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_DOCTOR'
     BEGIN
         SELECT * FROM Schedules
         WHERE doctor_id = @doctor_id;
+
+		RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_WEEKDAY'
     BEGIN
         SELECT * FROM Schedules
         WHERE weekday = @weekday;
+
+		RETURN;
     END
 
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
     END
 END;
 GO

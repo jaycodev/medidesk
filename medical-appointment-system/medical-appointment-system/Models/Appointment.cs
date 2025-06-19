@@ -55,5 +55,11 @@ namespace medical_appointment_system.Models
         public int UserId { get; set; }
 
         public string UserType { get; set; }
+
+        [ScaffoldColumn(false)]
+        public TimeSpan StartTime { get; set; }
+
+        [ScaffoldColumn(false)]
+        public TimeSpan EndTime { get; set; }
     }
 }

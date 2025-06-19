@@ -4,7 +4,7 @@ namespace medical_appointment_system.Models
 {
     public class Doctor : User
     {
-        [Display(Name = "Código")]
+        [Display(Name = "Especialidad")]
         [Required(ErrorMessage = "Seleccione una especialidad")]
         public int SpecialtyId { get; set; }
 
