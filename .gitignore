@@ -3,12 +3,12 @@
 [Oo]bj/
 
 # Allow bin/roslyn folder structure
-!sistema-citas-medicas/sistema-citas-medicas/bin/roslyn/
-!sistema-citas-medicas/sistema-citas-medicas/bin/roslyn/**/
+!medical-appointment-system/medical-appointment-system/bin/roslyn/
+!medical-appointment-system/medical-appointment-system/bin/roslyn/**/
 
 # Allow only DLL and EXE files inside bin/roslyn
-!sistema-citas-medicas/sistema-citas-medicas/bin/roslyn/*.dll
-!sistema-citas-medicas/sistema-citas-medicas/bin/roslyn/*.exe
+!medical-appointment-system/medical-appointment-system/bin/roslyn/*.dll
+!medical-appointment-system/medical-appointment-system/bin/roslyn/*.exe
 
 # Explicitly ignore XML files everywhere, even in roslyn
 *.xml

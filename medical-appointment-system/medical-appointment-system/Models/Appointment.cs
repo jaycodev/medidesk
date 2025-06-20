@@ -8,7 +8,7 @@ namespace medical_appointment_system.Models
         [Display(Name = "Código")]
         public int AppointmentId { get; set; }
 
-        [Display(Name = "Código Médico")]
+        [Display(Name = "Médico")]
         [Required(ErrorMessage = "Seleccione un médico")]
         public int DoctorId { get; set; }
 
@@ -16,7 +16,7 @@ namespace medical_appointment_system.Models
         [Required(ErrorMessage = "Seleccione un médico")]
         public string DoctorName { get; set; }
 
-        [Display(Name = "Código paciente")]
+        [Display(Name = "Paciente")]
         [Required(ErrorMessage = "Seleccione un paciente")]
         public int PatientId { get; set; }
 
@@ -24,7 +24,7 @@ namespace medical_appointment_system.Models
         [Required(ErrorMessage = "Seleccione un paciente")]
         public string PatientName { get; set; }
 
-        [Display(Name = "Código especialidad")]
+        [Display(Name = "Especialidad")]
         [Required(ErrorMessage = "Seleccione una especialidad")]
         public int SpecialtyId { get; set; }
 
