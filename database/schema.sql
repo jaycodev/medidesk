@@ -61,12 +61,12 @@ CREATE TABLE Appointments (
 GO
 
 CREATE TABLE Schedules (
-    schedule_id INT PRIMARY KEY IDENTITY(1,1),
+    day_work_shift VARCHAR(10) NOT NULL CHECK (day_work_shift IN ('ma√±ana', 'tarde')),
     doctor_id INT NOT NULL,
-    weekday VARCHAR(10) NOT NULL CHECK (weekday IN ('lunes', 'martes', 'miÈrcoles', 'jueves', 'viernes', 's·bado', 'domingo')),
+    weekday VARCHAR(10) NOT NULL CHECK (weekday IN ('lunes', 'martes', 'mi√©rcoles', 'jueves', 'viernes', 's√°bado', 'domingo')),
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     FOREIGN KEY (doctor_id) REFERENCES Doctors(user_id),
-    CONSTRAINT UQ_Doctor_Weekday UNIQUE (doctor_id, weekday)
+    CONSTRAINT UQ_Doctor_Weekday_Shift UNIQUE (doctor_id, weekday, day_work_shift)
 );
 GO
