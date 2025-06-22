@@ -5,9 +5,6 @@ namespace medical_appointment_system.Models
 {
     public class Schedule
     {
-        [Display(Name = "Código")]
-        public int ScheduleId { get; set; }
-
         [Display(Name = "Médico")]
         [Required(ErrorMessage = "Ingrese un médico")]
         public int DoctorId { get; set; }
@@ -16,6 +13,9 @@ namespace medical_appointment_system.Models
         [Required(ErrorMessage = "Ingrese un día")]
         [StringLength(10)]
         public string Weekday { get; set; }
+
+        [Display(Name = "Turno")]
+        public string DayWorkShift { get; set; }
 
         [Display(Name = "Hora de inicio")]
         [Required(ErrorMessage = "Ingrese una hora de inicio")]

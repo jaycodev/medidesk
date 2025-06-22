@@ -24,7 +24,7 @@ BEGIN
 
         IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
         BEGIN
-            RAISERROR('Este correo ya est· registrado. Por favor, ingrese otro.', 16, 1);
+            RAISERROR('Este correo ya est√° registrado. Por favor, ingrese otro.', 16, 1);
             RETURN;
         END
 
@@ -105,7 +105,7 @@ BEGIN
 
 	ELSE
     BEGIN
-        RAISERROR('AcciÛn no v·lida: %s', 16, 1, @indicator);
+        RAISERROR('Acci√≥n no v√°lida: %s', 16, 1, @indicator);
 		RETURN;
     END
 END;
@@ -165,7 +165,7 @@ BEGIN
 
 	ELSE
     BEGIN
-        RAISERROR('AcciÛn no v·lida: %s', 16, 1, @indicator);
+        RAISERROR('Acci√≥n no v√°lida: %s', 16, 1, @indicator);
 		RETURN;
     END
 END;
@@ -196,7 +196,7 @@ BEGIN
 
         IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
         BEGIN
-            RAISERROR('Este correo ya est· registrado. Por favor, ingrese otro.', 16, 1);
+            RAISERROR('Este correo ya est√° registrado. Por favor, ingrese otro.', 16, 1);
             RETURN;
         END
 
@@ -295,7 +295,7 @@ BEGIN
 
 	ELSE
     BEGIN
-        RAISERROR('AcciÛn no v·lida: %s', 16, 1, @indicator);
+        RAISERROR('Acci√≥n no v√°lida: %s', 16, 1, @indicator);
 		RETURN;
     END
 END;
@@ -326,7 +326,7 @@ BEGIN
 
         IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
         BEGIN
-            RAISERROR('Este correo ya est· registrado. Por favor, ingrese otro.', 16, 1);
+            RAISERROR('Este correo ya est√° registrado. Por favor, ingrese otro.', 16, 1);
             RETURN;
         END
 
@@ -405,7 +405,7 @@ BEGIN
 
 	ELSE
     BEGIN
-        RAISERROR('AcciÛn no v·lida: %s', 16, 1, @indicator);
+        RAISERROR('Acci√≥n no v√°lida: %s', 16, 1, @indicator);
 		RETURN;
     END
 END;
@@ -563,22 +563,21 @@ BEGIN
 
 	ELSE
     BEGIN
-        RAISERROR('AcciÛn no v·lida: %s', 16, 1, @indicator);
+        RAISERROR('Acci√≥n no v√°lida: %s', 16, 1, @indicator);
 		RETURN;
     END
 END;
 GO
-
 -- =============================================
 -- PROCEDURE: Schedule_CRUD
--- DESCRIPTION: CRUD for the Schedules table
+-- DESCRIPTION: CRUD for the updated Schedules table
 -- PARAMETERS : action indicator, schedule data
 -- =============================================
 CREATE OR ALTER PROCEDURE Schedule_CRUD
     @indicator VARCHAR(50),
-    @schedule_id INT = NULL,
     @doctor_id INT = NULL,
     @weekday VARCHAR(10) = NULL,
+    @day_work_shift VARCHAR(10) = NULL,
     @start_time TIME = NULL,
     @end_time TIME = NULL,
     @enabled BIT = 1
@@ -588,71 +587,73 @@ BEGIN
 
     IF @indicator = 'INSERT_OR_UPDATE'
     BEGIN
+        -- Si enabled = 0, se elimina
         IF @enabled = 0
         BEGIN
             DELETE FROM Schedules
-            WHERE doctor_id = @doctor_id AND weekday = @weekday;
+            WHERE doctor_id = @doctor_id 
+              AND weekday = @weekday 
+              AND day_work_shift = @day_work_shift;
         END
         ELSE
         BEGIN
             MERGE INTO Schedules AS target
-            USING (SELECT @doctor_id AS doctor_id, @weekday AS weekday) AS source
-            ON target.doctor_id = source.doctor_id AND target.weekday = source.weekday
+            USING (
+                SELECT @doctor_id AS doctor_id, @weekday AS weekday, @day_work_shift AS day_work_shift
+            ) AS source
+            ON target.doctor_id = source.doctor_id 
+               AND target.weekday = source.weekday 
+               AND target.day_work_shift = source.day_work_shift
             WHEN MATCHED THEN
                 UPDATE SET 
                     start_time = @start_time,
                     end_time = @end_time
             WHEN NOT MATCHED THEN
-                INSERT (doctor_id, weekday, start_time, end_time)
-                VALUES (@doctor_id, @weekday, @start_time, @end_time);
+                INSERT (doctor_id, weekday, day_work_shift, start_time, end_time)
+                VALUES (@doctor_id, @weekday, @day_work_shift, @start_time, @end_time);
         END
 
-		RETURN;
+        RETURN;
     END
 
     ELSE IF @indicator = 'DELETE'
     BEGIN
         DELETE FROM Schedules
-        WHERE schedule_id = @schedule_id;
-
-		RETURN;
+        WHERE doctor_id = @doctor_id AND weekday = @weekday AND day_work_shift = @day_work_shift;
+        RETURN;
     END
 
     ELSE IF @indicator = 'GET_ALL'
     BEGIN
         SELECT * FROM Schedules;
-
-		RETURN;
-    END
-
-    ELSE IF @indicator = 'GET_BY_ID'
-    BEGIN
-        SELECT * FROM Schedules
-        WHERE schedule_id = @schedule_id;
-
-		RETURN;
+        RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_DOCTOR'
     BEGIN
         SELECT * FROM Schedules
         WHERE doctor_id = @doctor_id;
-
-		RETURN;
+        RETURN;
     END
 
     ELSE IF @indicator = 'GET_BY_WEEKDAY'
     BEGIN
         SELECT * FROM Schedules
         WHERE weekday = @weekday;
-
-		RETURN;
+        RETURN;
     END
 
-	ELSE
+    ELSE IF @indicator = 'GET_BY_DOCTOR_AND_DAY'
     BEGIN
-        RAISERROR('AcciÛn no v·lida: %s', 16, 1, @indicator);
-		RETURN;
+        SELECT * FROM Schedules
+        WHERE doctor_id = @doctor_id AND weekday = @weekday;
+        RETURN;
+    END
+
+    ELSE
+    BEGIN
+        RAISERROR('Acci√≥n no v√°lida: %s', 16, 1, @indicator);
+        RETURN;
     END
 END;
 GO

@@ -3,6 +3,7 @@
 
 @{
     ViewBag.Title = "Horarios";
+    var diasSemana = Model.Select(m => m.Weekday).Distinct().ToList();
 }
 
 <h4 class="text-center mb-3 text-body-emphasis">
@@ -13,65 +14,68 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        @for (int i = 0; i < Model.Count; i++)
+        @foreach (var dia in diasSemana)
         {
-            var isEnabled = Model[i].IsActive;
-            var clasePanel = isEnabled ? "" : "horario-inactivo";
+            var horariosDelDia = Model.Where(m => m.Weekday == dia).ToList();
 
-            <div class="panel panel-default @(Model[i].IsActive ? "" : "horario-inactivo")"
-                 data-index="@i"
-                 style="margin: 10px 0;">
+            <div class="row align-items-center mb-4">
+                <div class="col-md-2 fw-bold text-uppercase">
+                    @dia
+                </div>
 
-                <div class="panel-body">
-                    @Html.HiddenFor(model => model[i].ScheduleId)
-                    @Html.HiddenFor(model => model[i].DoctorId)
-                    @Html.HiddenFor(model => model[i].Weekday)
+                @for (int i = 0; i < horariosDelDia.Count; i++)
+                {
+                    var idx = Model.IndexOf(horariosDelDia[i]);
+                    var clasePanel = horariosDelDia[i].IsActive ? "" : "horario-inactivo";
 
-                    <div class="form-group row align-items-center">
-                        <div class="col-md-2 d-flex align-items-center">
-                            <div class="checkbox mb-0">
-                                @Html.EditorFor(model => model[i].IsActive)
-                                <label class="control-label" style="margin-left: 5px; font-weight: bold;">
-                                    @Model[i].Weekday
-                                </label>
-                                @Html.ValidationMessageFor(model => model[i].IsActive, "", new { @class = "text-danger" })
+                    <div class="col-md-5">
+                        <div class="panel panel-default @clasePanel" data-index="@idx">
+                            <div class="panel-body">
+                                @Html.HiddenFor(m => m[idx].DoctorId)
+                                @Html.HiddenFor(m => m[idx].Weekday)
+                                @Html.HiddenFor(m => m[idx].DayWorkShift)
+
+                                <div class="form-group mb-2">
+                                    <div class="checkbox">
+                                        @Html.EditorFor(m => m[idx].IsActive)
+                                        <label class="control-label ms-1">
+                                            @horariosDelDia[i].DayWorkShift
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m[idx].StartTime, htmlAttributes: new { @class = "control-label" })
+                                    <input type="time"
+                                           name="[@idx].StartTime"
+                                           class="form-control"
+                                           step="3600"
+                                           value="@(horariosDelDia[i].StartTime.ToString(@"hh\:mm"))"
+                                           min="00:00" max="23:00" />
+                                </div>
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m[idx].EndTime, htmlAttributes: new { @class = "control-label" })
+                                    <input type="time"
+                                           name="[@idx].EndTime"
+                                           class="form-control"
+                                           step="3600"
+                                           value="@(horariosDelDia[i].EndTime.ToString(@"hh\:mm"))"
+                                           min="01:00" max="23:59" />
+                                </div>
                             </div>
                         </div>
-
-                        <div class="col-md-5">
-                            @Html.LabelFor(model => model[i].StartTime, htmlAttributes: new { @class = "control-label" })
-                            <input type="time"
-                                   name="[@i].HoraInicio"
-                                   class="form-control"
-                                   step="3600"
-                                   value="@(Model[i].StartTime.ToString(@"hh\:mm"))"
-                                   min="00:00" max="23:00" />
-                            @Html.ValidationMessageFor(model => model[i].StartTime, "", new { @class = "text-danger" })
-                        </div>
-
-                        <div class="col-md-5">
-                            @Html.LabelFor(model => model[i].EndTime, htmlAttributes: new { @class = "control-label" })
-                            <input type="time"
-                                   name="[@i].HoraFin"
-                                   class="form-control"
-                                   step="3600"
-                                   value="@(Model[i].EndTime.ToString(@"hh\:mm"))"
-                                   min="01:00" max="23:59" />
-                            @Html.ValidationMessageFor(model => model[i].EndTime, "", new { @class = "text-danger" })
-                        </div>
                     </div>
-                </div>
+                }
             </div>
         }
 
         <div class="form-group text-center">
             <input type="submit" value="Guardar Horarios" class="btn btn-primary" />
         </div>
-
     </div>
 }
 
@@ -79,18 +83,16 @@
     @Scripts.Render("~/bundles/jqueryval")
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Mantener horas en formato HH:00
-            const timeInputs = document.querySelectorAll('input[type="time"]');
-            timeInputs.forEach(input => {
+            // Formatear tiempo a HH:00
+            document.querySelectorAll('input[type="time"]').forEach(input => {
                 input.addEventListener("change", () => {
-                    const [hour, _] = input.value.split(":");
+                    const [hour] = input.value.split(":");
                     input.value = `${hour.padStart(2, '0')}:00`;
                 });
             });
 
-            // Manejar opacidad al marcar/desmarcar los checkboxes
-            const checkboxes = document.querySelectorAll('input[type="checkbox"][name$=".IsActive"]');
-            checkboxes.forEach((checkbox, index) => {
+            // Aplicar opacidad a paneles inactivos
+            document.querySelectorAll('input[type="checkbox"][name$=".IsActive"]').forEach((checkbox, index) => {
                 checkbox.addEventListener("change", function () {
                     const panel = document.querySelector(`div.panel[data-index="${index}"]`);
                     if (this.checked) {

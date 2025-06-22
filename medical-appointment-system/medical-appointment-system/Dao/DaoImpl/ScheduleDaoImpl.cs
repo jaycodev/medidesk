@@ -45,9 +45,9 @@ namespace medical_appointment_system.Dao.DaoImpl
                         {
                             list.Add(new Schedule
                             {
-                                ScheduleId = reader.SafeGetInt("schedule_id"),
                                 DoctorId = reader.SafeGetInt("doctor_id"),
                                 Weekday = reader.SafeGetString("weekday"),
+                                DayWorkShift = reader.SafeGetString("day_work_shift"),
                                 StartTime = reader.SafeGetTimeSpan("start_time"),
                                 EndTime = reader.SafeGetTimeSpan("end_time")
                             });
@@ -63,11 +63,12 @@ namespace medical_appointment_system.Dao.DaoImpl
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@indicator", indicator);
-            cmd.Parameters.AddWithValue("@schedule_id", s.ScheduleId);
             cmd.Parameters.AddWithValue("@doctor_id", s.DoctorId);
             cmd.Parameters.AddWithValue("@weekday", s.Weekday);
+            cmd.Parameters.AddWithValue("@day_work_shift", s.DayWorkShift);
             cmd.Parameters.AddWithValue("@start_time", s.StartTime);
             cmd.Parameters.AddWithValue("@end_time", s.EndTime);
+            cmd.Parameters.AddWithValue("@enabled", s.IsActive);
         }
     }
 }
