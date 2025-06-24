@@ -156,13 +156,6 @@ BEGIN
 		RETURN;
     END
 
-    ELSE IF @indicator = 'DELETE'
-    BEGIN
-        DELETE FROM Specialties WHERE specialty_id = @specialty_id;
-
-		RETURN;
-    END
-
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);

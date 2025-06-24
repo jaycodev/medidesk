@@ -259,7 +259,6 @@
     <Content Include="Views\Shared\_SidebarContent.cshtml" />
     <Content Include="Views\Shared\_ToggleTheme.cshtml" />
     <Content Include="Views\Specialties\Create.cshtml" />
-    <Content Include="Views\Specialties\Delete.cshtml" />
     <Content Include="Views\Specialties\Details.cshtml" />
     <Content Include="Views\Specialties\Edit.cshtml" />
     <Content Include="Views\Specialties\Index.cshtml" />

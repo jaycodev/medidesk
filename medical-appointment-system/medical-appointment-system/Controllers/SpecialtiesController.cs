@@ -78,36 +78,5 @@ namespace medical_appointment_system.Controllers
             }
             return View(FindById(id));
         }
-
-        public ActionResult Delete(int id)
-        {
-            if (id == 0)
-            {
-                return RedirectToAction("Index");
-            }
-            return View(FindById(id));
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Specialty specialty = FindById(id);
-
-            try
-            {
-                int procesar = service.ExecuteWrite("DELETE", specialty);
-                if (procesar >= 0)
-                {
-                    TempData["Success"] = "¡Especialidad eliminado correctamente!";
-                    return RedirectToAction("Index");
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Ocurrió un error al intentar eliminar la Especialidad. " + ex.Message;
-                ModelState.AddModelError("", "No se pudo eliminar la Especialidad.");
-            }
-            return View(specialty);
-        }
     }
 }
