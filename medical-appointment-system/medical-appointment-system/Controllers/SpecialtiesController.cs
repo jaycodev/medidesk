@@ -32,17 +32,34 @@ namespace medical_appointment_system.Controllers
 
         public ActionResult Create()
         {
-            return View();
+            return View(new Specialty());
         }
 
         [HttpPost]
         public ActionResult Create(Specialty specialty)
         {
-            int process = service.ExecuteWrite("INSERT", specialty);
-            if (process >= 0)
+            if (!ModelState.IsValid)
             {
-                TempData["Success"] = "¡Especialidad agregada exitosamente!";
-                return RedirectToAction("Index");
+                return View(specialty);
+            }
+
+            try
+            {
+                int affectedRows = service.ExecuteWrite("INSERT", specialty);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Especialidad creada correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo crear la especialidad. Intenta nuevamente.";
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
             }
 
             return View(specialty);
@@ -59,15 +76,33 @@ namespace medical_appointment_system.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(Specialty objSpec)
+        public ActionResult Edit(Specialty specialty)
         {
-            int procesar = service.ExecuteWrite("UPDATE", objSpec);
-            if (procesar >= 0)
+            if (!ModelState.IsValid)
             {
-                TempData["Success"] = "¡Especialidad actualizado correctamente!";
-                return RedirectToAction("Index");
+                return View(specialty);
             }
-            return View(objSpec);
+
+            try
+            {
+                int affectedRows = service.ExecuteWrite("UPDATE", specialty);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Especialidad actualizada correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo actualizar la especialidad. Intenta nuevamente.";
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
+            }
+
+            return View(specialty);
         }
 
         public ActionResult Details(int id)
@@ -76,6 +111,7 @@ namespace medical_appointment_system.Controllers
             {
                 return RedirectToAction("Index");
             }
+
             return View(FindById(id));
         }
     }

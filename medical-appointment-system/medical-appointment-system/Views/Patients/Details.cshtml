@@ -39,11 +39,6 @@
                 <dd class="text-body">@Html.DisplayFor(m => m.Phone)</dd>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ProfilePicture)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.ProfilePicture)</dd>
-            </div>
-
             @{
                 var culture = new System.Globalization.CultureInfo("es-PE");
                 var formattedBirthDate = Model.BirthDate?.ToString("dd MMM yyyy", culture) ?? "";
@@ -57,6 +52,11 @@
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.BloodType)</dt>
                 <dd class="text-body">@Html.DisplayFor(m => m.BloodType)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ProfilePicture)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.ProfilePicture)</dd>
             </div>
         </dl>
     </div>

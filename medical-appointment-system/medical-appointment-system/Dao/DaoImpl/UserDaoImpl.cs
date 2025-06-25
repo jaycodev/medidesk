@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Linq;
 using medical_appointment_system.Helpers;
 using medical_appointment_system.Models;
 
@@ -24,7 +25,11 @@ namespace medical_appointment_system.Dao.DaoImpl
 
                     try
                     {
-                        process = cmd.ExecuteNonQuery();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                                process = Convert.ToInt32(reader["affected_rows"]);
+                        }
                     }
                     catch (SqlException ex)
                     {
@@ -63,9 +68,11 @@ namespace medical_appointment_system.Dao.DaoImpl
                                 FirstName = reader.SafeGetString("first_name"),
                                 LastName = reader.SafeGetString("last_name"),
                                 Email = reader.SafeGetString("email"),
-                                Password = reader.SafeGetString("password"),
                                 Phone = reader.SafeGetString("phone"),
-                                Role = reader.SafeGetString("role"),
+                                Roles = reader.SafeGetString("roles")
+                                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(r => r.Trim())
+                                    .ToList(),
                                 ProfilePicture = reader.SafeGetString("profile_picture")
                             });
                         }
@@ -86,7 +93,7 @@ namespace medical_appointment_system.Dao.DaoImpl
             cmd.Parameters.AddWithValue("@email", u.Email);
             cmd.Parameters.AddWithValue("@password", u.Password);
             cmd.Parameters.AddWithValue("@phone", u.Phone);
-            cmd.Parameters.AddWithValue("@role", u.Role);
+            cmd.Parameters.AddWithValue("@roles", string.Join(",", u.Roles));
             cmd.Parameters.AddWithValue("@profile_picture", u.ProfilePicture);
         }
     }

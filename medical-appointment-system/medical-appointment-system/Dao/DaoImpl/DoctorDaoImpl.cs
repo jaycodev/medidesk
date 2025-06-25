@@ -24,7 +24,11 @@ namespace medical_appointment_system.Dao.DaoImpl
 
                     try
                     {
-                        process = cmd.ExecuteNonQuery();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                                process = Convert.ToInt32(reader["affected_rows"]);
+                        }
                     }
                     catch (SqlException ex)
                     {
@@ -63,10 +67,8 @@ namespace medical_appointment_system.Dao.DaoImpl
                                 FirstName = reader.SafeGetString("first_name"),
                                 LastName = reader.SafeGetString("last_name"),
                                 Email = reader.SafeGetString("email"),
-                                Password = reader.SafeGetString("password"),
                                 Phone = reader.SafeGetString("phone"),
                                 ProfilePicture = reader.SafeGetString("profile_picture"),
-                                Role = reader.SafeGetString("role"),
                                 SpecialtyId = reader.SafeGetInt("specialty_id"),
                                 SpecialtyName = reader.SafeGetString("specialty_name"),
                                 Status = reader.SafeGetBool("status")
@@ -90,7 +92,6 @@ namespace medical_appointment_system.Dao.DaoImpl
             cmd.Parameters.AddWithValue("@password", d.Password);
             cmd.Parameters.AddWithValue("@phone", d.Phone);
             cmd.Parameters.AddWithValue("@profile_picture", d.ProfilePicture);
-            cmd.Parameters.AddWithValue("@role", d.Role);
             cmd.Parameters.AddWithValue("@specialty_id", d.SpecialtyId);
             cmd.Parameters.AddWithValue("@status", d.Status);
         }

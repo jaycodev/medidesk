@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using medical_appointment_system.Models;
 using medical_appointment_system.Services;
 
@@ -36,14 +35,20 @@ namespace medical_appointment_system.Controllers
             return appointmentService.ExecuteRead(indicator, new Appointment
             {
                 UserId = user.UserId,
-                UserType = user.Role,
+                UserRol = user.Roles.FirstOrDefault(),
                 Status = status
             });
         }
 
-        public ActionResult Dashboard()
+        public ActionResult Home()
         {
             var list = GetAppointmentsByStatus(null, "GET_BY_USER_AND_STATUS");
+            return View(list);
+        }
+
+        public ActionResult Index()
+        {
+            var list = appointmentService.ExecuteRead("GET_ALL", new Appointment());
             return View(list);
         }
 
@@ -83,7 +88,8 @@ namespace medical_appointment_system.Controllers
         public JsonResult GetDoctorsBySpecialty(int id)
         {
             var doctors = doctorService.ExecuteRead("GET_BY_SPECIALTY", new Doctor { SpecialtyId = id });
-            var result = doctors.Select(d => new {
+            var result = doctors.Select(d => new
+            {
                 d.UserId,
                 FullName = $"{d.FirstName} {d.LastName}"
             });
@@ -150,9 +156,9 @@ namespace medical_appointment_system.Controllers
             appointment.PatientId = user.UserId;
             appointment.Status = "pendiente";
 
-            int appointmentId = appointmentService.ExecuteWrite("INSERT", appointment);
+            int affectedRows = appointmentService.ExecuteWrite("INSERT", appointment);
 
-            if (appointmentId > 0)
+            if (affectedRows > 0)
                 TempData["Success"] = "¡Cita reservada correctamente!";
             else
                 TempData["Error"] = "No se pudo reservar la cita.";
@@ -173,9 +179,9 @@ namespace medical_appointment_system.Controllers
         {
             var appointment = new Appointment { AppointmentId = id };
 
-            int affected = appointmentService.ExecuteWrite("CANCEL", appointment);
+            int affectedRows = appointmentService.ExecuteWrite("CANCEL", appointment);
 
-            if (affected == 1)
+            if (affectedRows == 1)
             {
                 TempData["Success"] = "La cita fue cancelada correctamente.";
             }

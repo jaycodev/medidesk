@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using ClosedXML.Excel;
 using medical_appointment_system.Models;
 using medical_appointment_system.Services;
@@ -60,11 +62,18 @@ namespace medical_appointment_system.Controllers
 
             try
             {
-                doctor.Role = "medico";
-                doctor.Status = true;
-                doctorService.ExecuteWrite("INSERT", doctor);
-                TempData["Success"] = "¡Médico creado correctamente!";
-                return RedirectToAction("Index");
+                doctor.Roles = new List<string> { "medico" };
+                int affectedRows = doctorService.ExecuteWrite("INSERT", doctor);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Médico creado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo crear el médico. Intenta nuevamente.";
+                }
             }
             catch (ApplicationException ex)
             {
@@ -97,15 +106,25 @@ namespace medical_appointment_system.Controllers
         [HttpPost]
         public ActionResult Edit(Doctor doctor)
         {
-
             LoadSpecialties(doctor.SpecialtyId);
 
-            int process = doctorService.ExecuteWrite("UPDATE", doctor);
-
-            if (process >= 0)
+            try
             {
-                TempData["Success"] = "¡Médico actualizado correctamente!";
-                return RedirectToAction("Index");
+                int affectedRows = doctorService.ExecuteWrite("UPDATE", doctor);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Médico actualizado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo actualizar el médico. Intenta nuevamente.";
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
             }
 
             return View(doctor);
@@ -150,7 +169,7 @@ namespace medical_appointment_system.Controllers
                     tabla.AddCell(m.LastName);
                     tabla.AddCell(m.Email);
                     tabla.AddCell(m.Phone ?? "");
-                    tabla.AddCell(m.Role);
+                    tabla.AddCell(string.Join(", ", m.Roles));
                     tabla.AddCell(m.SpecialtyName);
                 }
 
@@ -187,7 +206,7 @@ namespace medical_appointment_system.Controllers
                     hoja.Cell(fila, 3).Value = m.LastName;
                     hoja.Cell(fila, 4).Value = m.Email;
                     hoja.Cell(fila, 5).Value = m.Phone ?? "";
-                    hoja.Cell(fila, 6).Value = m.Role;
+                    hoja.Cell(fila, 6).Value = string.Join(", ", m.Roles);
                     hoja.Cell(fila, 7).Value = m.SpecialtyName;
                     fila++;
                 }

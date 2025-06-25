@@ -40,7 +40,7 @@
             @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
         </div>
 
-        <div class="col-md-6 ">
+        <div class="col-md-6">
             @Html.LabelFor(model => model.Email, new { @class = "form-label" })
             @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "correo@ejemplo.com", disabled = "disabled" })
             @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })

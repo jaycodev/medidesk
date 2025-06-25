@@ -14,94 +14,182 @@ CREATE OR ALTER PROCEDURE User_CRUD
     @email VARCHAR(100) = NULL,
     @password VARCHAR(100) = NULL,
     @phone VARCHAR(20) = NULL,
-    @role VARCHAR(20) = NULL,
+    @roles VARCHAR(100) = NULL,
     @profile_picture VARCHAR(255) = NULL
 AS
 BEGIN
+	SET NOCOUNT ON;
+
 	IF @indicator = 'INSERT'
-    BEGIN
-        SET NOCOUNT ON;
+	BEGIN
+		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
+		BEGIN
+			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RETURN;
+		END
 
-        IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
-        BEGIN
-            RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
-            RETURN;
-        END
+		BEGIN TRY
+			BEGIN TRANSACTION;
 
-        INSERT INTO Users (first_name, last_name, email, password, phone, role, profile_picture)
-        VALUES (@first_name, @last_name, @email, @password, @phone, @role, @profile_picture);
+			INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture)
+			VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture);
+
+			SET @user_id = SCOPE_IDENTITY();
+
+			INSERT INTO UserRoles (user_id, role)
+			VALUES (@user_id, 'administrador');
+
+			COMMIT TRANSACTION;
+
+			SELECT 1 AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0
+				ROLLBACK TRANSACTION;
+
+			THROW;
+		END CATCH
+	END
+
+	ELSE IF @indicator = 'UPDATE'
+	BEGIN
+		IF EXISTS (
+			SELECT 1 FROM Users 
+			WHERE email = @email AND user_id <> @user_id
+		)
+		BEGIN
+			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RETURN;
+		END
+
+		BEGIN TRY
+			BEGIN TRANSACTION;
+
+			UPDATE Users
+			SET first_name = @first_name,
+				last_name = @last_name,
+				email = @email,
+				password = @password,
+				phone = @phone,
+				profile_picture = @profile_picture
+			WHERE user_id = @user_id;
+
+			DECLARE @rows INT = @@ROWCOUNT;
+
+			DELETE FROM UserRoles WHERE user_id = @user_id;
+
+			DECLARE @role_cleaned NVARCHAR(100) = REPLACE(@roles, ' ', '');
+			DECLARE @next_role NVARCHAR(20);
+			DECLARE @pos INT = 1;
+			DECLARE @len INT = LEN(@role_cleaned) + 1;
+			DECLARE @comma INT;
+
+			WHILE @pos < @len
+			BEGIN
+				SET @comma = CHARINDEX(',', @role_cleaned, @pos);
+				IF @comma = 0 SET @comma = @len;
+
+				SET @next_role = SUBSTRING(@role_cleaned, @pos, @comma - @pos);
+
+				IF @next_role IN ('administrador', 'medico', 'paciente')
+				BEGIN
+					INSERT INTO UserRoles (user_id, role)
+					VALUES (@user_id, @next_role);
+				END
+
+				SET @pos = @comma + 1;
+			END
+
+			COMMIT TRANSACTION;
+
+			SELECT @rows AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'UPDATE'
-    BEGIN
-        UPDATE Users
-        SET first_name = @first_name,
-            last_name = @last_name,
-            email = @email,
-            password = @password,
-            phone = @phone,
-            role = @role,
-            profile_picture = @profile_picture
-        WHERE user_id = @user_id;
+	ELSE IF @indicator = 'DELETE'
+	BEGIN
+		BEGIN TRY
+			BEGIN TRANSACTION;
 
-		RETURN;
-    END
+			DELETE FROM UserRoles WHERE user_id = @user_id;
+			DELETE FROM Users WHERE user_id = @user_id;
 
-    ELSE IF @indicator = 'DELETE'
-    BEGIN
-        DELETE FROM Users WHERE user_id = @user_id;
+			COMMIT TRANSACTION;
+
+			SELECT @@ROWCOUNT AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'GET_BY_ID'
-    BEGIN
-	    SELECT 
-            user_id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            role,
-            profile_picture
-        FROM Users 
-		WHERE user_id = @user_id;
-
-		RETURN;
-    END
-
-    ELSE IF @indicator = 'GET_ALL'
-    BEGIN
-        SELECT 
-            user_id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            role,
-            profile_picture
-        FROM Users;
+	ELSE IF @indicator = 'GET_BY_ID'
+	BEGIN
+		SELECT 
+			u.user_id,
+			u.first_name,
+			u.last_name,
+			u.email,
+			u.phone,
+			STRING_AGG(ur.role, ',') AS roles,
+			u.profile_picture
+		FROM Users u
+		LEFT JOIN UserRoles ur ON u.user_id = ur.user_id
+		WHERE u.user_id = @user_id
+		GROUP BY 
+			u.user_id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture;
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'LOGIN'
-    BEGIN
-        SELECT 
-            user_id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            role,
-            profile_picture
-        FROM Users 
-        WHERE email = @email AND password = @password;
+	ELSE IF @indicator = 'GET_ALL'
+	BEGIN
+		SELECT 
+			u.user_id,
+			u.first_name,
+			u.last_name,
+			u.email,
+			u.phone,
+			STRING_AGG(ur.role, ',') AS roles,
+			u.profile_picture
+		FROM Users u
+		LEFT JOIN UserRoles ur ON u.user_id = ur.user_id
+		WHERE u.user_id <> @user_id
+		GROUP BY 
+			u.user_id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture;
 
 		RETURN;
-    END
+	END
+
+	ELSE IF @indicator = 'LOGIN'
+	BEGIN
+		SELECT 
+			u.user_id,
+			u.first_name,
+			u.last_name,
+			u.email,
+			u.phone,
+			STRING_AGG(ur.role, ',') AS roles,
+			u.profile_picture
+		FROM Users u
+		LEFT JOIN UserRoles ur ON u.user_id = ur.user_id
+		WHERE 
+			u.email COLLATE Latin1_General_CS_AS = @email COLLATE Latin1_General_CS_AS AND
+			u.password COLLATE Latin1_General_CS_AS = @password COLLATE Latin1_General_CS_AS
+		GROUP BY 
+			u.user_id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture;
+
+		RETURN;
+	END
 
 	ELSE
     BEGIN
@@ -123,6 +211,8 @@ CREATE OR ALTER PROCEDURE Specialty_CRUD
     @description VARCHAR(255) = NULL
 AS
 BEGIN
+	SET NOCOUNT ON;
+
     IF @indicator = 'GET_ALL'
     BEGIN
         SELECT specialty_id, name, description FROM Specialties;
@@ -138,23 +228,27 @@ BEGIN
 		RETURN;
     END
 
-    ELSE IF @indicator = 'INSERT'
-    BEGIN
-        INSERT INTO Specialties (name, description)
-        VALUES (@name, @description);
+	ELSE IF @indicator = 'INSERT'
+	BEGIN
+		INSERT INTO Specialties (name, description)
+		VALUES (@name, @description);
+
+		SELECT @@ROWCOUNT AS affected_rows;
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'UPDATE'
-    BEGIN
-        UPDATE Specialties
-        SET name = @name,
-            description = @description
-        WHERE specialty_id = @specialty_id;
+	ELSE IF @indicator = 'UPDATE'
+	BEGIN
+		UPDATE Specialties
+		SET name = @name,
+			description = @description
+		WHERE specialty_id = @specialty_id;
+
+		SELECT @@ROWCOUNT AS affected_rows;
 
 		RETURN;
-    END
+	END
 
 	ELSE
     BEGIN
@@ -179,88 +273,96 @@ CREATE OR ALTER PROCEDURE Doctor_CRUD
     @phone VARCHAR(20) = NULL,
     @specialty_id INT = NULL,
     @profile_picture VARCHAR(255) = NULL,
-    @role VARCHAR(20) = 'medico',
     @status BIT = 1
 AS
 BEGIN
+	SET NOCOUNT ON;
+
 	IF @indicator = 'INSERT'
-    BEGIN
-        SET NOCOUNT ON;
+	BEGIN
+		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
+		BEGIN
+			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RETURN;
+		END
 
-        IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
-        BEGIN
-            RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
-            RETURN;
-        END
+		BEGIN TRY
+			BEGIN TRANSACTION;
 
-        BEGIN TRY
-            BEGIN TRANSACTION;
+			INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture)
+			VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture);
 
-            INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture, role)
-            VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture, @role);
+			SET @user_id = SCOPE_IDENTITY();
 
-            SET @user_id = SCOPE_IDENTITY();
+			INSERT INTO Doctors (user_id, specialty_id, status)
+			VALUES (@user_id, @specialty_id, @status);
 
-            INSERT INTO Doctors (user_id, specialty_id, status)
-            VALUES (@user_id, @specialty_id, @status);
+			INSERT INTO UserRoles (user_id, role)
+			VALUES (@user_id, 'medico');
 
-            COMMIT TRANSACTION;
-        END TRY
-        BEGIN CATCH
-            ROLLBACK TRANSACTION;
-            THROW;
-        END CATCH
-		
-		RETURN;
-    END
+			COMMIT TRANSACTION;
 
-    ELSE IF @indicator = 'UPDATE'
-    BEGIN
-        UPDATE Doctors
-        SET specialty_id = @specialty_id,
-            status = @status
-        WHERE user_id = @user_id;
+			SELECT 1 AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'GET_ALL'
-    BEGIN
-        SELECT 
-            D.user_id,
-            U.first_name,
-            U.last_name,
-            U.email,
-            U.profile_picture,
-            S.name AS specialty_name,
-            D.status
-        FROM Doctors D
-        INNER JOIN Users U ON D.user_id = U.user_id
-        INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
-        WHERE U.role = @role;
+	ELSE IF @indicator = 'UPDATE'
+	BEGIN
+		UPDATE Doctors
+		SET specialty_id = @specialty_id,
+			status = @status
+		WHERE user_id = @user_id;
+
+		SELECT @@ROWCOUNT AS affected_rows;
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'GET_BY_ID'
-    BEGIN
-        SELECT 
-            D.user_id,
-            U.first_name,
-            U.last_name,
-            U.email,
-            U.phone,
-            U.profile_picture,
+	ELSE IF @indicator = 'GET_ALL'
+	BEGIN
+		SELECT 
+			D.user_id,
+			U.first_name,
+			U.last_name,
+			U.email,
+			U.profile_picture,
+			S.name AS specialty_name,
+			D.status
+		FROM Doctors D
+		INNER JOIN Users U ON D.user_id = U.user_id
+		INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
+		INNER JOIN UserRoles UR ON U.user_id = UR.user_id
+		WHERE UR.role = 'medico';
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'GET_BY_ID'
+	BEGIN
+		SELECT 
+			D.user_id,
+			U.first_name,
+			U.last_name,
+			U.email,
+			U.phone,
+			U.profile_picture,
 			D.specialty_id,
-            S.name AS specialty_name,
-            D.status
-        FROM Doctors D
-        INNER JOIN Users U ON D.user_id = U.user_id
-        INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
-        WHERE D.user_id = @user_id AND U.role = @role;
+			S.name AS specialty_name,
+			D.status
+		FROM Doctors D
+		INNER JOIN Users U ON D.user_id = U.user_id
+		INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
+		INNER JOIN UserRoles UR ON U.user_id = UR.user_id
+		WHERE D.user_id = @user_id AND UR.role = 'medico';
 
 		RETURN;
-    END
+	END
 
 	ELSE IF @indicator = 'GET_DETAILS_BY_ID'
 	BEGIN
@@ -273,18 +375,21 @@ BEGIN
 	END
 
 	IF @indicator = 'GET_BY_SPECIALTY'
-    BEGIN
-        SELECT 
-            d.user_id,
-            u.first_name,
-            u.last_name,
-            d.specialty_id
-        FROM Doctors d
-        INNER JOIN Users u ON d.user_id = u.user_id
-        WHERE d.specialty_id = @specialty_id AND u.role = 'medico' AND d.status = 1;
+	BEGIN
+		SELECT 
+			d.user_id,
+			u.first_name,
+			u.last_name,
+			d.specialty_id
+		FROM Doctors d
+		INNER JOIN Users u ON d.user_id = u.user_id
+		INNER JOIN UserRoles ur ON u.user_id = ur.user_id
+		WHERE d.specialty_id = @specialty_id
+		  AND ur.role = 'medico'
+		  AND d.status = 1;
 
 		RETURN;
-    END
+	END
 
 	ELSE
     BEGIN
@@ -307,87 +412,95 @@ CREATE OR ALTER PROCEDURE Patient_CRUD
     @email VARCHAR(100) = NULL,
     @password VARCHAR(100) = NULL,
     @phone VARCHAR(20) = NULL,
-    @role VARCHAR(20) = 'paciente',
     @profile_picture VARCHAR(255) = NULL,
     @birth_date DATE = NULL,
     @blood_type VARCHAR(3) = NULL
 AS
 BEGIN
-    IF @indicator = 'INSERT'
-    BEGIN
-        SET NOCOUNT ON;
+    SET NOCOUNT ON;
 
-        IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
-        BEGIN
-            RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
-            RETURN;
-        END
+	IF @indicator = 'INSERT'
+	BEGIN
+		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
+		BEGIN
+			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RETURN;
+		END
 
-        BEGIN TRY
-            BEGIN TRANSACTION;
+		BEGIN TRY
+			BEGIN TRANSACTION;
 
-            INSERT INTO Users (first_name, last_name, email, password, phone, role, profile_picture)
-            VALUES (@first_name, @last_name, @email, @password, @phone, @role, @profile_picture);
+			INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture)
+			VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture);
 
-            SET @user_id = SCOPE_IDENTITY();
+			SET @user_id = SCOPE_IDENTITY();
 
-            INSERT INTO Patients (user_id, birth_date, blood_type)
-            VALUES (@user_id, @birth_date, @blood_type);
+			INSERT INTO Patients (user_id, birth_date, blood_type)
+			VALUES (@user_id, @birth_date, @blood_type);
 
-            COMMIT TRANSACTION;
-        END TRY
-        BEGIN CATCH
-            ROLLBACK TRANSACTION;
-            THROW;
-        END CATCH
+			INSERT INTO UserRoles (user_id, role)
+			VALUES (@user_id, 'paciente');
 
-		RETURN;
-    END
+			COMMIT TRANSACTION;
 
-    ELSE IF @indicator = 'UPDATE'
-    BEGIN
-        UPDATE Patients
-        SET birth_date = @birth_date,
-            blood_type = @blood_type
-        WHERE user_id = @user_id;
+			SELECT 1 AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'GET_ALL'
-    BEGIN
-        SELECT 
-            P.user_id,
-            U.first_name,
-            U.last_name,
-            U.email,
-            U.profile_picture,
-            P.birth_date,
-            P.blood_type
-        FROM Patients P
-        INNER JOIN Users U ON P.user_id = U.user_id
-        WHERE role = @role;
+   ELSE IF @indicator = 'UPDATE'
+	BEGIN
+		UPDATE Patients
+		SET birth_date = @birth_date,
+			blood_type = @blood_type
+		WHERE user_id = @user_id;
+
+		SELECT @@ROWCOUNT AS affected_rows;
 
 		RETURN;
-    END
+	END
 
-    ELSE IF @indicator = 'GET_BY_ID'
-    BEGIN
-        SELECT 
-            P.user_id,
-            U.first_name,
-            U.last_name,
-            U.email,
-            U.phone,
-            U.profile_picture,
-            P.birth_date,
-            P.blood_type
-        FROM Patients P
-        INNER JOIN Users U ON P.user_id = U.user_id
-        WHERE P.user_id = @user_id AND role = @role;
+	ELSE IF @indicator = 'GET_ALL'
+	BEGIN
+		SELECT 
+			P.user_id,
+			U.first_name,
+			U.last_name,
+			U.email,
+			U.profile_picture,
+			P.birth_date,
+			P.blood_type
+		FROM Patients P
+		INNER JOIN Users U ON P.user_id = U.user_id
+		INNER JOIN UserRoles UR ON U.user_id = UR.user_id
+		WHERE UR.role = 'paciente';
 
 		RETURN;
-    END
+	END
+
+	ELSE IF @indicator = 'GET_BY_ID'
+	BEGIN
+		SELECT 
+			P.user_id,
+			U.first_name,
+			U.last_name,
+			U.email,
+			U.phone,
+			U.profile_picture,
+			P.birth_date,
+			P.blood_type
+		FROM Patients P
+		INNER JOIN Users U ON P.user_id = U.user_id
+		INNER JOIN UserRoles UR ON U.user_id = UR.user_id
+		WHERE P.user_id = @user_id AND UR.role = 'paciente';
+
+		RETURN;
+	END
 
 	ELSE IF @indicator = 'GET_DETAILS_BY_ID'
     BEGIN
@@ -421,20 +534,20 @@ CREATE OR ALTER PROCEDURE Appointment_CRUD
     @symptoms TEXT = NULL,
     @status VARCHAR(20) = NULL,
     @user_id INT = NULL,
-    @user_type VARCHAR(20) = NULL
+    @user_rol VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF @indicator = 'INSERT'
-    BEGIN
-        INSERT INTO Appointments(doctor_id, patient_id, specialty_id, date, time, consultation_type, symptoms, status)
-        VALUES (@doctor_id, @patient_id, @specialty_id, @date, @time, @consultation_type, @symptoms, @status);
+	IF @indicator = 'INSERT'
+	BEGIN
+		INSERT INTO Appointments(doctor_id, patient_id, specialty_id, date, time, consultation_type, symptoms, status)
+		VALUES (@doctor_id, @patient_id, @specialty_id, @date, @time, @consultation_type, @symptoms, @status);
 
-		SELECT SCOPE_IDENTITY() AS appointment_id;
+		SELECT @@ROWCOUNT AS affected_rows;
 
 		RETURN;
-    END
+	END
 
 	ELSE IF @indicator = 'GET_BY_DOCTOR_AND_DATE'
 	BEGIN
@@ -474,12 +587,12 @@ BEGIN
     BEGIN
         SELECT 
             a.appointment_id,
+            s.name AS specialty_name,
             u_d.first_name + ' ' + u_d.last_name AS doctor_name,
             u_p.first_name + ' ' + u_p.last_name AS patient_name,
-            s.name AS specialty_name,
+            a.consultation_type,
             a.date,
             a.time,
-            a.consultation_type,
             a.symptoms,
             a.status
         FROM Appointments a
@@ -491,19 +604,36 @@ BEGIN
 		RETURN;
     END
 
-    ELSE IF @indicator = 'GET_BY_USER_AND_STATUS'
+	ELSE IF @indicator = 'GET_ALL'
     BEGIN
-        SELECT 
+		SELECT 
             a.appointment_id,
-            a.doctor_id,
-            u_d.first_name + ' ' + u_d.last_name AS doctor_name,
-            a.patient_id,
-            u_p.first_name + ' ' + u_p.last_name AS patient_name,
-            a.specialty_id,
             s.name AS specialty_name,
+            u_d.first_name + ' ' + u_d.last_name AS doctor_name,
+            u_p.first_name + ' ' + u_p.last_name AS patient_name,
+            a.consultation_type,
             a.date,
             a.time,
+            a.symptoms,
+            a.status
+        FROM Appointments a
+        INNER JOIN Users u_d ON a.doctor_id = u_d.user_id
+        INNER JOIN Users u_p ON a.patient_id = u_p.user_id
+        INNER JOIN Specialties s ON a.specialty_id = s.specialty_id
+
+		RETURN;
+    END
+
+    ELSE IF @indicator = 'GET_BY_USER_AND_STATUS'
+    BEGIN
+		SELECT 
+            a.appointment_id,
+            s.name AS specialty_name,
+            u_d.first_name + ' ' + u_d.last_name AS doctor_name,
+            u_p.first_name + ' ' + u_p.last_name AS patient_name,
             a.consultation_type,
+            a.date,
+            a.time,
             a.symptoms,
             a.status
         FROM Appointments a
@@ -512,9 +642,9 @@ BEGIN
         INNER JOIN Specialties s ON a.specialty_id = s.specialty_id
         WHERE 
             (
-                (@user_type = 'paciente' AND a.patient_id = @user_id)
+                (@user_rol = 'paciente' AND a.patient_id = @user_id)
                 OR
-                (@user_type = 'medico' AND a.doctor_id = @user_id)
+                (@user_rol = 'medico' AND a.doctor_id = @user_id)
             )
             AND
             (
@@ -528,15 +658,12 @@ BEGIN
     BEGIN
         SELECT 
             a.appointment_id,
-            a.doctor_id,
-            u_d.first_name + ' ' + u_d.last_name AS doctor_name,
-            a.patient_id,
-            u_p.first_name + ' ' + u_p.last_name AS patient_name,
-            a.specialty_id,
             s.name AS specialty_name,
+            u_d.first_name + ' ' + u_d.last_name AS doctor_name,
+            u_p.first_name + ' ' + u_p.last_name AS patient_name,
+            a.consultation_type,
             a.date,
             a.time,
-            a.consultation_type,
             a.symptoms,
             a.status
         FROM Appointments a
@@ -545,9 +672,9 @@ BEGIN
         INNER JOIN Specialties s ON a.specialty_id = s.specialty_id
         WHERE 
             (
-                (@user_type = 'paciente' AND a.patient_id = @user_id)
+                (@user_rol = 'paciente' AND a.patient_id = @user_id)
                 OR
-                (@user_type = 'medico' AND a.doctor_id = @user_id)
+                (@user_rol = 'medico' AND a.doctor_id = @user_id)
             )
             AND a.status IN ('cancelada', 'atendida');
 
@@ -561,6 +688,7 @@ BEGIN
     END
 END;
 GO
+
 -- =============================================
 -- PROCEDURE: Schedule_CRUD
 -- DESCRIPTION: CRUD for the updated Schedules table
@@ -579,42 +707,41 @@ BEGIN
     SET NOCOUNT ON;
 
     IF @indicator = 'INSERT_OR_UPDATE'
-    BEGIN
-        -- Si enabled = 0, se elimina
-        IF @enabled = 0
-        BEGIN
-            DELETE FROM Schedules
-            WHERE doctor_id = @doctor_id 
-              AND weekday = @weekday 
-              AND day_work_shift = @day_work_shift;
-        END
-        ELSE
-        BEGIN
-            MERGE INTO Schedules AS target
-            USING (
-                SELECT @doctor_id AS doctor_id, @weekday AS weekday, @day_work_shift AS day_work_shift
-            ) AS source
-            ON target.doctor_id = source.doctor_id 
-               AND target.weekday = source.weekday 
-               AND target.day_work_shift = source.day_work_shift
-            WHEN MATCHED THEN
-                UPDATE SET 
-                    start_time = @start_time,
-                    end_time = @end_time
-            WHEN NOT MATCHED THEN
-                INSERT (doctor_id, weekday, day_work_shift, start_time, end_time)
-                VALUES (@doctor_id, @weekday, @day_work_shift, @start_time, @end_time);
-        END
+	BEGIN
+		DECLARE @rows INT = 0;
 
-        RETURN;
-    END
+		IF @enabled = 0
+		BEGIN
+			DELETE FROM Schedules
+			WHERE doctor_id = @doctor_id 
+			  AND weekday = @weekday 
+			  AND day_work_shift = @day_work_shift;
 
-    ELSE IF @indicator = 'DELETE'
-    BEGIN
-        DELETE FROM Schedules
-        WHERE doctor_id = @doctor_id AND weekday = @weekday AND day_work_shift = @day_work_shift;
-        RETURN;
-    END
+			SET @rows = @@ROWCOUNT;
+		END
+		ELSE
+		BEGIN
+			MERGE INTO Schedules AS target
+			USING (
+				SELECT @doctor_id AS doctor_id, @weekday AS weekday, @day_work_shift AS day_work_shift
+			) AS source
+			ON target.doctor_id = source.doctor_id 
+			   AND target.weekday = source.weekday 
+			   AND target.day_work_shift = source.day_work_shift
+			WHEN MATCHED THEN
+				UPDATE SET 
+					start_time = @start_time,
+					end_time = @end_time
+			WHEN NOT MATCHED THEN
+				INSERT (doctor_id, weekday, day_work_shift, start_time, end_time)
+				VALUES (@doctor_id, @weekday, @day_work_shift, @start_time, @end_time);
+
+			SET @rows = @@ROWCOUNT;
+		END
+
+		SELECT @rows AS affected_rows;
+		RETURN;
+	END
 
     ELSE IF @indicator = 'GET_ALL'
     BEGIN

@@ -29,7 +29,7 @@ namespace medical_appointment_system.Filters
                 return;
             }
 
-            if (sesion != null && controller == "account")
+            if (sesion != null && controller == "account" && action != "setactiverole")
             {
                 filterContext.Result = new RedirectResult("~/");
                 return;

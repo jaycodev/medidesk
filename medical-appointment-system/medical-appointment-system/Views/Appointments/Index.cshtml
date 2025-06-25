@@ -1,18 +1,14 @@
 ﻿@model IEnumerable<medical_appointment_system.Models.Appointment>
 
 @{
-    ViewBag.Title = "Citas pendientes";
-
-    var user = Session["user"] as medical_appointment_system.Models.User;
-    var isDoctor = user?.Roles?.Contains("medico", StringComparer.OrdinalIgnoreCase) == true;
-    var isPatient = user?.Roles?.Contains("paciente", StringComparer.OrdinalIgnoreCase) == true;
+    ViewBag.Title = "Citas médicas";
 
     var culture = new System.Globalization.CultureInfo("es-PE");
 }
 
 <h4 class="text-center mb-3 text-body-emphasis">
     <i class="fa-solid fa-hourglass-half me-1"></i>
-    Citas pendientes
+    Citas médicas
 </h4>
 
 <div class="mb-3">
@@ -39,14 +35,8 @@
             <tr>
                 <th class="text-start">@Html.DisplayNameFor(model => model.AppointmentId)</th>
                 <th class="text-start">@Html.DisplayNameFor(model => model.SpecialtyName)</th>
-                @if (!isDoctor)
-                {
-                    <th>@Html.DisplayNameFor(model => model.DoctorName)</th>
-                }
-                @if (!isPatient)
-                {
-                    <th>@Html.DisplayNameFor(model => model.PatientName)</th>
-                }
+                <th>@Html.DisplayNameFor(model => model.DoctorName)</th>
+                <th>@Html.DisplayNameFor(model => model.PatientName)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.ConsultationType)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.Date)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.Time)</th>
@@ -91,14 +81,8 @@
                             @Html.DisplayFor(modelItem => item.SpecialtyName)
                         </span>
                     </td>
-                    @if (!isDoctor)
-                    {
-                        <td>@Html.DisplayFor(modelItem => item.DoctorName)</td>
-                    }
-                    @if (!isPatient)
-                    {
-                        <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
-                    }
+                    <td>@Html.DisplayFor(modelItem => item.DoctorName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
                     <td class="text-center">
                         <span class="badge bg-body-tertiary text-body-emphasis border">
                             <i class="fa-solid @icon me-1"></i>

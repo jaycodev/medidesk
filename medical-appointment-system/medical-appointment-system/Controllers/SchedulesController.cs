@@ -28,7 +28,7 @@ namespace medical_appointment_system.Controllers
 
             var weekDays = new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
 
-            var horariosCompletos = weekDays.SelectMany(day =>
+            var fullSchedules = weekDays.SelectMany(day =>
             {
                 var existing = currentSchedules.FindAll(h => h.Weekday.Equals(day, StringComparison.OrdinalIgnoreCase)).ToList();
                 var dayWorkShifts = new[] { "Mañana", "Tarde" };
@@ -56,7 +56,7 @@ namespace medical_appointment_system.Controllers
 
             }).ToList();
 
-            return View(horariosCompletos);
+            return View(fullSchedules);
         }
 
         [HttpPost]
@@ -65,12 +65,12 @@ namespace medical_appointment_system.Controllers
             try
             {
                 string errorMessages = string.Empty;
+                int totalAffected = 0;
 
                 for (int i = 0; i < schedules.Count; i++)
                 {
                     var schedule = schedules[i];
 
-                    // Validación de rango horario inválido
                     if (schedule.IsActive && schedule.StartTime >= schedule.EndTime)
                     {
                         ModelState.AddModelError($"StartTime_{i}", $"[{schedule.Weekday}] La hora de inicio debe ser menor que la hora final.");
@@ -78,7 +78,6 @@ namespace medical_appointment_system.Controllers
                         continue;
                     }
 
-                    // Validación de cruce entre turno mañana y tarde
                     if (i % 2 == 0 && i + 1 < schedules.Count)
                     {
                         var morningShift = schedules[i];
@@ -86,11 +85,11 @@ namespace medical_appointment_system.Controllers
 
                         if (morningShift.IsActive && afternoonShift.IsActive)
                         {
-                            bool horariosCruzan =
+                            bool doSchedulesOverlap =
                                 morningShift.EndTime > afternoonShift.StartTime ||
                                 morningShift.StartTime >= afternoonShift.StartTime;
 
-                            if (horariosCruzan)
+                            if (doSchedulesOverlap)
                             {
                                 ModelState.AddModelError($"StartTime_{i}", $"[{schedule.Weekday}] Cruce entre turno mañana y tarde.");
                                 errorMessages += $"En el día {schedule.Weekday}, los horarios de mañana y tarde no deben cruzarse.\n";
@@ -99,13 +98,21 @@ namespace medical_appointment_system.Controllers
                         }
                     }
 
-                    // Procesar solo si está activo y válido
-                    service.ExecuteWrite("INSERT_OR_UPDATE", schedule);
+                    int affectedRows = service.ExecuteWrite("INSERT_OR_UPDATE", schedule);
+                    totalAffected += affectedRows;
                 }
 
                 if (string.IsNullOrWhiteSpace(errorMessages))
                 {
-                    TempData["Success"] = "¡Horarios actualizados correctamente!";
+                    if (totalAffected > 0)
+                    {
+                        TempData["Success"] = "¡Horarios actualizados correctamente!";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "No se realizaron cambios.";
+                    }
+
                     return RedirectToAction("Index");
                 }
                 else

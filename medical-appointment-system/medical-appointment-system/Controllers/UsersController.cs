@@ -16,7 +16,7 @@ namespace medical_appointment_system.Controllers
         PatientService patientService = new PatientService();
         DoctorService doctorService = new DoctorService();
 
-        private Doctor FindDoctorByUserId(int id)
+        private Doctor FindDoctorById(int id)
         {
             Doctor doctor = new Doctor { UserId = id };
             var result = doctorService.ExecuteRead("GET_DETAILS_BY_ID", doctor).FirstOrDefault();
@@ -29,7 +29,7 @@ namespace medical_appointment_system.Controllers
             return null;
         }
 
-        private Patient FindPatientByUserId(int id)
+        private Patient FindPatientById(int id)
         {
             Patient patient = new Patient { UserId = id };
             var result = patientService.ExecuteRead("GET_DETAILS_BY_ID", patient).FirstOrDefault();
@@ -42,13 +42,16 @@ namespace medical_appointment_system.Controllers
             return null;
         }
 
-        private User FindById(int id)
+        private User FindUserById(int id)
         {
             User user = new Patient { UserId = id };
             User result = userService.ExecuteRead("GET_BY_ID", user).First();
 
             if (result != null)
             {
+                result.SelectedRoleCombo = string.Join(",", result.Roles);
+                System.Diagnostics.Debug.WriteLine("SelectedRoleCombo: " + result.SelectedRoleCombo);
+
                 return result;
             }
 
@@ -57,8 +60,14 @@ namespace medical_appointment_system.Controllers
 
         public ActionResult Index()
         {
-            List<User> lista = userService.ExecuteRead("GET_ALL", new User());
-            return View(lista);
+            var currentUser = Session["user"] as User;
+
+            List<User> list = userService.ExecuteRead("GET_ALL", new User
+            {
+                UserId = currentUser.UserId
+            });
+
+            return View(list);
         }
 
         public ActionResult Create()
@@ -76,10 +85,18 @@ namespace medical_appointment_system.Controllers
 
             try
             {
-                user.Role = "administrador";
-                userService.ExecuteWrite("INSERT", user);
-                TempData["Success"] = "¡Usuario creado correctamente!";
-                return RedirectToAction("Index");
+                user.Roles = new List<string> { "administrador" };
+                int affectedRows = userService.ExecuteWrite("INSERT", user);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Usuario creado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo crear el usuario. Intenta nuevamente.";
+                }
             }
             catch (ApplicationException ex)
             {
@@ -99,18 +116,44 @@ namespace medical_appointment_system.Controllers
             {
                 return RedirectToAction("Index");
             }
-            return View(FindById(id));
+
+            return View(FindUserById(id));
         }
 
         [HttpPost]
         public ActionResult Edit(User user)
         {
-            int process = userService.ExecuteWrite("UPDATE", user);
-            if (process >= 0)
+            try
             {
-                TempData["Success"] = "¡Usuario actualizado correctamente!";
-                return RedirectToAction("Index");
+                if (!string.IsNullOrEmpty(user.SelectedRoleCombo))
+                {
+                    user.Roles = user.SelectedRoleCombo
+                        .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(r => r.Trim())
+                        .ToList();
+                }
+
+                int affectedRows = userService.ExecuteWrite("UPDATE", user);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Usuario actualizado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo actualizar el usuario. Intenta nuevamente.";
+                }
             }
+            catch (ApplicationException ex)
+            {
+                ViewBag.Message = ex.Message;
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
+            }
+
             return View(user);
         }
 
@@ -123,9 +166,9 @@ namespace medical_appointment_system.Controllers
 
             var viewModel = new UserDetailsViewModel
             {
-                User = FindById(id),
-                Doctor = FindDoctorByUserId(id),
-                Patient = FindPatientByUserId(id)
+                User = FindUserById(id),
+                Doctor = FindDoctorById(id),
+                Patient = FindPatientById(id)
             };
 
             return View(viewModel);
@@ -137,29 +180,33 @@ namespace medical_appointment_system.Controllers
             {
                 return RedirectToAction("Index");
             }
-            return View(FindById(id));
+            return View(FindUserById(id));
         }
 
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
-            User user = FindById(id);
+            User user = FindUserById(id);
 
             try
             {
-                int process = userService.ExecuteWrite("DELETE", user);
-                if (process >= 0)
+                int affectedRows = userService.ExecuteWrite("DELETE", user);
+
+                if (affectedRows > 0)
                 {
                     TempData["Success"] = "¡Usuario eliminado correctamente!";
-                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = "No se pudo eliminar el usuario. Intenta nuevamente.";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["Error"] = "Ocurrió un error al intentar eliminar el usuario. " + ex.Message;
-                ModelState.AddModelError("", "No se pudo eliminar el usuario.");
+                TempData["Error"] = "Ocurrió un error inesperado. Intenta más tarde.";
             }
-            return View(user);
+
+            return RedirectToAction("Index");
         }
 
         public ActionResult ExportToPDF()
@@ -190,7 +237,7 @@ namespace medical_appointment_system.Controllers
                     tabla.AddCell(u.LastName);
                     tabla.AddCell(u.Email);
                     tabla.AddCell(u.Phone ?? "");
-                    tabla.AddCell(u.Role);
+                    tabla.AddCell(string.Join(", ", u.Roles));
                 }
 
                 doc.Add(tabla);
@@ -225,7 +272,7 @@ namespace medical_appointment_system.Controllers
                     hoja.Cell(fila, 3).Value = u.LastName;
                     hoja.Cell(fila, 4).Value = u.Email;
                     hoja.Cell(fila, 5).Value = u.Phone ?? "";
-                    hoja.Cell(fila, 6).Value = u.Role;
+                    hoja.Cell(fila, 6).Value = string.Join(", ", u.Roles);
                     fila++;
                 }
 

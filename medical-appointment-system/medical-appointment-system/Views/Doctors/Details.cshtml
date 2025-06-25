@@ -40,11 +40,6 @@
             </div>
 
             <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ProfilePicture)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.ProfilePicture)</dd>
-            </div>
-
-            <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.SpecialtyName)</dt>
                 <dd>
                     <span class="badge bg-body-tertiary text-body-emphasis border">@Model.SpecialtyName</span>
@@ -52,11 +47,16 @@
             </div>
 
             <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ProfilePicture)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.ProfilePicture)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Status)</dt>
                 <dd>
-                    <span class="badge rounded-pill border 
-                        @(Model.Status 
-                            ? "bg-success-subtle border-success-subtle text-success-emphasis" 
+                    <span class="badge rounded-pill border
+                        @(Model.Status
+                            ? "bg-success-subtle border-success-subtle text-success-emphasis"
                             : "bg-danger-subtle border-danger-subtle text-danger-emphasis")">
                         <i class="fa-solid @(Model.Status ? "fa-check" : "fa-ban") me-1"></i>
                         @(Model.Status ? "Activo" : "Inactivo")

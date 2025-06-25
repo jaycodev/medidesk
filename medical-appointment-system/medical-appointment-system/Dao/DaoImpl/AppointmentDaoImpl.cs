@@ -14,7 +14,7 @@ namespace medical_appointment_system.Dao.DaoImpl
 
         public int ExecuteWrite(string indicator, Appointment a)
         {
-            int result = -1;
+            int process = -1;
 
             using (SqlConnection cn = new SqlConnection(connectionString))
             {
@@ -22,29 +22,23 @@ namespace medical_appointment_system.Dao.DaoImpl
                 using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
                 {
                     AddParameters(cmd, indicator, a);
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-                    if (indicator == "INSERT")
-                    {
-                        object insertedId = cmd.ExecuteScalar();
-                        result = insertedId != null ? Convert.ToInt32(insertedId) : -1;
-                    }
-                    else if (indicator == "UPDATE" || indicator == "CANCEL")
+                    try
                     {
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
-                                result = Convert.ToInt32(reader["affected_rows"]);
+                                process = Convert.ToInt32(reader["affected_rows"]);
                         }
                     }
-                    else
+                    catch
                     {
-                        result = cmd.ExecuteNonQuery();
+                        throw;
                     }
                 }
             }
 
-            return result;
+            return process;
         }
 
         public List<Appointment> ExecuteRead(string indicator, Appointment a)
@@ -65,15 +59,12 @@ namespace medical_appointment_system.Dao.DaoImpl
                             list.Add(new Appointment
                             {
                                 AppointmentId = reader.SafeGetInt("appointment_id"),
-                                DoctorId = reader.SafeGetInt("doctor_id"),
-                                DoctorName = reader.SafeGetString("doctor_name"),
-                                PatientId = reader.SafeGetInt("patient_id"),
-                                PatientName = reader.SafeGetString("patient_name"),
-                                SpecialtyId = reader.SafeGetInt("specialty_id"),
                                 SpecialtyName = reader.SafeGetString("specialty_name"),
+                                DoctorName = reader.SafeGetString("doctor_name"),
+                                PatientName = reader.SafeGetString("patient_name"),
+                                ConsultationType = reader.SafeGetString("consultation_type"),
                                 Date = reader.SafeGetDateTime("date"),
                                 Time = reader.SafeGetTimeSpan("time"),
-                                ConsultationType = reader.SafeGetString("consultation_type"),
                                 Symptoms = reader.SafeGetString("symptoms"),
                                 Status = reader.SafeGetString("status"),
                                 StartTime = reader.SafeGetTimeSpan("start_time"),
@@ -101,7 +92,7 @@ namespace medical_appointment_system.Dao.DaoImpl
             cmd.Parameters.AddWithValue("@symptoms", a.Symptoms);
             cmd.Parameters.AddWithValue("@status", a.Status);
             cmd.Parameters.AddWithValue("@user_id", a.UserId);
-            cmd.Parameters.AddWithValue("@user_type", a.UserType);
+            cmd.Parameters.AddWithValue("@user_rol", a.UserRol);
         }
     }
 }

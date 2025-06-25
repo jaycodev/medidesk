@@ -24,7 +24,11 @@ namespace medical_appointment_system.Dao.DaoImpl
 
                     try
                     {
-                        process = cmd.ExecuteNonQuery();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                                process = Convert.ToInt32(reader["affected_rows"]);
+                        }
                     }
                     catch (SqlException ex)
                     {

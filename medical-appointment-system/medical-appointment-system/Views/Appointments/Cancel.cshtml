@@ -4,8 +4,8 @@
     ViewBag.Title = "Cancelar cita";
 
     var user = Session["user"] as medical_appointment_system.Models.User;
-    var isPatient = user?.Role?.ToLower() == "paciente";
-    var isDoctor = user?.Role?.ToLower() == "medico";
+    var isDoctor = user?.Roles?.Contains("medico", StringComparer.OrdinalIgnoreCase) == true;
+    var isPatient = user?.Roles?.Contains("paciente", StringComparer.OrdinalIgnoreCase) == true;
 
     var culture = new System.Globalization.CultureInfo("es-PE");
     var formattedDate = Model.Date.ToString("dd MMM yyyy", culture);

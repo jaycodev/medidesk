@@ -4,8 +4,8 @@
     ViewBag.Title = "Mis citas";
 
     var user = Session["user"] as medical_appointment_system.Models.User;
-    var isDoctor = user?.Role?.ToLower() == "medico";
-    var isPatient = user?.Role?.ToLower() == "paciente";
+    var isDoctor = user?.Roles?.Contains("medico", StringComparer.OrdinalIgnoreCase) == true;
+    var isPatient = user?.Roles?.Contains("paciente", StringComparer.OrdinalIgnoreCase) == true;
 
     var culture = new System.Globalization.CultureInfo("es-PE");
 }

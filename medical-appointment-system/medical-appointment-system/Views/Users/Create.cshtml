@@ -84,7 +84,7 @@
         </div>
     </div>
 
-    @Html.HiddenFor(m => m.Role, new { Value = "administrador" })
+    @Html.HiddenFor(m => m.SelectedRoleCombo, new { @Value = "administrador" })
 
     <div class="d-flex justify-content-end gap-2 mt-3">
         <a href="@Url.Action("Index")" class="btn btn-secondary">

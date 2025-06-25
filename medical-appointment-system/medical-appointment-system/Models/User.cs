@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace medical_appointment_system.Models
 {
@@ -30,9 +31,14 @@ namespace medical_appointment_system.Models
         [RegularExpression(@"^\d{9,}$", ErrorMessage = "Ingrese al menos 9 dígitos numéricos")]
         public string Phone { get; set; }
 
-        [Display(Name = "Rol")]
-        [Required(ErrorMessage = "Ingrese un rol")]
-        public string Role { get; set; }
+        [Display(Name = "Rol(es)")]
+        [Required(ErrorMessage = "Seleccione una combinación de rol(es)")]
+        public string SelectedRoleCombo { get; set; }
+
+        [Display(Name = "Rol(es)")]
+        public List<string> Roles { get; set; } = new List<string>();
+
+        public string ActiveRole { get; set; }
 
         [Display(Name = "Foto perfil")]
         public string ProfilePicture { get; set; }

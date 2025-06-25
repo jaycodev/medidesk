@@ -43,7 +43,7 @@
                 <th>@Html.DisplayNameFor(model => model.LastName)</th>
                 <th>@Html.DisplayNameFor(model => model.Email)</th>
                 <th class="text-start">@Html.DisplayNameFor(model => model.Phone)</th>
-                <th class="text-center">@Html.DisplayNameFor(model => model.Role)</th>
+                <th class="text-center">@Html.DisplayNameFor(model => model.Roles)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.ProfilePicture)</th>
                 <th></th>
             </tr>
@@ -63,31 +63,7 @@
                     <td>@Html.DisplayFor(modelItem => item.Email)</td>
                     <td class="text-start">@Html.DisplayFor(modelItem => item.Phone)</td>
                     <td class="text-center">
-                        @{
-                            var rol = item.Role?.ToLower();
-                            var icon = "fa-user";
-                            var text = "";
-
-                            switch (rol)
-                            {
-                                case "paciente":
-                                    icon = "fa-bed-pulse";
-                                    text = "Paciente";
-                                    break;
-                                case "medico":
-                                    icon = "fa-user-doctor";
-                                    text = "Médico";
-                                    break;
-                                case "administrador":
-                                    icon = "fa-user-shield";
-                                    text = "Administrador";
-                                    break;
-                            }
-                        }
-                        <span class="badge bg-body-tertiary text-body-emphasis border">
-                            <i class="fa-solid @icon me-1"></i>
-                            @text
-                        </span>
+                        @Html.Partial("_RoleBadges", item.Roles)
                     </td>
                     <td class="text-center">@Html.DisplayFor(modelItem => item.ProfilePicture)</td>
                     <td class="text-center">
@@ -97,12 +73,9 @@
                         <a href="@Url.Action("Edit", new { id = item.UserId })" class="btn btn-secondary btn-sm" title="Editar">
                             <i class="fa-solid fa-pen"></i>
                         </a>
-                        @if (item.Role?.ToLower() == "administrador")
-                        {
-                            <a href="@Url.Action("Delete", new { id = item.UserId })" class="btn btn-secondary btn-sm" title="Eliminar">
-                                <i class="fa-solid fa-trash"></i>
-                            </a>
-                        }
+                        <a href="@Url.Action("Delete", new { id = item.UserId })" class="btn btn-secondary btn-sm" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
                     </td>
                 </tr>
             }

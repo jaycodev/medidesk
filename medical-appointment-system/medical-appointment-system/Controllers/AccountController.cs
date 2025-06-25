@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using medical_appointment_system.Models;
@@ -35,8 +36,13 @@ namespace medical_appointment_system.Controllers
             User userLogged = userService.ExecuteRead("LOGIN", user).FirstOrDefault();
             if (userLogged != null)
             {
+                if (userLogged.Roles?.Count == 1)
+                {
+                    userLogged.ActiveRole = userLogged.Roles.First();
+                }
+
                 Session["user"] = userLogged;
-                return RedirectToAction("Dashboard", "Appointments");
+                return RedirectToAction("Home", "Appointments");
             }
             else
             {
@@ -70,11 +76,18 @@ namespace medical_appointment_system.Controllers
 
             try
             {
-                model.Role = "paciente";
-                patientService.ExecuteWrite("INSERT", model);
-                
-                TempData["Success"] = "¡Usuario creado correctamente!";
-                return RedirectToAction("Login", "Account");
+                model.Roles = new List<string> { "paciente" };
+                int affectedRows = patientService.ExecuteWrite("INSERT", model);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Cuenta creada correctamente!";
+                    return RedirectToAction("Login", "Account");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo crear la cuenta. Intenta nuevamente.";
+                }
             }
             catch (ApplicationException ex)
             {
@@ -86,6 +99,26 @@ namespace medical_appointment_system.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SetActiveRole(string role)
+        {
+            var user = Session["user"] as User;
+
+            if (user != null && user.Roles.Any(r => r.Equals(role, StringComparison.OrdinalIgnoreCase)))
+            {
+                user.ActiveRole = role;
+                Session["user"] = user;
+            }
+            else if (user != null && user.Roles.Any())
+            {
+                user.ActiveRole = user.Roles.First();
+                Session["user"] = user;
+            }
+
+            return RedirectToAction("Home", "Appointments");
         }
     }
 }

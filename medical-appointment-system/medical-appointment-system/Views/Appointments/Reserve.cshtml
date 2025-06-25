@@ -9,7 +9,7 @@
     Reservar cita
 </h4>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-reserve" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -277,7 +277,7 @@
             }
         });
 
-        $('form').submit(function (e) {
+        $('form.form-reserve').submit(function (e) {
             const isValid = $(this).valid();
             const timeSelected = $('input[name="Time"]:checked').length > 0;
 

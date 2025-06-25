@@ -184,11 +184,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\SidebarHelper.cs" />
     <Compile Include="Helpers\SqlDataReaderExtensions.cs" />
     <Compile Include="Models\Appointment.cs" />
     <Compile Include="Models\Doctor.cs" />
     <Compile Include="Models\Patient.cs" />
     <Compile Include="Models\Schedule.cs" />
+    <Compile Include="Models\SidebarItem.cs" />
     <Compile Include="Models\Specialty.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\ViewModels\LoginViewModel.cs" />
@@ -241,7 +243,8 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Appointments\Cancel.cshtml" />
-    <Content Include="Views\Appointments\Dashboard.cshtml" />
+    <Content Include="Views\Appointments\Home.cshtml" />
+    <Content Include="Views\Appointments\Index.cshtml" />
     <Content Include="Views\Appointments\Details.cshtml" />
     <Content Include="Views\Appointments\Historial.cshtml" />
     <Content Include="Views\Appointments\MyAppointments.cshtml" />
@@ -267,6 +270,7 @@
     <Content Include="Views\Users\Details.cshtml" />
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
+    <Content Include="Views\Shared\_RoleBadges.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

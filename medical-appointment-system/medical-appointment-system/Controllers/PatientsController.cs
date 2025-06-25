@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using medical_appointment_system.Models;
@@ -43,10 +44,18 @@ namespace medical_appointment_system.Controllers
 
             try
             {
-                patient.Role = "paciente";
-                service.ExecuteWrite("INSERT", patient);
-                TempData["Success"] = "¡Paciente creado correctamente!";
-                return RedirectToAction("Index");
+                patient.Roles = new List<string> { "paciente" };
+                int affectedRows = service.ExecuteWrite("INSERT", patient);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Paciente creado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo crear el paciente. Intenta nuevamente.";
+                }
             }
             catch (ApplicationException ex)
             {
@@ -73,12 +82,23 @@ namespace medical_appointment_system.Controllers
         [HttpPost]
         public ActionResult Edit(Patient patient)
         {
-            int process = service.ExecuteWrite("UPDATE", patient);
-
-            if (process >= 0)
+            try
             {
-                TempData["Success"] = "¡Paciente actualizado correctamente!";
-                return RedirectToAction("Index");
+                int affectedRows = service.ExecuteWrite("UPDATE", patient);
+
+                if (affectedRows > 0)
+                {
+                    TempData["Success"] = "¡Paciente actualizado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo actualizar el paciente. Intenta nuevamente.";
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
             }
 
             return View(patient);

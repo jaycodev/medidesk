@@ -15,7 +15,7 @@ namespace medical_appointment_system
                 routeHandler: new MvcRouteHandler()
             )
             {
-                Defaults = new RouteValueDictionary(new { controller = "Appointments", action = "Dashboard", id = UrlParameter.Optional })
+                Defaults = new RouteValueDictionary(new { controller = "Appointments", action = "Home", id = UrlParameter.Optional })
             });
         }
     }

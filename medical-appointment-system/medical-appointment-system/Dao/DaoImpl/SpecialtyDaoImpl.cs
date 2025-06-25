@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using medical_appointment_system.Models;
 using medical_appointment_system.Helpers;
+using System;
 
 namespace medical_appointment_system.Dao.DaoImpl
 {
@@ -13,7 +14,7 @@ namespace medical_appointment_system.Dao.DaoImpl
 
         public int ExecuteWrite(string indicator, Specialty s)
         {
-            int process;
+            int process = -1;
             using (SqlConnection cn = new SqlConnection(connectionString))
             {
                 cn.Open();
@@ -21,7 +22,18 @@ namespace medical_appointment_system.Dao.DaoImpl
                 {
                     AddParameters(cmd, indicator, s);
 
-                    process = cmd.ExecuteNonQuery();
+                    try
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                                process = Convert.ToInt32(reader["affected_rows"]);
+                        }
+                    }
+                    catch
+                    {
+                        throw;
+                    }
                 }
             }
             return process;
