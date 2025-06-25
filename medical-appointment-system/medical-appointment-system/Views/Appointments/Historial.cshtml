@@ -4,8 +4,8 @@
     ViewBag.Title = "Historial de citas";
 
     var user = Session["user"] as medical_appointment_system.Models.User;
-    var isDoctor = user?.Roles?.Contains("medico", StringComparer.OrdinalIgnoreCase) == true;
-    var isPatient = user?.Roles?.Contains("paciente", StringComparer.OrdinalIgnoreCase) == true;
+    var isDoctor = string.Equals(user?.ActiveRole, "medico", StringComparison.OrdinalIgnoreCase);
+    var isPatient = string.Equals(user?.ActiveRole, "paciente", StringComparison.OrdinalIgnoreCase);
 
     var culture = new System.Globalization.CultureInfo("es-PE");
 }

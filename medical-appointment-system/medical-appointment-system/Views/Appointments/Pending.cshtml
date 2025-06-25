@@ -4,8 +4,8 @@
     ViewBag.Title = "Citas pendientes";
 
     var user = Session["user"] as medical_appointment_system.Models.User;
-    var isDoctor = user?.Roles?.Contains("medico", StringComparer.OrdinalIgnoreCase) == true;
-    var isPatient = user?.Roles?.Contains("paciente", StringComparer.OrdinalIgnoreCase) == true;
+    var isDoctor = string.Equals(user?.ActiveRole, "medico", StringComparison.OrdinalIgnoreCase);
+    var isPatient = string.Equals(user?.ActiveRole, "paciente", StringComparison.OrdinalIgnoreCase);
 
     var culture = new System.Globalization.CultureInfo("es-PE");
 }
@@ -119,10 +119,12 @@
                         <a href="@Url.Action("Details", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Detalles">
                             <i class="fa-solid fa-circle-info"></i>
                         </a>
-
-                        <a href="@Url.Action("Cancel", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Cancelar">
-                            <i class="fa-solid fa-ban"></i>
-                        </a>
+                        @if (isDoctor)
+                        {
+                            <a href="@Url.Action("Cancel", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Cancelar">
+                                <i class="fa-solid fa-ban"></i>
+                            </a>
+                        }
                     </td>
                 </tr>
             }

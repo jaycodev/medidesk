@@ -386,7 +386,8 @@ BEGIN
 		INNER JOIN UserRoles ur ON u.user_id = ur.user_id
 		WHERE d.specialty_id = @specialty_id
 		  AND ur.role = 'medico'
-		  AND d.status = 1;
+		  AND d.status = 1
+		  AND d.user_id <> @user_id;
 
 		RETURN;
 	END

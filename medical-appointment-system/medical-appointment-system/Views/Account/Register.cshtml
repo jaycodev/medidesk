@@ -84,7 +84,7 @@
                                 @Html.ValidationMessageFor(m => m.BirthDate, "", new { @class = "text-danger" })
                             </div>
 
-                            @Html.HiddenFor(model => model.Role, new { Value = "paciente" })
+                            @Html.HiddenFor(m => m.SelectedRoleCombo, new { @Value = "paciente" })
 
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary w-100">Registrar</button>

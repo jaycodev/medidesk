@@ -35,7 +35,7 @@ namespace medical_appointment_system.Controllers
             return appointmentService.ExecuteRead(indicator, new Appointment
             {
                 UserId = user.UserId,
-                UserRol = user.Roles.FirstOrDefault(),
+                UserRol = user.ActiveRole,
                 Status = status
             });
         }
@@ -87,7 +87,12 @@ namespace medical_appointment_system.Controllers
 
         public JsonResult GetDoctorsBySpecialty(int id)
         {
-            var doctors = doctorService.ExecuteRead("GET_BY_SPECIALTY", new Doctor { SpecialtyId = id });
+            var doctors = doctorService.ExecuteRead("GET_BY_SPECIALTY", new Doctor
+            {
+                SpecialtyId = id,
+                UserId = user.UserId
+            });
+
             var result = doctors.Select(d => new
             {
                 d.UserId,
