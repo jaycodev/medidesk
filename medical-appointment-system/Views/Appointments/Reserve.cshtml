@@ -1,0 +1,292 @@
+﻿@model medical_appointment_system.Models.Appointment
+
+@{
+    ViewBag.Title = "Reservar cita";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-calendar-check me-1"></i>
+    Reservar cita
+</h4>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-reserve" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <p class="text-danger mb-3">
+        * Obligatorio
+    </p>
+
+    <div class="row mb-2">
+        <div class="col-md-6 mb-2">
+            @Html.LabelFor(m => m.SpecialtyName, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.DropDownListFor(m => m.SpecialtyId, (SelectList)ViewBag.Specialties, "Seleccione una especialidad", new { @class = "form-select" })
+            @Html.ValidationMessageFor(m => m.SpecialtyId, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.DoctorId, new { @class = "form-label" })
+            <span class="text-danger">*</span>
+            @Html.DropDownListFor(m => m.DoctorId, Enumerable.Empty<SelectListItem>(), "Seleccione un médico", new { @class = "form-select", disabled = "disabled" })
+            @Html.ValidationMessageFor(m => m.DoctorId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-4 mb-2">
+            <label class="form-label d-flex align-items-center">
+                @Html.DisplayNameFor(m => m.Date)
+                <span class="text-danger ms-1">*</span>
+            </label>
+            @Html.TextBoxFor(m => m.Date, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", disabled = "disabled" })
+            @Html.ValidationMessageFor(m => m.Date, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="col-md-4 mb-2">
+            <label class="form-label d-flex align-items-center">
+
+                @Html.DisplayNameFor(m => m.ConsultationType)
+                <span class="text-danger ms-1">*</span>
+            </label>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(m => m.ConsultationType, "examen", new { @class = "form-check-input", id = "tipoExamen", disabled = "disabled" })
+                <label class="form-check-label" for="tipoExamen">Examen</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(m => m.ConsultationType, "consulta", new { @class = "form-check-input", id = "tipoConsulta", disabled = "disabled" })
+                <label class="form-check-label" for="tipoConsulta">Consulta</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(m => m.ConsultationType, "operacion", new { @class = "form-check-input", id = "tipoOperacion", disabled = "disabled" })
+                <label class="form-check-label" for="tipoOperacion">Operación</label>
+            </div>
+            @Html.ValidationMessageFor(m => m.ConsultationType, "", new { @class = "text-danger d-block" })
+        </div>
+
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Symptoms, new { @class = "form-label" })
+            @Html.TextAreaFor(m => m.Symptoms, new { @class = "form-control", placeholder = "Describa brevemente los síntomas", rows = 3 })
+            @Html.ValidationMessageFor(m => m.Symptoms, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mb-2">
+        <div class="col-md-12">
+            <label class="form-label d-block">
+                Horario de atención <span class="text-danger">*</span>
+            </label>
+
+            <div id="scheduleAlert" class="alert alert-warning" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>
+                Seleccione un médico y una fecha para ver los horarios de atención disponibles.
+            </div>
+
+            <div class="row" id="timeRadiosContainer"></div>
+
+            @Html.ValidationMessageFor(m => m.Time, "", new { @class = "text-danger d-block" })
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="@Url.Action("Dashboard", "Appointments")" class="btn btn-secondary">
+            <i class="fa-solid fa-left-long me-1"></i>
+            Volver
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-calendar-check me-1"></i>
+            Reservar
+        </button>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+    $(function () {
+        const $doctorSelect = $('#DoctorId');
+        const $specialtySelect = $('#SpecialtyId');
+        const $dateInput = $('#Date');
+        const $consultationRadios = $('input[name="ConsultationType"]');
+        const $timeRadiosContainer = $('#timeRadiosContainer');
+
+        let specialtyError = '';
+        let scheduleError = '';
+
+        $.validator.addMethod("doctorsavailable", function (value, element) {
+            return specialtyError === '';
+        }, function () {
+            return specialtyError;
+        });
+
+        $.validator.addMethod("scheduleavailable", function (value, element) {
+            return scheduleError === '';
+        }, function () {
+            return scheduleError;
+        });
+
+        function renderTimeRadios(times) {
+            const groups = {
+                morning: [],
+                afternoon: []
+            };
+
+            times.forEach(t => {
+                const hour = parseInt(t.Time.split(':')[0]);
+                const label = `${hour > 12 ? hour - 12 : hour}:00 ${hour >= 12 ? 'p.m.' : 'a.m.'} - ${hour + 1 > 12 ? (hour + 1) - 12 : hour + 1}:00 ${hour + 1 >= 12 ? 'p.m.' : 'a.m.'}`;
+
+                const radioHtml = `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="Time" id="hora${t.Time.replace(':', '')}" value="${t.Time}" ${t.IsAvailable ? '' : 'disabled'}>
+                        <label class="form-check-label" for="hora${t.Time.replace(':', '')}">
+                            ${label}
+                        </label>
+                    </div>
+                `;
+
+                if (hour < 12) {
+                    groups.morning.push(radioHtml);
+                } else {
+                    groups.afternoon.push(radioHtml);
+                }
+            });
+
+            let html = '';
+
+            if (groups.morning.length > 0 || groups.afternoon.length > 0) {
+                if (groups.morning.length > 0) {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <strong class="d-block mb-1">En la mañana</strong>
+                            ${groups.morning.join('')}
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <strong class="d-block mb-1">En la mañana</strong>
+                            <span class="text-danger">No hay horas disponibles</span>
+                        </div>`;
+                }
+
+                if (groups.afternoon.length > 0) {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <strong class="d-block mb-1">En la tarde</strong>
+                            ${groups.afternoon.join('')}
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <strong class="d-block mb-1">En la tarde</strong>
+                            <span class="text-danger">No hay horas disponibles</span>
+                        </div>`;
+                }
+
+                $('#scheduleAlert').hide();
+            }
+
+            $timeRadiosContainer.html(html);
+        }
+
+        function resetFormState() {
+            $doctorSelect.empty().append('<option value="">Seleccione un médico</option>').prop('disabled', true);
+            $dateInput.val('').prop('disabled', true);
+            $consultationRadios.prop('checked', false).prop('disabled', true);
+            $timeRadiosContainer.empty();
+            specialtyError = '';
+            scheduleError = '';
+            $('#scheduleAlert').show();
+        }
+
+        $specialtySelect.change(function () {
+            const specialtyId = $(this).val();
+            specialtyError = '';
+
+            if (specialtyId) {
+                $.getJSON('@Url.Action("GetDoctorsBySpecialty")', { id: specialtyId }, function (doctors) {
+                    $doctorSelect.empty().append('<option value="">Seleccione un médico</option>');
+
+                    if (doctors.length > 0) {
+                        doctors.forEach(doc => {
+                            $doctorSelect.append(`<option value="${doc.UserId}">${doc.FullName}</option>`);
+                        });
+                        $doctorSelect.prop('disabled', false);
+                    } else {
+                        $doctorSelect.prop('disabled', true);
+                        specialtyError = "No hay médicos disponibles para esta especialidad.";
+                    }
+
+                    $('#SpecialtyId').rules('add', { doctorsavailable: true });
+                    $('#SpecialtyId').valid();
+
+                    $dateInput.prop('disabled', true).val('');
+                    $consultationRadios.prop('disabled', true).prop('checked', false);
+                    $timeRadiosContainer.empty();
+                });
+            } else {
+                resetFormState();
+            }
+        });
+
+        $doctorSelect.change(function () {
+            const doctorId = $(this).val();
+            const enable = !!doctorId;
+
+            $dateInput.prop('disabled', !enable).val('');
+            $consultationRadios.prop('disabled', !enable).prop('checked', false);
+            $timeRadiosContainer.empty();
+        });
+
+        $doctorSelect.add($dateInput).change(function () {
+            const doctorId = $doctorSelect.val();
+            const date = $dateInput.val();
+
+            if (doctorId && date) {
+                $.getJSON('@Url.Action("GetAvailableTimes")', { doctorId, date }, function (times) {
+                    $timeRadiosContainer.empty();
+
+                    if (times.error) {
+                        scheduleError = times.error;
+
+                        const errorHtml = `
+                            <div class="col-md-6 mb-2">
+                                <strong class="d-block mb-1">En la mañana</strong>
+                                <span class="text-danger field-validation-error">No hay horas disponibles</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong class="d-block mb-1">En la tarde</strong>
+                                <span class="text-danger field-validation-error">No hay horas disponibles</span>
+                            </div>`;
+                        $('#scheduleAlert').hide();
+                        $timeRadiosContainer.html(errorHtml);
+                    } else {
+                        scheduleError = '';
+                        renderTimeRadios(times);
+                    }
+
+                    $('#Date').rules('add', { scheduleavailable: true });
+                    $('#Date').valid();
+                });
+            } else {
+                $timeRadiosContainer.empty();
+                $('#scheduleAlert').show();
+            }
+        });
+
+        $('form.form-reserve').submit(function (e) {
+            const isValid = $(this).valid();
+            const timeSelected = $('input[name="Time"]:checked').length > 0;
+
+            if (!isValid || !timeSelected) {
+                e.preventDefault();
+            }
+        });
+
+        resetFormState();
+    });
+    </script>
+}

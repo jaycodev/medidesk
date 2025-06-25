@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-bs-theme="auto">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="description" content="Sistema de citas médicas con vistas para administrador, médico y paciente, que facilita la gestión, programación y seguimiento de consultas médicas.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="~/Scripts/color-modes.js"></script>
+    <title>@ViewBag.Title - Hospital</title>
+    <link href="~/Content/Icons/logo-dark.svg" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="~/Content/Icons/logo-light.svg" rel="icon" media="(prefers-color-scheme: dark)">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="~/Content/Css/Theme.css" rel="stylesheet" />
+    <link href="~/Content/Css/Layout.css" rel="stylesheet" />
+    <link href="~/Content/Css/Authenticated.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
+</head>
+<body class="bg-body-tertiary" data-success="@TempData["Success"]" data-error="@TempData["Error"]">
+    <!-- Offcanvas Sidebar for small screens -->
+    <div class="offcanvas offcanvas-start offcanvas-custom bg-body" tabindex="-1" id="offcanvasSidebar" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header">
+            <a href="/" class="d-flex align-items-center text-center me-md-auto link-body-emphasis text-decoration-none ms-2">
+                <i class="fa-solid fa-hospital me-2 fs-4"></i>
+                <span class="fs-4 fw-semibold">Hospital</span>
+            </a>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="sidebar d-flex flex-column flex-shrink-0 p-3 border-end h-100">
+                @Html.Partial("_SidebarContent")
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar for large screens -->
+    <div class="sidebar-fixed d-flex flex-column flex-shrink-0 p-3 bg-body border-end">
+        <a href="/" class="d-flex align-items-center text-center mb-4 me-md-auto link-body-emphasis text-decoration-none ms-2">
+            <i class="fa-solid fa-hospital me-2 fs-4"></i>
+            <span class="fs-4 fw-semibold">Hospital</span>
+        </a>
+        @Html.Partial("_SidebarContent")
+    </div>
+
+    <!-- Header -->
+    <header class="header-fixed d-flex align-items-center py-3 border-bottom bg-body">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <!-- Left section: Menu and input button on large screens -->
+            <div class="d-flex align-items-center" style="min-width: 80px;">
+                <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-label="Menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <input type="search" class="form-control ms-2 d-none d-lg-block" placeholder="Buscar..." style="max-width: 220px;">
+            </div>
+
+            <div class="text-center flex-grow-1 position-absolute start-50 translate-middle-x">
+                <input type="search" class="form-control mx-auto d-block d-lg-none" placeholder="Buscar..." style="max-width: 220px;">
+            </div>
+
+            <!-- Right section: Change theme and user -->
+            <div class="d-flex align-items-center justify-content-end gap-3 ms-auto">
+                @Html.Partial("_ToggleTheme")
+
+                <div class="dropdown">
+                    @{
+                        var user = Session["user"] as medical_appointment_system.Models.User;
+                        bool hasPhoto = !string.IsNullOrEmpty(user?.ProfilePicture);
+                    }
+                    <button type="button" class="btn btn-link nav-link d-flex align-items-center link-body-emphasis" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
+                        @if (hasPhoto)
+                        {
+                            <img src="@user.ProfilePicture" alt="Foto de perfil" width="28" height="28" class="rounded-circle" />
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle-user" style="font-size: 28px;"></i>
+                        }
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end text-small gap-1 p-2 rounded-3 mx-0 shadow">
+                        <li>
+                            <a class="dropdown-item rounded-2" href="#">
+                                <i class="fa-solid fa-user me-2 icon"></i>
+                                Perfil
+                            </a>
+                        </li>
+                        @if (user?.Roles?.Count > 1)
+                        {
+                            <li>
+                                <button class="dropdown-item rounded-2" data-bs-toggle="modal" data-bs-target="#selectRoleModal">
+                                    <i class="fa-solid fa-repeat me-2 icon"></i>
+                                    Cambiar rol
+                                </button>
+                            </li>
+                        }
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item dropdown-danger text-danger rounded-2" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                <i class="fa-solid fa-arrow-right-from-bracket me-2 icon"></i>
+                                Cerrar sesión
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Confirmation modal to close session -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title text-body-emphasis" id="logoutModalLabel">Confirmar cierre de sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+
+                    <button type="button" class="btn d-flex align-items-center" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit" class="btn btn-danger d-flex align-items-center">
+                            <i class="fa-solid fa-arrow-right-from-bracket me-1 icon"></i>
+                            Cerrar sesión
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="main-content p-4">
+        @RenderBody()
+    </main>
+
+    @{
+        var needsRoleSelection = user != null && user.Roles != null && user.Roles.Count > 1 && string.IsNullOrEmpty(user.ActiveRole);
+    }
+
+    @if (user?.Roles?.Count > 1)
+    {
+        <div class="modal fade" id="selectRoleModal" tabindex="-1" aria-labelledby="selectRoleLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <i class="fa-solid fa-user-gear me-2"></i>
+                        <h5 class="modal-title" id="selectRoleLabel">Selecciona tu rol</h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Elige cómo deseas interactuar con el sistema.</p>
+                        @foreach (var role in user.Roles)
+                        {
+                            var roleLower = role.ToLower();
+                            var icon = "fa-user";
+                            var label = role;
+
+                            switch (roleLower)
+                            {
+                                case "paciente":
+                                    icon = "fa-bed-pulse";
+                                    label = "Paciente";
+                                    break;
+                                case "medico":
+                                    icon = "fa-user-doctor";
+                                    label = "Médico";
+                                    break;
+                                case "administrador":
+                                    icon = "fa-user-shield";
+                                    label = "Administrador";
+                                    break;
+                            }
+
+                            <form method="post" action="@Url.Action("SetActiveRole", "Account")" class="mb-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="role" value="@roleLower" />
+                                <button type="submit" class="btn btn-secondary w-100 d-flex align-items-center justify-content-center">
+                                    <i class="fa-solid @icon me-2"></i>
+                                    @label
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js" defer></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js" defer></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js" defer></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js" defer></script>
+
+    <script src="~/Scripts/dataTable-init.js"></script>
+    <script src="~/Scripts/alerts.js"></script>
+
+    <script src="~/Scripts/bootstrap-validation.js"></script>
+    @RenderSection("scripts", required: false)
+
+    @if (needsRoleSelection)
+    {
+        <script>
+            window.addEventListener('DOMContentLoaded', function () {
+                var modal = new bootstrap.Modal(document.getElementById('selectRoleModal'));
+                modal.show();
+            });
+        </script>
+    }
+</body>
+</html>
