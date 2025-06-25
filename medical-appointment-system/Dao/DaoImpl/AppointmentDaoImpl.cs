@@ -67,6 +67,7 @@ namespace medical_appointment_system.Dao.DaoImpl
                                 Time = reader.SafeGetTimeSpan("time"),
                                 Symptoms = reader.SafeGetString("symptoms"),
                                 Status = reader.SafeGetString("status"),
+                                DayWorkShift = reader.SafeGetString("day_work_shift"),
                                 StartTime = reader.SafeGetTimeSpan("start_time"),
                                 EndTime = reader.SafeGetTimeSpan("end_time")
                             });

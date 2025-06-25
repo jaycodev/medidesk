@@ -566,7 +566,7 @@ BEGIN
 		DECLARE @weekday VARCHAR(10)
 		SET @weekday = LOWER(DATENAME(weekday, @date))
 
-		SELECT start_time, end_time
+		SELECT day_work_shift, start_time, end_time
 		FROM Schedules
 		WHERE doctor_id = @doctor_id AND weekday = @weekday;
 
