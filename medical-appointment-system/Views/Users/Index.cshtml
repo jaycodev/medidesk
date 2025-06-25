@@ -75,9 +75,9 @@
                             <i class="fa-solid fa-pen"></i>
                         </a>
 
-                        @if (item.Roles.Count == 1 && item.Roles[0].ToLower() == "administrador")
+                        @if (item.CanDelete)
                         {
-                            <a href="@Url.Action("Delete", new { id = item.UserId })" class="btn btn-danger btn-sm" title="Eliminar">
+                            <a href="@Url.Action("Delete", new { id = item.UserId })" class="btn btn-secondary btn-sm" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </a>
                         }

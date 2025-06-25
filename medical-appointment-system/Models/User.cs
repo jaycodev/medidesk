@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace medical_appointment_system.Models
@@ -42,5 +43,15 @@ namespace medical_appointment_system.Models
 
         [Display(Name = "Foto perfil")]
         public string ProfilePicture { get; set; }
+
+        public int? SpecialtyId { get; set; }
+        
+        public bool? Status { get; set; }
+        
+        public DateTime? BirthDate { get; set; }
+
+        public string BloodType { get; set; }
+
+        public bool CanDelete { get; set; }
     }
 }

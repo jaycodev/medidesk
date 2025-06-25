@@ -73,7 +73,8 @@ namespace medical_appointment_system.Dao.DaoImpl
                                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                     .Select(r => r.Trim())
                                     .ToList(),
-                                ProfilePicture = reader.SafeGetString("profile_picture")
+                                ProfilePicture = reader.SafeGetString("profile_picture"),
+                                CanDelete = reader.SafeGetBool("can_delete")
                             });
                         }
                     }
