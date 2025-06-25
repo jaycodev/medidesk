@@ -57,6 +57,9 @@ namespace medical_appointment_system.Models
         public string UserRol { get; set; }
 
         [ScaffoldColumn(false)]
+        public string DayWorkShift { get; set; }
+
+        [ScaffoldColumn(false)]
         public TimeSpan StartTime { get; set; }
 
         [ScaffoldColumn(false)]
