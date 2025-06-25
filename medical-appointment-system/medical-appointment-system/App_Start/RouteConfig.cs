@@ -10,6 +10,12 @@ namespace medical_appointment_system
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            routes.MapRoute(
+                name: "DefaultIndexShortcut",
+                url: "{controller}",
+                defaults: new { action = "Index", id = UrlParameter.Optional }
+            );
+
             routes.Add("Default", new LowercaseRoute(
                 url: "{controller}/{action}/{id}",
                 routeHandler: new MvcRouteHandler()
