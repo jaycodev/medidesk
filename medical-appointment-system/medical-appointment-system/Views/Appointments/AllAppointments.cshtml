@@ -94,18 +94,46 @@
                         @startTime.ToString("hh:mm tt", culture) - @endTime.ToString("hh:mm tt", culture)
                     </td>
                     <td class="text-center">
-                        <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">
-                            <i class="fa-solid fa-hourglass-half me-1"></i>
-                            @char.ToUpper(item.Status[0])@item.Status.Substring(1).ToLower()
+                        @{
+                            var status = item.Status.ToLower();
+                            string statusBadge;
+                            string statusIcon;
+
+                            switch (status)
+                            {
+                                case "atendida":
+                                    statusBadge = "bg-success-subtle border-success-subtle text-success-emphasis";
+                                    statusIcon = "fa-check";
+                                    break;
+                                case "cancelada":
+                                    statusBadge = "bg-danger-subtle border-danger-subtle text-danger-emphasis";
+                                    statusIcon = "fa-ban";
+                                    break;
+                                case "pendiente":
+                                    statusBadge = "bg-warning-subtle border-warning-subtle text-warning-emphasis";
+                                    statusIcon = "fa-hourglass-half";
+                                    break;
+                                case "confirmada":
+                                    statusBadge = "bg-primary-subtle border-primary-subtle text-primary-emphasis";
+                                    statusIcon = "fa-calendar-check";
+                                    break;
+                                default:
+                                    statusBadge = "bg-secondary-subtle border-secondary-subtle text-secondary-emphasis";
+                                    statusIcon = "fa-circle-question";
+                                    break;
+                            }
+
+                            var formattedStatus = char.ToUpper(status[0]) + status.Substring(1);
+                        }
+
+                        <span class="badge border @statusBadge rounded-pill">
+                            <i class="fa-solid @statusIcon me-1"></i>
+                            @formattedStatus
                         </span>
                     </td>
                     <td class="text-center">
                         <a href="@Url.Action("Details", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Detalles">
                             <i class="fa-solid fa-circle-info"></i>
-                        </a>
-
-                        <a href="@Url.Action("Cancel", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Cancelar">
-                            <i class="fa-solid fa-ban"></i>
                         </a>
                     </td>
                 </tr>

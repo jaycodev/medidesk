@@ -577,7 +577,20 @@ BEGIN
 	BEGIN
 		UPDATE Appointments
 		SET status = 'cancelada'
-		WHERE appointment_id = @appointment_id AND status != 'cancelada';
+		WHERE appointment_id = @appointment_id
+		  AND status NOT IN ('cancelada', 'atendida');
+
+		SELECT @@ROWCOUNT AS affected_rows;
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'CONFIRM'
+	BEGIN
+		UPDATE Appointments
+		SET status = 'confirmada'
+		WHERE appointment_id = @appointment_id
+		  AND status = 'pendiente';
 
 		SELECT @@ROWCOUNT AS affected_rows;
 

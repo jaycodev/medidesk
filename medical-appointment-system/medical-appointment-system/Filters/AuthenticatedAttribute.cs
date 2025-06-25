@@ -13,7 +13,7 @@ namespace medical_appointment_system.Filters
         {
             ["administrador"] = new List<string>
             {
-                "appointments/index",
+                "appointments/allappointments",
                 "appointments/details",
                 "appointments/home",
                 "doctors/*",
@@ -27,6 +27,8 @@ namespace medical_appointment_system.Filters
                 "appointments/myappointments",
                 "appointments/pending",
                 "appointments/historial",
+                "appointments/confirm",
+                "appointments/attend",
                 "appointments/cancel",
                 "appointments/details",
                 "appointments/exporttopdf",

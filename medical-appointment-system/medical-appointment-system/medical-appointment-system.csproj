@@ -244,7 +244,7 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Appointments\Cancel.cshtml" />
     <Content Include="Views\Appointments\Home.cshtml" />
-    <Content Include="Views\Appointments\Index.cshtml" />
+    <Content Include="Views\Appointments\AllAppointments.cshtml" />
     <Content Include="Views\Appointments\Details.cshtml" />
     <Content Include="Views\Appointments\Historial.cshtml" />
     <Content Include="Views\Appointments\MyAppointments.cshtml" />
@@ -271,6 +271,8 @@
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Shared\_RoleBadges.cshtml" />
+    <Content Include="Views\Appointments\Confirm.cshtml" />
+    <Content Include="Views\Appointments\Attend.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

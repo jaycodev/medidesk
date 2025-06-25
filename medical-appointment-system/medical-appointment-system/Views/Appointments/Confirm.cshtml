@@ -1,29 +1,13 @@
 ﻿@model medical_appointment_system.Models.Appointment
 
 @{
-    ViewBag.Title = "Cancelar cita";
+    ViewBag.Title = "Confirmar cita";
 
     var culture = new System.Globalization.CultureInfo("es-PE");
     var formattedDate = Model.Date.ToString("dd MMM yyyy", culture);
     var startTime = DateTime.Today.Add(Model.Time);
     var endTime = startTime.AddHours(1);
     var formattedSchedule = $"{startTime:hh:mm tt} - {endTime:hh:mm tt}";
-
-    var status = Model.Status?.ToLower() ?? "";
-    var statusBadge = "";
-    var statusIcon = "";
-    var statusText = char.ToUpper(status[0]) + status.Substring(1);
-
-    if (status == "pendiente")
-    {
-        statusBadge = "bg-warning-subtle border-warning-subtle text-warning-emphasis";
-        statusIcon = "fa-hourglass-half";
-    }
-    else if (status == "confirmada")
-    {
-        statusBadge = "bg-primary-subtle border-primary-subtle text-primary-emphasis";
-        statusIcon = "fa-calendar-check";
-    }
 
     var type = Model.ConsultationType?.ToLower() ?? "";
     var typeIcon = "fa-question-circle";
@@ -45,8 +29,8 @@
 }
 
 <h4 class="mb-4 text-center text-body-emphasis">
-    <i class="fa-solid fa-circle-exclamation me-1 text-danger"></i>
-    ¿Estás seguro de que deseas cancelar esta cita?
+    <i class="fa-solid fa-circle-exclamation me-1 text-warning"></i>
+    ¿Estás seguro de que deseas confirmar esta cita?
 </h4>
 
 <div class="container">
@@ -99,9 +83,9 @@
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Status)</dt>
                 <dd>
-                    <span class="badge rounded-pill border @statusBadge">
-                        <i class="fa-solid @statusIcon me-1"></i>
-                        @statusText
+                    <span class="badge rounded-pill border bg-warning-subtle border-warning-subtle text-warning-emphasis">
+                        <i class="fa-solid fa-hourglass-half me-1"></i>
+                        Pendiente
                     </span>
                 </dd>
             </div>
@@ -120,9 +104,9 @@
             Volver
         </button>
 
-        <button type="submit" class="btn btn-danger">
-            <i class="fa-solid fa-ban me-1"></i>
-            Cancelar cita
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check me-1"></i>
+            Confirmar cita
         </button>
     </div>
 }

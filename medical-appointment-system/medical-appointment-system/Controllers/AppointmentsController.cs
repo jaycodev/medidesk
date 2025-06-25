@@ -46,7 +46,7 @@ namespace medical_appointment_system.Controllers
             return View(list);
         }
 
-        public ActionResult Index()
+        public ActionResult AllAppointments()
         {
             var list = appointmentService.ExecuteRead("GET_ALL", new Appointment());
             return View(list);
@@ -73,7 +73,7 @@ namespace medical_appointment_system.Controllers
         public ActionResult Details(int id)
         {
             if (id == 0)
-                return RedirectToAction("MyAppointments");
+                return RedirectToAction("Home");
 
             return View(FindById(id));
         }
@@ -171,12 +171,92 @@ namespace medical_appointment_system.Controllers
             return RedirectToAction("Pending");
         }
 
+        public ActionResult Confirm(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Home");
+
+            var appointment = FindById(id);
+
+            if (appointment == null || appointment.Status?.ToLower() != "pendiente")
+            {
+                TempData["Error"] = "Solo se pueden confirmar citas pendientes.";
+                return RedirectToAction("Pending");
+            }
+
+            return View(appointment);
+        }
+
+        [HttpPost, ActionName("Confirm")]
+        public ActionResult ConfirmConfirmed(int id)
+        {
+            var appointment = new Appointment { AppointmentId = id };
+
+            int affectedRows = appointmentService.ExecuteWrite("CONFIRM", appointment);
+
+            if (affectedRows == 1)
+            {
+                TempData["Success"] = "La cita fue confirmada correctamente.";
+            }
+            else
+            {
+                TempData["Error"] = "Hubo un error al confirmar la cita.";
+            }
+
+            return RedirectToAction("MyAppointments");
+        }
+
+        public ActionResult Attend(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Home");
+
+            var appointment = FindById(id);
+
+            if (appointment == null || appointment.Status?.ToLower() != "confirmada")
+            {
+                TempData["Error"] = "Solo se pueden atender citas confirmadas.";
+                return RedirectToAction("MyAppointments");
+            }
+
+            return View(appointment);
+        }
+
+        [HttpPost, ActionName("Attend")]
+        public ActionResult AttendConfirmed(int id)
+        {
+            var appointment = new Appointment { AppointmentId = id };
+
+            int affectedRows = appointmentService.ExecuteWrite("ATTEND", appointment);
+
+            if (affectedRows == 1)
+            {
+                TempData["Success"] = "La cita fue atendida correctamente.";
+            }
+            else
+            {
+                TempData["Error"] = "Hubo un error al atender la cita.";
+            }
+
+            return RedirectToAction("Historial");
+        }
+
         public ActionResult Cancel(int id)
         {
             if (id == 0)
-                return RedirectToAction("MyAppointments");
+                return RedirectToAction("Home");
 
-            return View(FindById(id));
+            var appointment = FindById(id);
+
+            var status = appointment?.Status?.ToLower();
+
+            if (appointment == null || status == "cancelada" || status == "atendida")
+            {
+                TempData["Error"] = "Solo se pueden cancelar citas pendientes o confirmadas.";
+                return RedirectToAction("Pending");
+            }
+
+            return View(appointment);
         }
 
         [HttpPost, ActionName("Cancel")]

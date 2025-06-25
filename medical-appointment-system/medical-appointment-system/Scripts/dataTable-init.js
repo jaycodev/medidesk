@@ -34,7 +34,7 @@ function initCustomDataTable(selector) {
             infoEmpty: 'Mostrando 0 a 0 de 0 registros',
             infoFiltered: '(filtrado de _MAX_ registros totales)',
             zeroRecords: 'No se encontraron registros coincidentes',
-            emptyTable: 'No hay datos disponibles en la tabla',
+            emptyTable: 'No hay datos disponibles',
         },
         initComplete: function () {
             toggleTableLoadingState('loaded', selector)

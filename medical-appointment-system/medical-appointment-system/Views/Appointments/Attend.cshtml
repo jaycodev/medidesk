@@ -1,0 +1,28 @@
+﻿@model medical_appointment_system.Models.Appointment
+
+@{
+    ViewBag.Title = "Atender cita";
+}
+
+<h4 class="text-center mb-3 text-body-emphasis">
+    <i class="fa-solid fa-user-doctor me-1"></i>
+    Atender cita
+</h4>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn"
+                onclick="history.length > 1 ? history.back() : window.location.href='@Url.Action("Home", "Appointments")';">
+            <i class="fa-solid fa-left-long me-1"></i>
+            Volver
+        </button>
+
+        <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-user-doctor me-1"></i>
+            Atender cita
+        </button>
+    </div>
+}

@@ -119,8 +119,13 @@
                         <a href="@Url.Action("Details", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Detalles">
                             <i class="fa-solid fa-circle-info"></i>
                         </a>
+
                         @if (isDoctor)
                         {
+                            <a href="@Url.Action("Confirm", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Confirmar">
+                                <i class="fa-solid fa-check"></i>
+                            </a>
+
                             <a href="@Url.Action("Cancel", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Cancelar">
                                 <i class="fa-solid fa-ban"></i>
                             </a>
