@@ -143,3 +143,7 @@
 [data-bs-theme='light'] .alert-danger {
     background-color: #f4c2c6 !important;
 }
+
+.error-code {
+    font-size: 6.5rem;
+}

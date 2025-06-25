@@ -12,7 +12,7 @@ namespace medical_appointment_system.Filters
 
             if (url != lowercaseUrl)
             {
-                filterContext.Result = new RedirectResult(lowercaseUrl, true); // 301 permanente
+                filterContext.Result = new RedirectResult(lowercaseUrl, true);
             }
         }
     }
