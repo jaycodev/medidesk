@@ -261,6 +261,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Css\Authenticated.css" />
+    <Content Include="Content\Css\Calendar.css" />
     <Content Include="Content\Css\Layout.css" />
     <Content Include="Content\Css\Theme.css" />
     <Content Include="Content\Icons\logo-dark.svg" />
@@ -275,6 +276,7 @@
     <Content Include="connectionStrings.config" />
     <Content Include="Scripts\alerts.js" />
     <Content Include="Scripts\bootstrap-validation.js" />
+    <Content Include="Scripts\calendar.js" />
     <Content Include="Scripts\color-modes.js" />
     <Content Include="Scripts\dataTable-init.js" />
     <Content Include="cloudinary.config" />
@@ -334,7 +336,7 @@
     <Content Include="Views\Shared\_RoleBadges.cshtml" />
     <Content Include="Views\Appointments\Confirm.cshtml" />
     <Content Include="Views\Appointments\Attend.cshtml" />
-    <Content Include="Views\Profile\ProfileUser.cshtml" />
+    <Content Include="Views\Profile\Index.cshtml" />
     <Content Include="Views\Error\Show.cshtml" />
   </ItemGroup>
   <ItemGroup>

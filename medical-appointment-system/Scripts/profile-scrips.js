@@ -1,6 +1,5 @@
 //MANEJO DE CARGA DE LA IMAGEN DE PERFIL
 // Este script maneja la carga de la imagen de perfil del usuario en el modal de edición de perfil.
-// Asegurate de que SweetAlert2 y Bootstrap estén correctamente importados en tu proyecto.
 
 //redirectAfterUpload es la URL a la que se redirigirá al usuario después de subir la imagen.
 //editProfileUrl es la URL del endpoint que maneja la subida de la imagen de perfil.
@@ -51,7 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (confirmBtn) confirmBtn.blur();
           },
         }).then(() => {
-          // Redirige después de cerrar el mensaje de éxito
           window.location.href = redirectAfterUpload;
         });
       } else {
@@ -83,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 //MANEJO DE SELECCIÓN DE AVATAR
-// Este script maneja la selección de un avatar por parte del usuario.
 function selectAvatar(imgElement) {
   // Quitar clase seleccionada de todos los avatares
   document.querySelectorAll(".avatar-img").forEach((el) => {

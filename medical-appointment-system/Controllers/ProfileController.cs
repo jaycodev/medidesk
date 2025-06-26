@@ -32,9 +32,8 @@ namespace medical_appointment_system.Controllers
             return null;
         }
 
-        public ActionResult ProfileUser()
+        public ActionResult Index()
         {
-
             User userSession = Session["user"] as User;
 
             User user = null;
@@ -79,7 +78,7 @@ namespace medical_appointment_system.Controllers
             if (model.ChangePassword.NewPassword != model.ChangePassword.ConfirmPassword)
             {
                 TempData["Error"] = "Las contraseñas no coinciden.";
-                return RedirectToAction("ProfileUser");
+                return RedirectToAction("Index");
             }
 
             try
@@ -97,9 +96,8 @@ namespace medical_appointment_system.Controllers
                 TempData["Error"] = "Error al actualizar la contraseña: " + ex.Message;
             }
 
-            return RedirectToAction("ProfileUser");
+            return RedirectToAction("Index");
         }
-
 
         [HttpPost]
         public ActionResult EditPhone(ProfileViewModel model)
@@ -127,9 +125,8 @@ namespace medical_appointment_system.Controllers
                 TempData["Error"] = "Error al actualizar el teléfono: " + ex.Message;
             }
 
-            return RedirectToAction("ProfileUser");
+            return RedirectToAction("Index");
         }
-
 
         [HttpPost]
         public async Task<JsonResult> EditProfilePicture(int userId, HttpPostedFileBase ProfilePictureFile)
@@ -182,14 +179,13 @@ namespace medical_appointment_system.Controllers
             return Json(new { success = false, message = "Debe seleccionar una imagen válida." });
         }
 
-
         [HttpPost]
         public ActionResult SelectAvatar(int userId, string SelectedAvatar)
         {
             if (string.IsNullOrWhiteSpace(SelectedAvatar))
             {
                 TempData["Error"] = "Debe seleccionar un avatar.";
-                return RedirectToAction("ProfileUser");
+                return RedirectToAction("Index");
             }
 
             try
@@ -223,7 +219,7 @@ namespace medical_appointment_system.Controllers
                 TempData["Error"] = "Error al seleccionar el avatar: " + ex.Message;
             }
 
-            return RedirectToAction("ProfileUser");
+            return RedirectToAction("Index");
         }
     }
 }

@@ -1,8 +1,7 @@
 ﻿@model medical_appointment_system.Models.ViewModels.ProfileViewModel
 
-
 @{
-    ViewBag.Title = "ProfileUser";
+    ViewBag.Title = "Perfil";
     var avatars = ViewBag.Avatars as List<string>;
 }
 
@@ -208,23 +207,17 @@
     </div>
 </div>
 
-
-
-
-
-
 <a href="@Url.Action("Index")" class="btn btn-link">
     <i class="fas fa-arrow-left"></i> Volver
 </a>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-    // Include SweetAlert2 for alerts
     <script>
         const editProfileUrl = '@Url.Action("EditProfilePicture", "Profile")';
-        const redirectAfterUpload = '@Url.Action("ProfileUser", "Profile")';
+        const redirectAfterUpload = '@Url.Action("Index", "Profile")';
     </script>
-    <!--<script src="~/Scripts/profile-scrips.js"></script>  EN EL LAYOUT SE IMPORTA-->
+    <script src="~/Scripts/profile-scrips.js"></script>
 }
 <style>
     .avatar-option:hover {
