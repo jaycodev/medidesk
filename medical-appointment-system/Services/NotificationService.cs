@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using medical_appointment_system.Dao;
 using medical_appointment_system.Dao.DaoImpl;
 using medical_appointment_system.Models;
@@ -21,6 +18,5 @@ namespace medical_appointment_system.Services
         {
             return dao.ExecuteRead(indicator, a);
         }
-
     }
 }

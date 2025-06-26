@@ -100,8 +100,8 @@ textarea {
 
 .dropdown-item.active,
 .dropdown-item:active {
-  color: var(--brand-primary-text);
-  background-color: var(--brand-primary);
+  color: var(--bs-dropdown-link-hover-color);
+  background-color: var(--bs-dropdown-link-hover-bg);
 }
 
 .dropdown-danger.active,

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
-using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using medical_appointment_system.Helpers;
 using medical_appointment_system.Models;
 
@@ -73,24 +70,19 @@ namespace medical_appointment_system.Dao.DaoImpl
             return process;
         }
 
-
-
         private void AddParameters(SqlCommand cmd, string indicator, Notification n)
         {
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.Clear();
 
             cmd.Parameters.AddWithValue("@indicator", indicator);
-
-            // Parámetros que existen en todos los casos
             cmd.Parameters.AddWithValue("@notification_id", n.NotificationId);
             cmd.Parameters.AddWithValue("@doctor_id", n.DoctorId);
-            cmd.Parameters.AddWithValue("@pacient_id", n.PatientId); // paciente con "c"
+            cmd.Parameters.AddWithValue("@pacient_id", n.PatientId);
             cmd.Parameters.AddWithValue("@appointment_id", n.AppointmentId);
             cmd.Parameters.AddWithValue("@message", (object)n.Message ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@is_read", n.IsRead);
             cmd.Parameters.AddWithValue("@role", string.IsNullOrEmpty(n.Role) ? (object)DBNull.Value : n.Role.ToLower());
         }
-
     }
 }

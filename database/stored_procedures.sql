@@ -1,4 +1,3 @@
-
 USE MedicalAppointmentsDB;
 GO
 
@@ -365,7 +364,7 @@ BEGIN
 
 			SET @user_id = SCOPE_IDENTITY();
 
-			INSERT INTO Doctors (user_id, specialty_id, status)	
+			INSERT INTO Doctors (user_id, specialty_id, status)
 			VALUES (@user_id, @specialty_id, @status);
 
 			INSERT INTO UserRoles (user_id, role)
@@ -627,10 +626,15 @@ CREATE OR ALTER PROCEDURE Appointment_CRUD
 AS
 BEGIN
     SET NOCOUNT ON;
-	DECLARE @notif_patient_id INT,
-					@notif_doctor_id INT,
-					@notif_date DATE,
-					@notif_time TIME;
+    DECLARE
+        @notif_patient_id INT,
+        @notif_doctor_id INT,
+        @notif_date DATE,
+        @notif_time TIME,
+        @ampm NVARCHAR(5),
+        @formatted_time NVARCHAR(10),
+        @formatted_date NVARCHAR(20),
+        @message NVARCHAR(300);
 
 	IF @indicator = 'INSERT'
 	BEGIN
@@ -644,12 +648,28 @@ BEGIN
 
 			SELECT @notif_time = time FROM Appointments WHERE appointment_id = @appointment_id;
 
+			SET LANGUAGE Spanish;
+
+			SET @ampm = CASE 
+				WHEN DATEPART(HOUR, @notif_time) < 12 THEN 'a. m.' 
+				ELSE 'p. m.' 
+			END;
+
+			SET @formatted_time = FORMAT(@notif_time, 'hh\:mm');
+			SET @formatted_date = LOWER(FORMAT(@date, 'dd MMM yyyy', 'es-ES'));
+
+			SET @message = CONCAT(
+				'Nueva cita solicitada para el ',
+				@formatted_date, ' - ',
+				@formatted_time, ' ', @ampm
+			);
+
 			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
 			VALUES (
 				@doctor_id,
 				@patient_id,
 				@appointment_id,
-				CONCAT('Nueva cita solicitada para el ', FORMAT(@date, 'dd/MM/yyyy'), ' a las ', LEFT(CONVERT(VARCHAR(8), @notif_time, 108), 5)),
+				@message,
 				0,
 				GETDATE()
 			);
@@ -667,8 +687,6 @@ BEGIN
 
 		RETURN;
 	END
-
-
 
 	ELSE IF @indicator = 'GET_BY_DOCTOR_AND_DATE'
 	BEGIN
@@ -693,54 +711,72 @@ BEGIN
 		RETURN;
 	END
 
-			ELSE IF @indicator = 'CANCEL'
-		BEGIN
-			BEGIN TRY
-				BEGIN TRANSACTION;
+	ELSE IF @indicator = 'CANCEL'
+	BEGIN
+		BEGIN TRY
+			BEGIN TRANSACTION;
 
-				UPDATE Appointments
-				SET status = 'cancelada'
-				WHERE appointment_id = @appointment_id
-				  AND status NOT IN ('cancelada', 'atendida');
+			UPDATE Appointments
+			SET status = 'cancelada'
+			WHERE appointment_id = @appointment_id
+				AND status NOT IN ('cancelada', 'atendida');
 
-				IF @@ROWCOUNT = 0
-				BEGIN
-					ROLLBACK TRANSACTION;
-					SELECT 0 AS affected_rows;
-					RETURN;
-				END
+			IF @@ROWCOUNT = 0
+			BEGIN
+				ROLLBACK TRANSACTION;
+				SELECT 0 AS affected_rows;
+				RETURN;
+			END
 
-				SELECT 
-					@notif_patient_id = patient_id,
-					@notif_doctor_id = doctor_id,
-					@notif_date = date,
-					@notif_time = time
-				FROM Appointments
-				WHERE appointment_id = @appointment_id;
+			SELECT 
+				@notif_patient_id = patient_id,
+				@notif_doctor_id = doctor_id,
+				@notif_date = date,
+				@notif_time = time
+			FROM Appointments
+			WHERE appointment_id = @appointment_id;
 
-				-- ✅ Formatear la hora correctamente con CONVERT
-				INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
-				VALUES (
-					@notif_doctor_id,
-					@notif_patient_id,
-					@appointment_id,
-					CONCAT('Tu cita para el ', FORMAT(@notif_date, 'dd/MM/yyyy'), ' a las ', LEFT(CONVERT(VARCHAR(8), @notif_time, 108), 5), ' ha sido cancelada.'
-					),
-					0,
-					GETDATE()
-				);
+			SET LANGUAGE Spanish;
 
-				COMMIT TRANSACTION;
-				SELECT 1 AS affected_rows;
-			END TRY
-			BEGIN CATCH
-				IF @@TRANCOUNT > 0
-					ROLLBACK TRANSACTION;
-				THROW;
-			END CATCH
-		END
+			SET @ampm = CASE 
+				WHEN DATEPART(HOUR, @notif_time) < 12 THEN 'a. m.' 
+				ELSE 'p. m.' 
+			END;
 
-		ELSE IF @indicator = 'CONFIRM'
+			SET @formatted_time = FORMAT(@notif_time, 'hh\:mm');
+			SET @formatted_date = LOWER(FORMAT(@notif_date, 'dd MMM yyyy', 'es-ES'));
+
+			SET @message = CONCAT(
+				'Tu cita para el ',
+				@formatted_date, ' - ',
+				@formatted_time, ' ', @ampm,
+				' ha sido cancelada.'
+			);
+
+			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
+			VALUES (
+				@notif_doctor_id,
+				@notif_patient_id,
+				@appointment_id,
+				@message,
+				0,
+				GETDATE()
+			);
+
+			COMMIT TRANSACTION;
+
+			SELECT 1 AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0
+				ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'CONFIRM'
 	BEGIN
 		BEGIN TRY
 			BEGIN TRANSACTION;
@@ -764,17 +800,35 @@ BEGIN
 			FROM Appointments
 			WHERE appointment_id = @appointment_id;
 
+			SET LANGUAGE Spanish;
+
+			SET @ampm = CASE 
+				WHEN DATEPART(HOUR, @notif_time) < 12 THEN 'a. m.' 
+				ELSE 'p. m.' 
+			END;
+
+			SET @formatted_time = FORMAT(@notif_time, 'hh\:mm');
+			SET @formatted_date = LOWER(FORMAT(@notif_date, 'dd MMM yyyy', 'es-ES'));
+
+			SET @message = CONCAT(
+				'Tu cita para el ',
+				@formatted_date, ' - ',
+				@formatted_time, ' ', @ampm,
+				' ha sido confirmada.'
+			);
+
 			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
 			VALUES (
 				@notif_doctor_id,
 				@notif_patient_id,
 				@appointment_id,
-				CONCAT('Tu cita para el ', FORMAT(@notif_date, 'dd/MM/yyyy'), ' a las ', FORMAT(@notif_time, 'hh\\:mm'), ' ha sido confirmada.'),
+				@message,
 				0,
 				GETDATE()
 			);
 
 			COMMIT TRANSACTION;
+
 			SELECT 1 AS affected_rows;
 		END TRY
 		BEGIN CATCH
@@ -809,15 +863,15 @@ BEGIN
 
 	ELSE IF @indicator = 'GET_IDS_BY_ID'
 	BEGIN
-	 SELECT 
-		    appointment_id,
-		    doctor_id,
-		    patient_id,
+		SELECT 
+			appointment_id,
+			doctor_id,
+			patient_id,
 			specialty_id
-	  FROM Appointments
-	  WHERE appointment_id = @appointment_id;
+		FROM Appointments
+		WHERE appointment_id = @appointment_id;
 
-	RETURN;
+		RETURN;
 	END
 
 	ELSE IF @indicator = 'GET_ALL'
@@ -956,12 +1010,14 @@ BEGIN
 		END
 
 		SELECT @rows AS affected_rows;
+
 		RETURN;
 	END
 
     ELSE IF @indicator = 'GET_ALL'
     BEGIN
         SELECT * FROM Schedules;
+		
         RETURN;
     END
 
@@ -969,6 +1025,7 @@ BEGIN
     BEGIN
         SELECT * FROM Schedules
         WHERE doctor_id = @doctor_id;
+
         RETURN;
     END
 
@@ -976,6 +1033,7 @@ BEGIN
     BEGIN
         SELECT * FROM Schedules
         WHERE weekday = @weekday;
+
         RETURN;
     END
 
@@ -983,6 +1041,7 @@ BEGIN
     BEGIN
         SELECT * FROM Schedules
         WHERE doctor_id = @doctor_id AND weekday = @weekday;
+
         RETURN;
     END
 
@@ -994,13 +1053,11 @@ BEGIN
 END;
 GO
 
-
 -- =============================================
 -- PROCEDURE: Notification_CRUD
 -- DESCRIPTION: CRUD for the updated Notification table
 -- PARAMETERS : action indicator, Notification data
 -- =============================================
--- Notification_CRUD
 CREATE OR ALTER PROCEDURE Notification_CRUD
     @indicator VARCHAR(50),
     @notification_id INT = NULL,
@@ -1016,7 +1073,6 @@ BEGIN
 
     IF @indicator = 'GET_UNREAD_DOC'
     BEGIN
-        -- SOLO nuevas citas para el médico (creadas)
         SELECT *
         FROM Notifications
         WHERE 
@@ -1024,12 +1080,12 @@ BEGIN
             DoctorId = @doctor_id AND
             Message LIKE 'Nueva cita%'
         ORDER BY CreatedAt DESC;
+
         RETURN;
     END
 
     IF @indicator = 'GET_UNREAD_PA'
     BEGIN
-        -- SOLO citas confirmadas o canceladas para el paciente
         SELECT *
         FROM Notifications
         WHERE 
@@ -1040,6 +1096,7 @@ BEGIN
                 Message LIKE '%cancelada%'
             )
         ORDER BY CreatedAt DESC;
+
         RETURN;
     END
 
@@ -1048,17 +1105,14 @@ BEGIN
         UPDATE Notifications
         SET IsRead = 1
         WHERE NotificationId = @notification_id;
+
         RETURN;
     END
 
     ELSE
     BEGIN
-        RAISERROR('Indicador inválido.', 16, 1);
+        RAISERROR('Acción no válida: %s', 16, 1, @indicator);
         RETURN;
     END
 END
 GO
-
-
-
-

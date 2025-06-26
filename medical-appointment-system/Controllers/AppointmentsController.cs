@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using System.Web.Mvc;
-using System.Web.WebPages;
-using Antlr.Runtime.Tree;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Wordprocessing;
 using medical_appointment_system.Models;
 using medical_appointment_system.Services;
 
@@ -34,7 +29,6 @@ namespace medical_appointment_system.Controllers
             var result = appointmentService.ExecuteRead("GET_IDS_BY_ID", filter);
             return result.FirstOrDefault();
         }
-
 
         private Appointment FindById(int id)
         {

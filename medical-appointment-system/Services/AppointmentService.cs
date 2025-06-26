@@ -18,6 +18,5 @@ namespace medical_appointment_system.Services
         {
             return dao.ExecuteRead(indicator, a);
         }
-
     }
 }

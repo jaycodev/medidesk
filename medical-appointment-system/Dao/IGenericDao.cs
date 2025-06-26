@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using medical_appointment_system.Models;
 
 namespace medical_appointment_system.Dao
 {

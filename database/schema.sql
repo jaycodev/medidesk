@@ -90,4 +90,3 @@ CREATE TABLE Notifications (
     FOREIGN KEY (PatientId) REFERENCES Users(User_Id),
     FOREIGN KEY (AppointmentId) REFERENCES Appointments(appointment_id)
 );
-

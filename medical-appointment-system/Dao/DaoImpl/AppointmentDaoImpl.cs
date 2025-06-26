@@ -78,8 +78,6 @@ namespace medical_appointment_system.Dao.DaoImpl
             return list;
         }
 
-
-
         private void AddParameters(SqlCommand cmd, string indicator, Appointment a)
         {
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
