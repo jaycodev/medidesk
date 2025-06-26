@@ -5,10 +5,11 @@ using System.Data.SqlClient;
 using System.Linq;
 using medical_appointment_system.Helpers;
 using medical_appointment_system.Models;
+using medical_appointment_system.Models.ViewModels;
 
 namespace medical_appointment_system.Dao.DaoImpl
 {
-    public class UserDaoImpl : IGenericDao<User>
+    public class UserDaoImpl : IGenericDao<User>, IGenericDao<ChangePasswordValidator>
     {
         string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         string crudCommand = "User_CRUD";
@@ -73,13 +74,53 @@ namespace medical_appointment_system.Dao.DaoImpl
                                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                     .Select(r => r.Trim())
                                     .ToList(),
-                                ProfilePicture = reader.SafeGetString("profile_picture")
+                                ProfilePicture = reader.SafeGetString("profile_picture"),
+                                CanDelete = reader.SafeGetBool("can_delete")
                             });
                         }
                     }
                 }
             }
             return list;
+        }
+
+        public int ExecuteWrite(string indicator, ChangePasswordValidator c)
+        {
+            int process = -1;
+            using (SqlConnection cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@indicator", "UPDATE_PASSWORD");
+                    cmd.Parameters.AddWithValue("@user_id", c.UserId);
+                    cmd.Parameters.AddWithValue("@current_password", c.CurrentPassword);
+                    cmd.Parameters.AddWithValue("@password", c.NewPassword);
+
+                    try
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                                process = Convert.ToInt32(reader["affected_rows"]);
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        if (ex.Number == 50000)
+                        {
+                            throw new ApplicationException(ex.Message);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+            }
+            return process;
         }
 
         private void AddParameters(SqlCommand cmd, string indicator, User u)
@@ -95,6 +136,11 @@ namespace medical_appointment_system.Dao.DaoImpl
             cmd.Parameters.AddWithValue("@phone", u.Phone);
             cmd.Parameters.AddWithValue("@roles", string.Join(",", u.Roles));
             cmd.Parameters.AddWithValue("@profile_picture", u.ProfilePicture);
+        }
+
+        public List<ChangePasswordValidator> ExecuteRead(string indicator, ChangePasswordValidator entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

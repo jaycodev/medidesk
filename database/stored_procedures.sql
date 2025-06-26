@@ -14,6 +14,7 @@ CREATE OR ALTER PROCEDURE User_CRUD
     @last_name VARCHAR(100) = NULL,
     @email VARCHAR(100) = NULL,
     @password VARCHAR(100) = NULL,
+	@current_password VARCHAR(100) = NULL,
     @phone VARCHAR(20) = NULL,
     @roles VARCHAR(100) = NULL,
     @profile_picture VARCHAR(255) = NULL
@@ -50,6 +51,8 @@ BEGIN
 
 			THROW;
 		END CATCH
+
+		RETURN;
 	END
 
 	ELSE IF @indicator = 'UPDATE'
@@ -70,7 +73,6 @@ BEGIN
 			SET first_name = @first_name,
 				last_name = @last_name,
 				email = @email,
-				password = @password,
 				phone = @phone,
 				profile_picture = @profile_picture
 			WHERE user_id = @user_id;
@@ -161,7 +163,15 @@ BEGIN
 			u.email,
 			u.phone,
 			STRING_AGG(ur.role, ',') AS roles,
-			u.profile_picture
+			u.profile_picture,
+
+			CASE 
+				WHEN EXISTS (SELECT 1 FROM Doctors d WHERE d.user_id = u.user_id)
+					OR EXISTS (SELECT 1 FROM Patients p WHERE p.user_id = u.user_id)
+					THEN 0
+				ELSE 1
+			END AS can_delete
+
 		FROM Users u
 		LEFT JOIN UserRoles ur ON u.user_id = ur.user_id
 		WHERE u.user_id <> @user_id
@@ -188,6 +198,66 @@ BEGIN
 			u.password COLLATE Latin1_General_CS_AS = @password COLLATE Latin1_General_CS_AS
 		GROUP BY 
 			u.user_id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture;
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'UPDATE_PHONE'
+	BEGIN
+		BEGIN TRY
+			UPDATE Users
+			SET phone = @phone
+			WHERE user_id = @user_id;
+
+			SELECT @@ROWCOUNT AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'UPDATE_PROFILE_PICTURE'
+	BEGIN
+		BEGIN TRY
+			UPDATE Users
+			SET profile_picture = @profile_picture
+			WHERE user_id = @user_id;
+
+			SELECT @@ROWCOUNT AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
+
+		RETURN;
+	END
+
+
+	ELSE IF @indicator = 'UPDATE_PASSWORD'
+	BEGIN
+		BEGIN TRY
+			IF EXISTS (
+				SELECT 1
+				FROM Users
+				WHERE user_id = @user_id AND password = @current_password
+			)
+			BEGIN
+				UPDATE Users
+				SET password = @password
+				WHERE user_id = @user_id;
+
+				SELECT @@ROWCOUNT AS affected_rows;
+			END
+			ELSE
+			BEGIN
+				RAISERROR('La contraseña actual no es correcta.', 16, 1);
+			END
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
 
 		RETURN;
 	END
@@ -315,13 +385,20 @@ BEGIN
 
 	ELSE IF @indicator = 'UPDATE'
 	BEGIN
-		UPDATE Doctors
-		SET specialty_id = @specialty_id,
-			status = @status
-		WHERE user_id = @user_id;
+		IF EXISTS (SELECT 1 FROM Doctors WHERE user_id = @user_id)
+		BEGIN
+			UPDATE Doctors
+			SET specialty_id = @specialty_id,
+				status = @status
+			WHERE user_id = @user_id;
+		END
+		ELSE
+		BEGIN
+			INSERT INTO Doctors (user_id, specialty_id, status)
+			VALUES (@user_id, @specialty_id, @status);
+		END
 
-		SELECT @@ROWCOUNT AS affected_rows;
-
+		SELECT 1 AS affected_rows;
 		RETURN;
 	END
 
@@ -367,7 +444,10 @@ BEGIN
 
 	ELSE IF @indicator = 'GET_DETAILS_BY_ID'
 	BEGIN
-		SELECT S.name AS specialty_name
+		SELECT 
+			D.specialty_id,
+			S.name AS specialty_name,
+			D.status
 		FROM Doctors D
 		INNER JOIN Specialties S ON D.specialty_id = S.specialty_id
 		WHERE D.user_id = @user_id;
@@ -455,15 +535,22 @@ BEGIN
 		RETURN;
 	END
 
-   ELSE IF @indicator = 'UPDATE'
+	ELSE IF @indicator = 'UPDATE'
 	BEGIN
-		UPDATE Patients
-		SET birth_date = @birth_date,
-			blood_type = @blood_type
-		WHERE user_id = @user_id;
+		IF EXISTS (SELECT 1 FROM Patients WHERE user_id = @user_id)
+		BEGIN
+			UPDATE Patients
+			SET birth_date = @birth_date,
+				blood_type = @blood_type
+			WHERE user_id = @user_id;
+		END
+		ELSE
+		BEGIN
+			INSERT INTO Patients (user_id, birth_date, blood_type)
+			VALUES (@user_id, @birth_date, @blood_type);
+		END
 
-		SELECT @@ROWCOUNT AS affected_rows;
-
+		SELECT 1 AS affected_rows;
 		RETURN;
 	END
 
@@ -599,7 +686,7 @@ BEGIN
 		DECLARE @weekday VARCHAR(10)
 		SET @weekday = LOWER(DATENAME(weekday, @date))
 
-		SELECT start_time, end_time
+		SELECT day_work_shift, start_time, end_time
 		FROM Schedules
 		WHERE doctor_id = @doctor_id AND weekday = @weekday;
 

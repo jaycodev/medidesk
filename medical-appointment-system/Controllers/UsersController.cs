@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Transactions;
 using System.Web.Mvc;
 using ClosedXML.Excel;
 using medical_appointment_system.Models;
@@ -15,6 +16,7 @@ namespace medical_appointment_system.Controllers
         UserService userService = new UserService();
         PatientService patientService = new PatientService();
         DoctorService doctorService = new DoctorService();
+        SpecialtyService specialtyService = new SpecialtyService();
 
         private Doctor FindDoctorById(int id)
         {
@@ -50,12 +52,29 @@ namespace medical_appointment_system.Controllers
             if (result != null)
             {
                 result.SelectedRoleCombo = string.Join(",", result.Roles);
-                System.Diagnostics.Debug.WriteLine("SelectedRoleCombo: " + result.SelectedRoleCombo);
 
                 return result;
             }
 
             return null;
+        }
+
+        private void LoadSpecialties(int? selectedId = null)
+        {
+            ViewBag.Specialties = new SelectList(
+                specialtyService.ExecuteRead("GET_ALL", new Specialty()),
+                "SpecialtyId",
+                "Name",
+                selectedId
+            );
+        }
+
+        public JsonResult GetSpecialties()
+        {
+            var specialties = specialtyService.ExecuteRead("GET_ALL", new Specialty())
+                .Select(s => new { s.SpecialtyId, s.Name });
+
+            return Json(specialties, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Index()
@@ -117,7 +136,31 @@ namespace medical_appointment_system.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(FindUserById(id));
+            var user = FindUserById(id);
+
+            if (user.Roles.Contains("medico"))
+            {
+                var doctor = FindDoctorById(id);
+                if (doctor != null)
+                {
+                    user.SpecialtyId = doctor.SpecialtyId;
+                    user.Status = doctor.Status;
+                }
+
+                LoadSpecialties(user.SpecialtyId);
+            }
+
+            if (user.Roles.Contains("paciente"))
+            {
+                var patient = FindPatientById(id);
+                if (patient != null)
+                {
+                    user.BirthDate = patient.BirthDate;
+                    user.BloodType = patient.BloodType;
+                }
+            }
+
+            return View(user);
         }
 
         [HttpPost]
@@ -133,16 +176,48 @@ namespace medical_appointment_system.Controllers
                         .ToList();
                 }
 
-                int affectedRows = userService.ExecuteWrite("UPDATE", user);
-
-                if (affectedRows > 0)
+                using (var scope = new TransactionScope())
                 {
+                    int affectedRows = userService.ExecuteWrite("UPDATE", user);
+
+                    if (user.Roles.Contains("medico"))
+                    {
+                        if (user.SpecialtyId == null || user.Status == null)
+                        {
+                            throw new ApplicationException("Faltan campos requeridos para el rol médico.");
+                        }
+
+                        var doctor = new Doctor
+                        {
+                            UserId = user.UserId,
+                            SpecialtyId = user.SpecialtyId.Value,
+                            Status = user.Status.Value
+                        };
+
+                        doctorService.ExecuteWrite("UPDATE", doctor);
+                    }
+
+                    if (user.Roles.Contains("paciente"))
+                    {
+                        if (user.BirthDate == null || string.IsNullOrEmpty(user.BloodType))
+                        {
+                            throw new ApplicationException("Faltan campos requeridos para el rol paciente.");
+                        }
+
+                        var patient = new Patient
+                        {
+                            UserId = user.UserId,
+                            BirthDate = user.BirthDate.Value,
+                            BloodType = user.BloodType
+                        };
+
+                        patientService.ExecuteWrite("UPDATE", patient);
+                    }
+
+                    scope.Complete();
+
                     TempData["Success"] = "¡Usuario actualizado correctamente!";
                     return RedirectToAction("Index");
-                }
-                else
-                {
-                    ViewBag.Message = "No se pudo actualizar el usuario. Intenta nuevamente.";
                 }
             }
             catch (ApplicationException ex)
@@ -153,6 +228,8 @@ namespace medical_appointment_system.Controllers
             {
                 ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
             }
+
+            LoadSpecialties(user.SpecialtyId);
 
             return View(user);
         }

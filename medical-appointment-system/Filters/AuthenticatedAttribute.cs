@@ -19,7 +19,9 @@ namespace medical_appointment_system.Filters
                 "doctors/*",
                 "patients/*",
                 "specialties/*",
-                "users/*"
+                "users/*",
+                "profile/*",
+                "error/show"
             },
             ["medico"] = new List<string>
             {
@@ -33,7 +35,9 @@ namespace medical_appointment_system.Filters
                 "appointments/details",
                 "appointments/exporttopdf",
                 "appointments/exporttoexcel",
-                "schedules/*"
+                "schedules/*",
+                "profile/*",
+                "error/show"
             },
             ["paciente"] = new List<string>
             {
@@ -46,7 +50,9 @@ namespace medical_appointment_system.Filters
                 "appointments/historial",
                 "appointments/details",
                 "appointments/exporttopdf",
-                "appointments/exporttoexcel"
+                "appointments/exporttoexcel",
+                "profile/*",
+                "error/show"
             }
         };
 
@@ -80,7 +86,7 @@ namespace medical_appointment_system.Filters
                 {
                     if (sessionUser.Roles == null || sessionUser.Roles.Count <= 1)
                     {
-                        filterContext.Result = new RedirectResult("~/");
+                        filterContext.Result = RedirectToError(403);
                         return;
                     }
 
@@ -94,7 +100,14 @@ namespace medical_appointment_system.Filters
 
             if (sessionUser != null)
             {
+                if (string.IsNullOrEmpty(sessionUser.ActiveRole) && sessionUser.Roles?.Count > 1)
+                {
+                    base.OnActionExecuting(filterContext);
+                    return;
+                }
+
                 string role = sessionUser.ActiveRole?.ToLower();
+
                 if (!string.IsNullOrEmpty(role) && RolePermissions.ContainsKey(role))
                 {
                     var allowed = RolePermissions[role];
@@ -107,13 +120,27 @@ namespace medical_appointment_system.Filters
 
                     if (!hasAccess)
                     {
-                        filterContext.Result = new RedirectResult("~/");
+                        filterContext.Result = RedirectToError(403);
                         return;
                     }
+                }
+                else
+                {
+                    filterContext.Result = RedirectToError(403);
+                    return;
                 }
             }
 
             base.OnActionExecuting(filterContext);
+        }
+        private RedirectToRouteResult RedirectToError(int code)
+        {
+            return new RedirectToRouteResult(new System.Web.Routing.RouteValueDictionary
+            {
+                { "controller", "Error" },
+                { "action", "Show" },
+                { "code", code }
+            });
         }
     }
 }

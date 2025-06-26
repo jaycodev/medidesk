@@ -115,7 +115,7 @@ namespace medical_appointment_system.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        public Tuple<TimeSpan, TimeSpan> GetDoctorScheduleByDay(int doctorId, DateTime date)
+        public List<Appointment> GetDoctorScheduleByDay(int doctorId, DateTime date)
         {
             var result = appointmentService.ExecuteRead("GET_SCHEDULE_BY_DOCTOR_AND_DAY", new Appointment
             {
@@ -123,31 +123,38 @@ namespace medical_appointment_system.Controllers
                 Date = date
             });
 
-            if (result.Any())
+            var shifts = new List<Appointment>();
+
+            foreach (var row in result)
             {
-                var row = result.First();
-                return Tuple.Create(row.StartTime, row.EndTime);
+                shifts.Add(new Appointment
+                {
+                    DayWorkShift = row.DayWorkShift,
+                    StartTime = row.StartTime,
+                    EndTime = row.EndTime
+                });
             }
 
-            return null;
+            return shifts;
         }
 
         public JsonResult GetAvailableTimes(int doctorId, DateTime date)
         {
-            var schedule = GetDoctorScheduleByDay(doctorId, date);
+            var shifts = GetDoctorScheduleByDay(doctorId, date);
 
-            if (schedule == null)
+            if (shifts == null || !shifts.Any())
             {
                 return Json(new { error = "El médico no tiene horario asignado ese día." }, JsonRequestBehavior.AllowGet);
             }
 
-            var start = schedule.Item1;
-            var end = schedule.Item2;
-
             var allTimes = new List<string>();
-            for (var time = start; time < end; time = time.Add(TimeSpan.FromHours(1)))
+
+            foreach (var shift in shifts)
             {
-                allTimes.Add(time.ToString(@"hh\:mm"));
+                for (var time = shift.StartTime; time < shift.EndTime; time = time.Add(TimeSpan.FromHours(1)))
+                {
+                    allTimes.Add(time.ToString(@"hh\:mm"));
+                }
             }
 
             var appointments = appointmentService.ExecuteRead("GET_BY_DOCTOR_AND_DATE", new Appointment
