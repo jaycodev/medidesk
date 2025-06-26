@@ -100,6 +100,12 @@ namespace medical_appointment_system.Filters
 
             if (sessionUser != null)
             {
+                if (string.IsNullOrEmpty(sessionUser.ActiveRole) && sessionUser.Roles?.Count > 1)
+                {
+                    base.OnActionExecuting(filterContext);
+                    return;
+                }
+
                 string role = sessionUser.ActiveRole?.ToLower();
 
                 if (!string.IsNullOrEmpty(role) && RolePermissions.ContainsKey(role))
