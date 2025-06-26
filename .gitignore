@@ -61,3 +61,4 @@ TestResults/
 *.config.user
 *.Publish.xml
 *.cer
+cloudinary.config

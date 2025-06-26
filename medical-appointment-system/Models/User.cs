@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -29,7 +29,8 @@ namespace medical_appointment_system.Models
         public string Password { get; set; }
 
         [Display(Name = "Teléfono")]
-        [RegularExpression(@"^\d{9,}$", ErrorMessage = "Ingrese al menos 9 dígitos numéricos")]
+        [Required(ErrorMessage = "Ingrese el número de teléfono")]
+        [RegularExpression(@"^\+?\d{9,15}$", ErrorMessage = "El teléfono debe contener entre 9 y 15 dígitos, y puede comenzar con '+' si es internacional.")]
         public string Phone { get; set; }
 
         [Display(Name = "Rol(es)")]
@@ -39,11 +40,10 @@ namespace medical_appointment_system.Models
         [Display(Name = "Rol(es)")]
         public List<string> Roles { get; set; } = new List<string>();
 
-        public string ActiveRole { get; set; }
-
         [Display(Name = "Foto perfil")]
         public string ProfilePicture { get; set; }
 
+        public string ActiveRole { get; set; }
         public int? SpecialtyId { get; set; }
         
         public bool? Status { get; set; }

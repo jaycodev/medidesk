@@ -20,6 +20,7 @@ namespace medical_appointment_system.Filters
                 "patients/*",
                 "specialties/*",
                 "users/*",
+                "profile/*",
                 "error/show"
             },
             ["medico"] = new List<string>
@@ -35,6 +36,7 @@ namespace medical_appointment_system.Filters
                 "appointments/exporttopdf",
                 "appointments/exporttoexcel",
                 "schedules/*",
+                "profile/*",
                 "error/show"
             },
             ["paciente"] = new List<string>
@@ -49,6 +51,7 @@ namespace medical_appointment_system.Filters
                 "appointments/details",
                 "appointments/exporttopdf",
                 "appointments/exporttoexcel",
+                "profile/*",
                 "error/show"
             }
         };

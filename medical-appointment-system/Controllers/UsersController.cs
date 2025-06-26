@@ -3,11 +3,15 @@ using System.Transactions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using ClosedXML.Excel;
+using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
 using medical_appointment_system.Models;
 using medical_appointment_system.Models.ViewModels;
 using medical_appointment_system.Services;
+using System.Threading.Tasks;
 
 namespace medical_appointment_system.Controllers
 {
@@ -367,5 +371,8 @@ namespace medical_appointment_system.Controllers
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         "Usuarios.xlsx");
         }
+
+
+       
     }
 }
