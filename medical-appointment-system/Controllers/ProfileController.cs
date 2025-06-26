@@ -1,13 +1,13 @@
-﻿using medical_appointment_system.Models;
-using medical_appointment_system.Models.Validators;
-using medical_appointment_system.Models.ViewModels;
-using medical_appointment_system.Services;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using medical_appointment_system.Models;
+using medical_appointment_system.Models.Validators;
+using medical_appointment_system.Models.ViewModels;
+using medical_appointment_system.Services;
 
 namespace medical_appointment_system.Controllers
 {
@@ -32,10 +32,8 @@ namespace medical_appointment_system.Controllers
             return null;
         }
 
-        // GET: Profile
-        public ActionResult ProfileUser()
+        public ActionResult Index()
         {
-
             User userSession = Session["user"] as User;
 
             User user = null;
@@ -80,7 +78,7 @@ namespace medical_appointment_system.Controllers
             if (model.ChangePassword.NewPassword != model.ChangePassword.ConfirmPassword)
             {
                 TempData["Error"] = "Las contraseñas no coinciden.";
-                return RedirectToAction("ProfileUser");
+                return RedirectToAction("Index");
             }
 
             try
@@ -98,9 +96,8 @@ namespace medical_appointment_system.Controllers
                 TempData["Error"] = "Error al actualizar la contraseña: " + ex.Message;
             }
 
-            return RedirectToAction("ProfileUser");
+            return RedirectToAction("Index");
         }
-
 
         [HttpPost]
         public ActionResult EditPhone(ProfileViewModel model)
@@ -128,9 +125,8 @@ namespace medical_appointment_system.Controllers
                 TempData["Error"] = "Error al actualizar el teléfono: " + ex.Message;
             }
 
-            return RedirectToAction("ProfileUser");
+            return RedirectToAction("Index");
         }
-
 
         [HttpPost]
         public async Task<JsonResult> EditProfilePicture(int userId, HttpPostedFileBase ProfilePictureFile)
@@ -183,14 +179,13 @@ namespace medical_appointment_system.Controllers
             return Json(new { success = false, message = "Debe seleccionar una imagen válida." });
         }
 
-
         [HttpPost]
         public ActionResult SelectAvatar(int userId, string SelectedAvatar)
         {
             if (string.IsNullOrWhiteSpace(SelectedAvatar))
             {
                 TempData["Error"] = "Debe seleccionar un avatar.";
-                return RedirectToAction("ProfileUser");
+                return RedirectToAction("Index");
             }
 
             try
@@ -207,7 +202,6 @@ namespace medical_appointment_system.Controllers
                 {
                     TempData["Success"] = "Avatar seleccionado correctamente.";
 
-                    // Actualizar la sesión si es el usuario logueado
                     var userSession = Session["user"] as User;
                     if (userSession != null && userSession.UserId == userId)
                     {
@@ -225,7 +219,7 @@ namespace medical_appointment_system.Controllers
                 TempData["Error"] = "Error al seleccionar el avatar: " + ex.Message;
             }
 
-            return RedirectToAction("ProfileUser");
+            return RedirectToAction("Index");
         }
     }
 }

@@ -80,7 +80,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end text-small gap-1 p-2 rounded-3 mx-0 shadow">
                         <li>
-                            <a class="dropdown-item rounded-2" href="@Url.Action("ProfileUser", "Profile")">
+                            <a class="dropdown-item rounded-2" href="@Url.Action("Index", "Profile")">
                                 <i class="fa-solid fa-user me-2 icon"></i>
                                 Perfil
                             </a>
@@ -218,7 +218,6 @@
 
     <script src="~/Scripts/bootstrap-validation.js"></script>
 
-    <script src="~/Scripts/profile-scrips.js"></script>
     @RenderSection("scripts", required: false)
 
     @if (needsRoleSelection)

@@ -336,7 +336,7 @@
     <Content Include="Views\Shared\_RoleBadges.cshtml" />
     <Content Include="Views\Appointments\Confirm.cshtml" />
     <Content Include="Views\Appointments\Attend.cshtml" />
-    <Content Include="Views\Profile\ProfileUser.cshtml" />
+    <Content Include="Views\Profile\Index.cshtml" />
     <Content Include="Views\Error\Show.cshtml" />
   </ItemGroup>
   <ItemGroup>
