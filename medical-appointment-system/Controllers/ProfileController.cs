@@ -1,13 +1,13 @@
-﻿using medical_appointment_system.Models;
-using medical_appointment_system.Models.Validators;
-using medical_appointment_system.Models.ViewModels;
-using medical_appointment_system.Services;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using medical_appointment_system.Models;
+using medical_appointment_system.Models.Validators;
+using medical_appointment_system.Models.ViewModels;
+using medical_appointment_system.Services;
 
 namespace medical_appointment_system.Controllers
 {
@@ -32,7 +32,6 @@ namespace medical_appointment_system.Controllers
             return null;
         }
 
-        // GET: Profile
         public ActionResult ProfileUser()
         {
 
@@ -207,7 +206,6 @@ namespace medical_appointment_system.Controllers
                 {
                     TempData["Success"] = "Avatar seleccionado correctamente.";
 
-                    // Actualizar la sesión si es el usuario logueado
                     var userSession = Session["user"] as User;
                     if (userSession != null && userSession.UserId == userId)
                     {

@@ -1,46 +1,46 @@
 ﻿.header-fixed {
-    position: fixed;
-    height: 65px;
-    top: 0;
-    left: 280px;
-    right: 0;
-    z-index: 1030;
+  position: fixed;
+  height: 65px;
+  top: 0;
+  left: 280px;
+  right: 0;
+  z-index: 1030;
 }
 
 .sidebar-fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 1025;
-    overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  z-index: 1025;
+  overflow-y: auto;
 }
 
 #offcanvasSidebar {
-    width: 280px !important;
-    z-index: 1029;
+  width: 280px !important;
+  z-index: 1029;
 }
 
 .offcanvas-backdrop {
-    z-index: 1028;
+  z-index: 1028;
 }
 
 .main-content {
-    margin-left: 280px;
-    margin-top: 65px;
+  margin-left: 280px;
+  margin-top: 65px;
 }
 
 @media (max-width: 991.98px) {
-    .sidebar-fixed {
-        display: none !important;
-    }
+  .sidebar-fixed {
+    display: none !important;
+  }
 
-    .header-fixed {
-        left: 0;
-    }
+  .header-fixed {
+    left: 0;
+  }
 
-    .main-content {
-        margin-left: 0;
-    }
+  .main-content {
+    margin-left: 0;
+  }
 }
