@@ -19,7 +19,8 @@ namespace medical_appointment_system.Filters
                 "doctors/*",
                 "patients/*",
                 "specialties/*",
-                "users/*"
+                "users/*",
+                "profile/*"
             },
             ["medico"] = new List<string>
             {
@@ -33,7 +34,8 @@ namespace medical_appointment_system.Filters
                 "appointments/details",
                 "appointments/exporttopdf",
                 "appointments/exporttoexcel",
-                "schedules/*"
+                "schedules/*",
+                "profile/*"
             },
             ["paciente"] = new List<string>
             {
@@ -46,7 +48,8 @@ namespace medical_appointment_system.Filters
                 "appointments/historial",
                 "appointments/details",
                 "appointments/exporttopdf",
-                "appointments/exporttoexcel"
+                "appointments/exporttoexcel",
+                "profile/*"
             }
         };
 

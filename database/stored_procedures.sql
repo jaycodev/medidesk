@@ -13,6 +13,7 @@ CREATE OR ALTER PROCEDURE User_CRUD
     @last_name VARCHAR(100) = NULL,
     @email VARCHAR(100) = NULL,
     @password VARCHAR(100) = NULL,
+	@current_password VARCHAR(100) = NULL,
     @phone VARCHAR(20) = NULL,
     @roles VARCHAR(100) = NULL,
     @profile_picture VARCHAR(255) = NULL
@@ -191,11 +192,91 @@ BEGIN
 		RETURN;
 	END
 
+	ELSE IF @indicator = 'UPDATE_PASSWORD'
+	BEGIN
+		BEGIN TRY
+			UPDATE Users
+			SET password = @password
+			WHERE user_id = @user_id;
+
+			SELECT @@ROWCOUNT AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'UPDATE_PHONE'
+	BEGIN
+		BEGIN TRY
+			UPDATE Users
+			SET phone = @phone
+			WHERE user_id = @user_id;
+
+			SELECT @@ROWCOUNT AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			THROW;
+		END CATCH
+
+		RETURN;
+	END
+
+	ELSE IF @indicator = 'UPDATE_PROFILE_PICTURE'
+BEGIN
+    BEGIN TRY
+        UPDATE Users
+        SET profile_picture = @profile_picture
+        WHERE user_id = @user_id;
+
+        SELECT @@ROWCOUNT AS affected_rows;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+
+    RETURN;
+END
+
+
+ELSE IF @indicator = 'UPDATE_PASSWORD'
+BEGIN
+    BEGIN TRY
+        -- Validar que la contraseña actual sea correcta
+        IF EXISTS (
+            SELECT 1
+            FROM Users
+            WHERE user_id = @user_id AND password = @current_password
+        )
+        BEGIN
+            UPDATE Users
+            SET password = @password
+            WHERE user_id = @user_id;
+
+            SELECT @@ROWCOUNT AS affected_rows;
+        END
+        ELSE
+        BEGIN
+            RAISERROR('La contraseña actual no es correcta.', 16, 1);
+        END
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+
+    RETURN;
+END
+
+
 	ELSE
     BEGIN
         RAISERROR('Acción no válida: %s', 16, 1, @indicator);
 		RETURN;
     END
+
+
 END;
 GO
 
@@ -791,3 +872,5 @@ BEGIN
     END
 END;
 GO
+
+select * from Users
