@@ -4,60 +4,48 @@
     ViewBag.Title = "Inicio";
 }
 
-<h4 class="mb-4 text-body-emphasis text-center">
-    <i class="fa-solid fa-house me-"></i>
-    Inicio
-</h4>
-
-<!-- FullCalendar CSS -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" />
+<link href="~/Content/Css/Calendar.css" rel="stylesheet" />
 
-<!-- FullCalendar JS -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
-
-<!-- ESTILOS PARA FORZAR MAYÚSCULAS -->
-<style>
-    .fc-toolbar-title,
-    .fc-button,
-    .fc-col-header-cell-cushion {
-        text-transform: uppercase !important;
-    }
-</style>
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center justify-content-center">
+    <span class="badge border bg-primary-subtle border-primary-subtle text-primary-emphasis rounded-pill">
+        <i class="fa-solid fa-calendar-check me-1"></i> Confirmada
+    </span>
+    <span class="badge border bg-warning-subtle border-warning-subtle text-warning-emphasis rounded-pill">
+        <i class="fa-solid fa-hourglass-half me-1"></i> Pendiente
+    </span>
+    <span class="badge border bg-danger-subtle border-danger-subtle text-danger-emphasis rounded-pill">
+        <i class="fa-solid fa-ban me-1"></i> Cancelada
+    </span>
+    <span class="badge border bg-success-subtle border-success-subtle text-success-emphasis rounded-pill">
+        <i class="fa-solid fa-check me-1"></i> Atendida
+    </span>
+</div>
 
 <div id="calendar"></div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var calendarEl = document.getElementById('calendar');
+        window.appointmentEvents = [
+            @foreach (var appointment in Model)
+            {
+                var startDateTime = appointment.Date.Add(appointment.Time);
+                var endDateTime = startDateTime.AddHours(1);
+                var timeFormatted = appointment.Time.ToString(@"hh\:mm");
 
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'es',
-                firstDay: 1,
-                height: '1200px',
-                dayMaxEventRows: true,
-                dayMaxEvents: 3,
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                <text>
+                {
+                    title: '',
+                    start: '@startDateTime.ToString("yyyy-MM-ddTHH:mm:ss")',
+                    end: '@endDateTime.ToString("yyyy-MM-ddTHH:mm:ss")',
+                    timeFormatted: '@timeFormatted',
+                    status: '@appointment.Status.ToLower()',
+                    id: '@appointment.AppointmentId'
                 },
-                events: [
-                    @foreach (var appointment in Model)
-                    {
-                        <text>
-                        {
-                            title: 'Cita @appointment.Time.ToString("hh\\:mm")',
-                            start: '@appointment.Date.ToString("yyyy-MM-dd")',
-                            color: '@(appointment.Status == "confirmada" ? "#3B82F6" : appointment.Status == "cancelada" ? "#EF4444" : appointment.Status == "pendiente" ? "#F59E0B" : "#10B981")'
-                        },
-                        </text>
-                    }
-                ]
-            });
-
-            calendar.render();
-        });
+                </text>
+            }
+        ];
     </script>
+    <script src="~/Scripts/calendar.js"></script>
 }
