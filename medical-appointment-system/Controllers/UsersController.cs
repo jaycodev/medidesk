@@ -52,7 +52,6 @@ namespace medical_appointment_system.Controllers
             if (result != null)
             {
                 result.SelectedRoleCombo = string.Join(",", result.Roles);
-                System.Diagnostics.Debug.WriteLine("SelectedRoleCombo: " + result.SelectedRoleCombo);
 
                 return result;
             }
@@ -146,8 +145,6 @@ namespace medical_appointment_system.Controllers
                 {
                     user.SpecialtyId = doctor.SpecialtyId;
                     user.Status = doctor.Status;
-
-                    System.Diagnostics.Debug.WriteLine($"[DEBUG] SpecialtyId: {doctor.SpecialtyId}");
                 }
 
                 LoadSpecialties(user.SpecialtyId);
