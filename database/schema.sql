@@ -76,4 +76,18 @@ CREATE TABLE Schedules (
     FOREIGN KEY (doctor_id) REFERENCES Doctors(user_id),
     CONSTRAINT UQ_Doctor_Weekday_Shift UNIQUE (doctor_id, weekday, day_work_shift)
 );
-GO
+GO	
+
+CREATE TABLE Notifications (
+    NotificationId INT PRIMARY KEY IDENTITY(1,1),
+    DoctorId INT NOT NULL,
+    PatientId INT NOT NULL,
+    AppointmentId INT NOT NULL,
+    Message VARCHAR(500),
+    IsRead BIT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (DoctorId) REFERENCES Users(User_Id),
+    FOREIGN KEY (PatientId) REFERENCES Users(User_Id),
+    FOREIGN KEY (AppointmentId) REFERENCES Appointments(appointment_id)
+);
+

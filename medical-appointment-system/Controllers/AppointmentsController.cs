@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Web.Mvc;
+using System.Web.WebPages;
+using Antlr.Runtime.Tree;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Wordprocessing;
 using medical_appointment_system.Models;
 using medical_appointment_system.Services;
 
@@ -13,6 +18,7 @@ namespace medical_appointment_system.Controllers
         SpecialtyService specialtyService = new SpecialtyService();
         PatientService patientService = new PatientService();
         DoctorService doctorService = new DoctorService();
+        NotificationService notificationService = new NotificationService();
 
         private User user;
 
@@ -21,6 +27,14 @@ namespace medical_appointment_system.Controllers
             base.OnActionExecuting(filterContext);
             user = Session["user"] as User;
         }
+
+        private Appointment GetAppointmentIds(int id)
+        {
+            var filter = new Appointment { AppointmentId = id };
+            var result = appointmentService.ExecuteRead("GET_IDS_BY_ID", filter);
+            return result.FirstOrDefault();
+        }
+
 
         private Appointment FindById(int id)
         {
