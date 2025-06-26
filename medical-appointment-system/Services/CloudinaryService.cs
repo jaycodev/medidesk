@@ -1,11 +1,9 @@
-﻿using CloudinaryDotNet.Actions;
-using CloudinaryDotNet;
-using medical_appointment_system.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using medical_appointment_system.Models;
 using medical_appointment_system.Services.Interfaces;
 
 namespace medical_appointment_system.Services
@@ -21,7 +19,7 @@ namespace medical_appointment_system.Services
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<string> UploadImageAsync(string rutaArchivo, string nameFolder,string nameFile)
+        public async Task<string> UploadImageAsync(string rutaArchivo, string nameFolder, string nameFile)
         {
             var uploadParams = new ImageUploadParams
             {

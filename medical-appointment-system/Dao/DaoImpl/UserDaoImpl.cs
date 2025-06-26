@@ -22,7 +22,7 @@ namespace medical_appointment_system.Dao.DaoImpl
                 cn.Open();
                 using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
                 {
-                    AddParametersUser(cmd, indicator, u);
+                    AddParameters(cmd, indicator, u);
 
                     try
                     {
@@ -57,7 +57,7 @@ namespace medical_appointment_system.Dao.DaoImpl
                 cn.Open();
                 using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
                 {
-                    AddParametersUser(cmd, indicator, u);
+                    AddParameters(cmd, indicator, u);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -123,7 +123,7 @@ namespace medical_appointment_system.Dao.DaoImpl
             return process;
         }
 
-        private void AddParametersUser(SqlCommand cmd, string indicator, User u)
+        private void AddParameters(SqlCommand cmd, string indicator, User u)
         {
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.Clear();
@@ -137,8 +137,6 @@ namespace medical_appointment_system.Dao.DaoImpl
             cmd.Parameters.AddWithValue("@roles", string.Join(",", u.Roles));
             cmd.Parameters.AddWithValue("@profile_picture", u.ProfilePicture);
         }
-
-        
 
         public List<ChangePasswordValidator> ExecuteRead(string indicator, ChangePasswordValidator entity)
         {

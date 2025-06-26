@@ -44,6 +44,7 @@ namespace medical_appointment_system.Models
         public string ProfilePicture { get; set; }
 
         public string ActiveRole { get; set; }
+
         public int? SpecialtyId { get; set; }
         
         public bool? Status { get; set; }
