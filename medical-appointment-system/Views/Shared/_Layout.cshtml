@@ -103,6 +103,59 @@
                         </li>
                     </ul>
                 </div>
+                @{
+                    user = Session["user"] as medical_appointment_system.Models.User;
+                    var notifications = new List<medical_appointment_system.Models.Notification>();
+
+                    if (user != null && !string.IsNullOrEmpty(user.ActiveRole))
+                    {
+                        var notificationService = new medical_appointment_system.Services.NotificationService();
+                        medical_appointment_system.Models.Notification noti = new medical_appointment_system.Models.Notification();
+                        if (user.ActiveRole == "medico") {
+                            noti.DoctorId = user.UserId;
+                            noti.Role = "medico";
+                            notifications = notificationService.ExecuteRead("GET_UNREAD_DOC", noti);
+                        }
+                        else if(user.ActiveRole == "paciente")
+                        {
+                            noti.PatientId = user.UserId;
+                            noti.Role = "paciente";
+                            notifications = notificationService.ExecuteRead("GET_UNREAD_PA", noti);
+                        }
+                    }
+                }
+
+                <div class="dropdown">
+                    <button class="btn btn-link nav-link position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-bell"></i>
+                        @if (notifications.Any())
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @notifications.Count
+                            </span>
+                        }
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 300px;">
+                        @if (notifications.Any())
+                        {
+                            foreach (var n in notifications)
+                            {
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Details", "Appointments", new { id = n.AppointmentId })">
+                                        <div class="fw-semibold">@n.Message</div>
+                                        <small class="text-muted">@n.CreatedAt.ToString("g")</small>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                            }
+                        }
+                        else
+                        {
+                            <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
+                        }
+                    </ul>
+                </div>
+
             </div>
         </div>
     </header>
