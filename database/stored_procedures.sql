@@ -32,8 +32,8 @@ BEGIN
 		BEGIN TRY
 			BEGIN TRANSACTION;
 
-			INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture)
-			VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture);
+			INSERT INTO Users (first_name, last_name, email, password, phone)
+			VALUES (@first_name, @last_name, @email, @password, @phone);
 
 			SET @user_id = SCOPE_IDENTITY();
 
@@ -72,8 +72,7 @@ BEGIN
 			SET first_name = @first_name,
 				last_name = @last_name,
 				email = @email,
-				phone = @phone,
-				profile_picture = @profile_picture
+				phone = @phone
 			WHERE user_id = @user_id;
 
 			DECLARE @rows INT = @@ROWCOUNT;
@@ -359,8 +358,8 @@ BEGIN
 		BEGIN TRY
 			BEGIN TRANSACTION;
 
-			INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture)
-			VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture);
+			INSERT INTO Users (first_name, last_name, email, password, phone)
+			VALUES (@first_name, @last_name, @email, @password, @phone);
 
 			SET @user_id = SCOPE_IDENTITY();
 
@@ -511,8 +510,8 @@ BEGIN
 		BEGIN TRY
 			BEGIN TRANSACTION;
 
-			INSERT INTO Users (first_name, last_name, email, password, phone, profile_picture)
-			VALUES (@first_name, @last_name, @email, @password, @phone, @profile_picture);
+			INSERT INTO Users (first_name, last_name, email, password, phone)
+			VALUES (@first_name, @last_name, @email, @password, @phone);
 
 			SET @user_id = SCOPE_IDENTITY();
 

@@ -71,14 +71,6 @@
             @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
         </div>
 
-        <div class="col-md-6">
-            @Html.LabelFor(m => m.ProfilePicture, new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.ProfilePicture, new { @type = "file", @class = "form-control" })
-            @Html.ValidationMessageFor(m => m.ProfilePicture, "", new { @class = "text-danger" })
-        </div>
-    </div>
-
-    <div class="row mb-2">
         <div class="col-md-6 mb-2">
             @Html.LabelFor(m => m.SpecialtyName, new { @class = "form-label" })
             <span class="text-danger">*</span>

@@ -9,7 +9,7 @@
     Crear administrador
 </h4>
 
-@using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm(null, null, FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -75,12 +75,6 @@
                 min = "0"
             })
             @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
-        </div>
-
-        <div class="col-md-6">
-            @Html.LabelFor(m => m.ProfilePicture, new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.ProfilePicture, new { @type = "file", @class = "form-control" })
-            @Html.ValidationMessageFor(m => m.ProfilePicture, "", new { @class = "text-danger" })
         </div>
     </div>
 
