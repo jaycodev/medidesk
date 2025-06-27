@@ -257,6 +257,7 @@ namespace medical_appointment_system.Controllers
             {
                 return RedirectToAction("Index");
             }
+
             return View(FindUserById(id));
         }
 
@@ -264,6 +265,18 @@ namespace medical_appointment_system.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             User user = FindUserById(id);
+
+            if (user == null)
+            {
+                TempData["Error"] = "El usuario no existe.";
+                return RedirectToAction("Index");
+            }
+
+            if (!user.CanDelete)
+            {
+                TempData["Error"] = "Este usuario no puede ser eliminado.";
+                return RedirectToAction("Index");
+            }
 
             try
             {

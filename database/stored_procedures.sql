@@ -116,17 +116,10 @@ BEGIN
 	ELSE IF @indicator = 'DELETE'
 	BEGIN
 		BEGIN TRY
-			BEGIN TRANSACTION;
-
-			DELETE FROM UserRoles WHERE user_id = @user_id;
 			DELETE FROM Users WHERE user_id = @user_id;
-
-			COMMIT TRANSACTION;
-
 			SELECT @@ROWCOUNT AS affected_rows;
 		END TRY
 		BEGIN CATCH
-			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
 			THROW;
 		END CATCH
 
