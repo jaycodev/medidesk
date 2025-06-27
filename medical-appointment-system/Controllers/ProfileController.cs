@@ -66,9 +66,6 @@ namespace medical_appointment_system.Controllers
                     var userSession = Session["user"] as User;
                     if (userSession != null && userSession.UserId == profile.User.UserId)
                     {
-                        userSession.FirstName = profile.User.FirstName;
-                        userSession.LastName = profile.User.LastName;
-                        userSession.Email = profile.User.Email;
                         userSession.Phone = profile.User.Phone;
                         Session["user"] = userSession;
                     }

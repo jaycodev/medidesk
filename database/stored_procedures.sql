@@ -203,21 +203,9 @@ BEGIN
 
 	ELSE IF @indicator = 'UPDATE_PROFILE'
 	BEGIN
-		IF EXISTS (
-			SELECT 1 FROM Users 
-			WHERE email = @email AND user_id <> @user_id
-		)
-		BEGIN
-			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
-			RETURN;
-		END
-
 		BEGIN TRY
 			UPDATE Users
-			SET first_name = @first_name,
-				last_name = @last_name,
-				email = @email,
-				phone = @phone
+			SET phone = @phone
 			WHERE user_id = @user_id;
 
 			SELECT @@ROWCOUNT AS affected_rows;
@@ -924,6 +912,8 @@ BEGIN
         INNER JOIN Specialties s ON a.specialty_id = s.specialty_id
         WHERE 
             (
+				@user_rol = 'administrador'
+				OR
                 (@user_rol = 'paciente' AND a.patient_id = @user_id)
                 OR
                 (@user_rol = 'medico' AND a.doctor_id = @user_id)
