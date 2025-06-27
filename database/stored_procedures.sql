@@ -25,7 +25,7 @@ BEGIN
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
 		BEGIN
-			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
 			RETURN;
 		END
 
@@ -61,7 +61,7 @@ BEGIN
 			WHERE email = @email AND user_id <> @user_id
 		)
 		BEGIN
-			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
 			RETURN;
 		END
 
@@ -201,11 +201,23 @@ BEGIN
 		RETURN;
 	END
 
-	ELSE IF @indicator = 'UPDATE_PHONE'
+	ELSE IF @indicator = 'UPDATE_PROFILE'
 	BEGIN
+		IF EXISTS (
+			SELECT 1 FROM Users 
+			WHERE email = @email AND user_id <> @user_id
+		)
+		BEGIN
+			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RETURN;
+		END
+
 		BEGIN TRY
 			UPDATE Users
-			SET phone = @phone
+			SET first_name = @first_name,
+				last_name = @last_name,
+				email = @email,
+				phone = @phone
 			WHERE user_id = @user_id;
 
 			SELECT @@ROWCOUNT AS affected_rows;
@@ -352,7 +364,7 @@ BEGIN
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
 		BEGIN
-			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
 			RETURN;
 		END
 
@@ -504,7 +516,7 @@ BEGIN
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
 		BEGIN
-			RAISERROR('Este correo ya está registrado. Por favor, ingrese otro.', 16, 1);
+			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
 			RETURN;
 		END
 

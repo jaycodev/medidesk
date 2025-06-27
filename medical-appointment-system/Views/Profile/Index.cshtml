@@ -2,71 +2,151 @@
 
 @{
     ViewBag.Title = "Perfil";
-    var avatars = ViewBag.Avatars as List<string>;
+    var avatars = ViewBag.Avatars as List<string> ?? new List<string>();
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm p-4">
-        <div class="row">
-            <!-- Columna izquierda: datos -->
-            <div class="col-md-6">
-                <h4 class="mb-4">@Model.User.FirstName @Model.User.LastName</h4>
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.HiddenFor(model => model.User.UserId)
+<style>
+    .modal-backdrop.show {
+        background-color: rgba(0, 0, 0, 1);
+    }
 
-                <!-- Correo -->
-                <div class="mb-3 row">
-                    <label class="col-sm-3 col-form-label">Correo</label>
-                    <div class="col-sm-9">
-                        <p class="form-control-plaintext">@Model.User.Email</p>
-                    </div>
-                </div>
+    #selectAvatarModal .modal-content {
+        background-color: transparent;
+        box-shadow: none;
+        border: none;
+    }
 
-                <!-- Teléfono con botón de edición -->
-                <div class="col-sm-9 d-flex align-items-center gap-1">
-                    <label class="col-sm-4 col-form-label">Telefono</label>
-                    <div class="col-sm-4">
-                        <p class="form-control-plaintext mb-0">@Model.User.Phone</p>
-                    </div>
-                    <button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#editPhoneModal" title="Editar teléfono">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
+    #selectAvatarModal .modal-body {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 1rem;
+        padding: 2rem;
+        color: #fff;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease-in-out;
+    }
 
-                <hr />
-                <!-- Botón Cambiar Contraseña -->
-                <div class="mb-3 row mt-4">
-                    <div class="col-sm-9 offset-sm-3">
-                        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                            <i class="fas fa-key"></i> Cambiar Contraseña
-                        </button>
-                    </div>
-                </div>
+    .avatar-option {
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        transition: transform 0.3s ease, outline 0.2s ease;
+        cursor: pointer;
+    }
 
-                <!-- Campos ocultos -->
-                @Html.HiddenFor(model => model.User.SelectedRoleCombo)
-                @Html.HiddenFor(model => model.User.ActiveRole)
-                @Html.HiddenFor(model => model.User.Password)
-                @Html.HiddenFor(model => model.User.FirstName)
-                @Html.HiddenFor(model => model.User.LastName)
-            </div>
+        .avatar-option:hover {
+            transform: scale(1.20);
+        }
 
-            <!-- Columna derecha: imagen -->
-            <div class="col-md-6 text-center">
-                <img src="@Model.User.ProfilePicture" class="img-fluid rounded-circle mb-2" style="max-width: 150px;" alt="Foto de perfil" />
-                <div>
-                    <button type="button" class="btn btn-outline-secondary btn-sm mt-4" data-bs-toggle="modal" data-bs-target="#editProfilePictureModal">
-                        <i class="fas fa-camera"></i> Cambiar foto
-                    </button>
+        .avatar-option:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
 
-                    <button type="button" class="btn btn-outline-secondary btn-sm mt-4 ms-4" data-bs-toggle="modal" data-bs-target="#selectAvatarModal">
-                        <i class="fas fa-user-circle"></i> Seleccionar avatar
-                    </button>
-                </div>
+    .avatar-selected {
+        outline: 3px solid #198754;
+        box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+        transform: scale(1.15);
+    }
+</style>
 
+<div class="container mt-3">
+    <div class="card border p-4 shadow-sm">
+        <h4 class="text-center mb-4 text-body-emphasis">
+            <i class="fa-solid fa-user me-1"></i>
+            Configuración de perfil
+        </h4>
 
+        <div class="text-center mb-4">
+            @if (!string.IsNullOrWhiteSpace(Model.User.ProfilePicture))
+            {
+                <img src="@Model.User.ProfilePicture" class="rounded-circle mb-2 border" style="width: 150px; height: 150px;" alt="Foto de perfil" />
+            }
+            else
+            {
+                <i class="fa-solid fa-circle-user mb-2" style="font-size: 150px;"></i>
+            }
+
+            <div class="d-flex flex-column flex-md-row justify-content-center gap-2 mt-3">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editProfilePictureModal">
+                    <i class="fas fa-camera me-1"></i>
+                    Cambiar foto
+                </button>
+
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#selectAvatarModal">
+                    <i class="fas fa-user-circle me-1"></i>
+                    Seleccionar avatar
+                </button>
             </div>
         </div>
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-circle-xmark me-1"></i>
+                @ViewBag.Message
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @using (Html.BeginForm("Update", "Profile", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(model => model.User.UserId)
+
+            <div class="row mb-2">
+                <div class="col-md-6 mb-2">
+                    @Html.LabelFor(m => m.User.FirstName, new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.User.FirstName, new { @class = "form-control", placeholder = "Ingrese un(os) nombre(s)" })
+                    @Html.ValidationMessageFor(m => m.User.FirstName, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.User.LastName, new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.User.LastName, new { @class = "form-control", placeholder = "Ingrese un(os) apellido(s)" })
+                    @Html.ValidationMessageFor(m => m.User.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-6 mb-2">
+                    @Html.LabelFor(m => m.User.Email, new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.User.Email, new { @class = "form-control", type = "email", placeholder = "correo@ejemplo.com" })
+                    @Html.ValidationMessageFor(m => m.User.Email, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.User.Phone, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.User.Phone, new
+                    {
+                        @class = "form-control",
+                        type = "number",
+                        placeholder = "Ingrese un número de teléfono",
+                        min = "0"
+                    })
+                    @Html.ValidationMessageFor(m => m.User.Phone, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-3">
+                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                    <i class="fas fa-key me-1"></i>
+                    Cambiar contraseña
+                </button>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>
+                    Actualizar perfil
+                </button>
+            </div>
+
+            @Html.HiddenFor(model => model.User.SelectedRoleCombo)
+            @Html.HiddenFor(model => model.User.ProfilePicture)
+            @Html.HiddenFor(model => model.User.Password)
+            @Html.HiddenFor(model => model.User.ActiveRole)
+        }
     </div>
 </div>
 
@@ -80,72 +160,76 @@
                 @Html.HiddenFor(model => model.ChangePassword.UserId)
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="changePasswordModalLabel">Cambiar Contraseña</h5>
+                    <h5 class="modal-title text-body-emphasis" id="changePasswordModalLabel">
+                        <i class="fas fa-key me-1"></i>
+                        Cambiar contraseña
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
                 <div class="modal-body">
                     <div class="mb-3">
-                        @Html.LabelFor(m => m.ChangePassword.CurrentPassword)
-                        @Html.PasswordFor(m => m.ChangePassword.CurrentPassword, new { @class = "form-control" })
+                        @Html.LabelFor(m => m.ChangePassword.CurrentPassword, new { @class = "form-label" })
+                        <div class="input-group">
+                            @Html.PasswordFor(m => m.ChangePassword.CurrentPassword, new
+                            {
+                                @class = "form-control password-field",
+                                placeholder = "Ingrese su contraseña actual",
+                                data_toggle_id = "1"
+                            })
+                            <span class="input-group-text" style="cursor: pointer;" data-toggle-id="1">
+                                <i class="fa-solid fa-eye icon"></i>
+                            </span>
+                        </div>
                         @Html.ValidationMessageFor(m => m.ChangePassword.CurrentPassword, "", new { @class = "text-danger" })
                     </div>
 
                     <div class="mb-3">
-                        @Html.LabelFor(m => m.ChangePassword.NewPassword)
-                        @Html.PasswordFor(m => m.ChangePassword.NewPassword, new { @class = "form-control" })
+                        @Html.LabelFor(m => m.ChangePassword.NewPassword, new { @class = "form-label" })
+                        <div class="input-group">
+                            @Html.PasswordFor(m => m.ChangePassword.NewPassword, new
+                            {
+                                @class = "form-control password-field",
+                                placeholder = "Nueva contraseña",
+                                data_toggle_id = "2"
+                            })
+                            <span class="input-group-text" style="cursor: pointer;" data-toggle-id="2">
+                                <i class="fa-solid fa-eye icon"></i>
+                            </span>
+                        </div>
                         @Html.ValidationMessageFor(m => m.ChangePassword.NewPassword, "", new { @class = "text-danger" })
                     </div>
 
                     <div class="mb-3">
-                        @Html.LabelFor(m => m.ChangePassword.ConfirmPassword)
-                        @Html.PasswordFor(m => m.ChangePassword.ConfirmPassword, new { @class = "form-control" })
+                        @Html.LabelFor(m => m.ChangePassword.ConfirmPassword, new { @class = "form-label" })
+                        <div class="input-group">
+                            @Html.PasswordFor(m => m.ChangePassword.ConfirmPassword, new
+                            {
+                                @class = "form-control password-field",
+                                placeholder = "Confirmar nueva contraseña",
+                                data_toggle_id = "3"
+                            })
+                            <span class="input-group-text" style="cursor: pointer;" data-toggle-id="3">
+                                <i class="fa-solid fa-eye icon"></i>
+                            </span>
+                        </div>
                         @Html.ValidationMessageFor(m => m.ChangePassword.ConfirmPassword, "", new { @class = "text-danger" })
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Guardar
+                    </button>
                 </div>
             }
         </div>
     </div>
 </div>
-
-
-
-<!-- Modal Editar Teléfono -->
-<div class="modal fade" id="editPhoneModal" tabindex="-1" aria-labelledby="editPhoneModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            @using (Html.BeginForm("EditPhone", "Profile", FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-                @Html.HiddenFor(model => model.ChangePhone.UserId)
-
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editPhoneModalLabel">Editar Teléfono</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="mb-3">
-                        @Html.LabelFor(m => m.ChangePhone.Phone, htmlAttributes: new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.ChangePhone.Phone, new { @class = "form-control", placeholder = "+51987654321" })
-                        @Html.ValidationMessageFor(m => m.ChangePhone.Phone, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-            }
-        </div>
-    </div>
-</div>
-
 
 <!-- Modal Editar Foto de Perfil -->
 <div class="modal fade" id="editProfilePictureModal" tabindex="-1" aria-labelledby="editProfilePictureModalLabel" aria-hidden="true">
@@ -157,7 +241,10 @@
                 <input type="hidden" name="userId" value="@Model.User.UserId" />
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editProfilePictureModalLabel">Cambiar Foto de Perfil</h5>
+                    <h5 class="modal-title text-body-emphasis" id="editProfilePictureModalLabel">
+                        <i class="fas fa-camera me-1"></i>
+                        Cambiar foto de perfil
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
@@ -169,47 +256,57 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Guardar
+                    </button>
                 </div>
             }
         </div>
     </div>
 </div>
 
-<!-- Modal Seleccionar Avatar -->
-<div class="modal fade" id="selectAvatarModal" tabindex="-1" aria-labelledby="selectAvatarModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content p-3 border-0 shadow-none bg-transparent">
-            @using (Html.BeginForm("SelectAvatar", "Profile", FormMethod.Post, new { id = "avatarForm" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="userId" value="@Model.User.UserId" />
+@if (avatars.Any())
+{
+    <!-- Modal Seleccionar Avatar -->
+    <div class="modal fade" id="selectAvatarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content border-0 bg-transparent">
+                @using (Html.BeginForm("SelectAvatar", "Profile", FormMethod.Post, new { id = "avatarForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="userId" value="@Model.User.UserId" />
+                    <input type="hidden" id="selectedAvatarInput" name="SelectedAvatar" />
 
-                <div class="modal-body p-0">
-                    <div class="row justify-content-center">
-                        @foreach (var avatar in avatars)
-                        {
-                            <div class="col-3 text-center mb-3">
-                                <label>
-                                    <input type="radio" name="SelectedAvatar" value="@avatar" class="d-none" />
+                    <div class="modal-body d-flex justify-content-center align-items-center flex-column p-4 rounded-4">
+                        <div class="row justify-content-center g-4 w-100">
+                            @foreach (var avatar in avatars)
+                            {
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <img src="@avatar"
-                                         class="img-thumbnail avatar-option rounded-circle avatar-img"
-                                         style="width: 130px; height: 130px; cursor: pointer;"
-                                         onclick="selectAvatar(this)" />
-                                </label>
-                            </div>
-                        }
+                                         class="avatar-option rounded-circle"
+                                         alt="avatar"
+                                         onclick="selectAvatar(this, '@avatar')" />
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check-circle me-1"></i> Guardar selección
+                            </button>
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
-</div>
+}
 
-<a href="@Url.Action("Index")" class="btn btn-link">
-    <i class="fas fa-arrow-left"></i> Volver
-</a>
+
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
@@ -218,13 +315,14 @@
         const redirectAfterUpload = '@Url.Action("Index", "Profile")';
     </script>
     <script src="~/Scripts/profile-scrips.js"></script>
-}
-<style>
-    .avatar-option:hover {
-        border: 2px solid #28a745 !important;
-    }
+    <script>
+        function selectAvatar(element, avatarUrl) {
+            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('avatar-selected'));
 
-    .avatar-selected {
-        border: 3px solid #198754 !important;
-    }
-</style>
+            element.classList.add('avatar-selected');
+
+            document.getElementById('selectedAvatarInput').value = avatarUrl;
+        }
+    </script>
+    <script src="~/Scripts/password.js"></script>
+}

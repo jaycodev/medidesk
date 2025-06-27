@@ -29,8 +29,7 @@ namespace medical_appointment_system.Models
         public string Password { get; set; }
 
         [Display(Name = "Teléfono")]
-        [Required(ErrorMessage = "Ingrese el número de teléfono")]
-        [RegularExpression(@"^\+?\d{9,15}$", ErrorMessage = "El teléfono debe contener entre 9 y 15 dígitos, y puede comenzar con '+' si es internacional.")]
+        [RegularExpression(@"^\d{9,}$", ErrorMessage = "Ingrese al menos 9 dígitos numéricos")]
         public string Phone { get; set; }
 
         [Display(Name = "Rol(es)")]

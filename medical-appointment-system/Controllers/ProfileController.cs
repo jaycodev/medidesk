@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using medical_appointment_system.Models;
-using medical_appointment_system.Models.Validators;
 using medical_appointment_system.Models.ViewModels;
 using medical_appointment_system.Services;
 
@@ -16,47 +16,17 @@ namespace medical_appointment_system.Controllers
         UserService userService = new UserService();
         CloudinaryService cloudinaryService = new CloudinaryService();
 
-        private User FindUserById(int id)
+        private void LoadAvatarsToViewBag()
         {
-            User user = new Patient { UserId = id };
-            User result = userService.ExecuteRead("GET_BY_ID", user).First();
-
-            if (result != null)
-            {
-                result.SelectedRoleCombo = string.Join(",", result.Roles);
-                System.Diagnostics.Debug.WriteLine("SelectedRoleCombo: " + result.SelectedRoleCombo);
-
-                return result;
-            }
-
-            return null;
-        }
-
-        public ActionResult Index()
-        {
-            User userSession = Session["user"] as User;
-
-            User user = null;
-            if (userSession == null || (user = FindUserById(userSession.UserId)) == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            var modelProfile = new ProfileViewModel
-            {
-                User = user,
-                ChangePassword = new ChangePasswordValidator
-                {
-                    UserId = user.UserId
-                },
-                ChangePhone = new ChangePhoneValidator
-                {
-                    UserId = user.UserId
-                }
-            };
-
             string folderPath = Server.MapPath("~/Content/Img/Avatars/");
             string baseUrl = Url.Content("~/Content/Img/Avatars/");
+
+
+            if (!Directory.Exists(folderPath))
+            {
+                ViewBag.Avatars = new List<string>();
+                return;
+            }
 
             var avatarFiles = Directory.GetFiles(folderPath)
                 .Where(f => f.EndsWith(".png") || f.EndsWith(".jpg") || f.EndsWith(".jpeg"))
@@ -64,14 +34,67 @@ namespace medical_appointment_system.Controllers
                 .ToList();
 
             ViewBag.Avatars = avatarFiles;
+        }
+
+        public ActionResult Index()
+        {
+            User userSession = Session["user"] as User;
+
+            var modelProfile = new ProfileViewModel
+            {
+                User = userSession,
+                ChangePassword = new ChangePasswordValidator
+                {
+                    UserId = userSession.UserId
+                }
+            };
+
+            LoadAvatarsToViewBag();
 
             return View(modelProfile);
         }
 
         [HttpPost]
+        public ActionResult Update(ProfileViewModel profile)
+        {
+            try
+            {
+                int affectedRows = userService.ExecuteWrite("UPDATE_PROFILE", profile.User);
+
+                if (affectedRows > 0)
+                {
+                    var userSession = Session["user"] as User;
+                    if (userSession != null && userSession.UserId == profile.User.UserId)
+                    {
+                        userSession.FirstName = profile.User.FirstName;
+                        userSession.LastName = profile.User.LastName;
+                        userSession.Email = profile.User.Email;
+                        userSession.Phone = profile.User.Phone;
+                        Session["user"] = userSession;
+                    }
+
+                    TempData["Success"] = "¡Perfil actualizado correctamente!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.Message = "No se pudo actualizar el perfil. Intenta nuevamente.";
+                    LoadAvatarsToViewBag();
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.Message;
+                LoadAvatarsToViewBag();
+            }
+
+            LoadAvatarsToViewBag();
+            return View("Index", profile);
+        }
+
+        [HttpPost]
         public ActionResult ChangePassword(ProfileViewModel model)
         {
-
             User user = new User { UserId = model.ChangePassword.UserId, Password = model.ChangePassword.NewPassword };
 
 
@@ -94,35 +117,6 @@ namespace medical_appointment_system.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = "Error al actualizar la contraseña: " + ex.Message;
-            }
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public ActionResult EditPhone(ProfileViewModel model)
-        {
-            try
-            {
-                var user = new User
-                {
-                    UserId = model.ChangePhone.UserId,
-                    Phone = model.ChangePhone.Phone
-                };
-
-                int rows = userService.ExecuteWrite("UPDATE_PHONE", user);
-                if (rows > 0)
-                {
-                    TempData["Success"] = "Número de teléfono actualizado correctamente.";
-                }
-                else
-                {
-                    TempData["Error"] = "No se pudo actualizar el teléfono.";
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Error al actualizar el teléfono: " + ex.Message;
             }
 
             return RedirectToAction("Index");

@@ -65,7 +65,16 @@
                             @Html.DisplayFor(modelItem => item.SpecialtyName)
                         </span>
                     </td>
-                    <td class="text-center">@Html.DisplayFor(modelItem => item.ProfilePicture)</td>
+                    <td class="text-center">
+                        @if (!string.IsNullOrEmpty(item.ProfilePicture))
+                        {
+                            <img src="@item.ProfilePicture" alt="Foto de perfil" width="28" height="28" class="rounded-circle border" />
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle-user" style="font-size: 28px;"></i>
+                        }
+                    </td>
                     <td class="text-center">
                         <span class="badge rounded-pill border
                             @(item.Status

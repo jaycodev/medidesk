@@ -56,7 +56,16 @@
 
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ProfilePicture)</dt>
-                <dd class="text-body">@Html.DisplayFor(m => m.ProfilePicture)</dd>
+                <dd class="text-body mt-1">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                    {
+                        <img src="@Model.ProfilePicture" alt="Foto de perfil" width="64" height="64" class="rounded-circle border" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-circle-user text-secondary" style="font-size: 64px;"></i>
+                    }
+                </dd>
             </div>
         </dl>
     </div>
