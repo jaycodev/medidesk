@@ -27,7 +27,7 @@
       const calendarTitle = document.querySelector(".fc-toolbar-title");
       if (calendarTitle) {
         const date = info.view.currentStart;
-        const meses = [
+        const months = [
           "ENERO",
           "FEBRERO",
           "MARZO",
@@ -41,9 +41,9 @@
           "NOVIEMBRE",
           "DICIEMBRE",
         ];
-        const mes = meses[date.getMonth()];
-        const anio = date.getFullYear();
-        calendarTitle.textContent = `${mes} ${anio}`;
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        calendarTitle.textContent = `${month} ${year}`;
       }
 
       const todayBtn = document.querySelector(".fc-today-button");
