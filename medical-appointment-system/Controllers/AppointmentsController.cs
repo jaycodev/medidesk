@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
 using medical_appointment_system.Models;
 using medical_appointment_system.Services;
+using System.IO;
+using System.Globalization;
+using ClosedXML.Excel;
 
 namespace medical_appointment_system.Controllers
 {
@@ -291,6 +296,271 @@ namespace medical_appointment_system.Controllers
             }
 
             return RedirectToAction("Historial");
+        }
+
+        public ActionResult ExportAllAppointmentsToPDF()
+        {
+            var list = appointmentService.ExecuteRead("GET_ALL", new Appointment());
+            return ExportToPDF(list, "Lista de citas", "administrador");
+        }
+
+        public ActionResult ExportMyAppointmentsToPDF()
+        {
+            var list = GetAppointmentsByStatus("confirmada", "GET_BY_USER_AND_STATUS");
+            return ExportToPDF(list, "Mis citas", user.ActiveRole);
+        }
+
+        public ActionResult ExportPendingAppointmentsToPDF()
+        {
+            var list = GetAppointmentsByStatus("pendiente", "GET_BY_USER_AND_STATUS");
+            return ExportToPDF(list, "Citas pendientes", user.ActiveRole);
+        }
+
+        public ActionResult ExportHistorialAppointmentsToPDF()
+        {
+            var list = GetAppointmentsByStatus(null, "GET_COMPLETED_OR_CANCELLED_BY_USER");
+            return ExportToPDF(list, "Historial de citas", user.ActiveRole);
+        }
+        public ActionResult ExportAllAppointmentsToExcel()
+        {
+            var list = appointmentService.ExecuteRead("GET_ALL", new Appointment());
+            return ExportToExcel(list, "Lista de citas", "administrador");
+        }
+
+        public ActionResult ExportMyAppointmentsToExcel()
+        {
+            var list = GetAppointmentsByStatus("confirmada", "GET_BY_USER_AND_STATUS");
+            return ExportToExcel(list, "Mis citas", user.ActiveRole);
+        }
+
+        public ActionResult ExportPendingAppointmentsToExcel()
+        {
+            var list = GetAppointmentsByStatus("pendiente", "GET_BY_USER_AND_STATUS");
+            return ExportToExcel(list, "Citas pendientes", user.ActiveRole);
+        }
+
+        public ActionResult ExportHistorialAppointmentsToExcel()
+        {
+            var list = GetAppointmentsByStatus(null, "GET_COMPLETED_OR_CANCELLED_BY_USER");
+            return ExportToExcel(list, "Historial de citas", user.ActiveRole);
+        }
+
+        private FileResult ExportToPDF(List<Appointment> appointments, string title, string userRole)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var doc = new Document(PageSize.A4, 36, 36, 36, 36);
+                PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                var smallFont = FontFactory.GetFont("Arial", 9, Font.NORMAL);
+                var boldFont = FontFactory.GetFont("Arial", 10, Font.BOLD, BaseColor.WHITE);
+                var titleFont = FontFactory.GetFont("Arial", 14, Font.BOLD);
+
+                var now = DateTime.Now;
+                string date = now.ToString("dd MMM yyyy");
+                string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
+
+                var headerTable = new PdfPTable(3) { WidthPercentage = 100, SpacingBefore = 5f, SpacingAfter = 10f };
+                headerTable.SetWidths(new float[] { 2f, 6f, 2f });
+
+                headerTable.AddCell(new PdfPCell(new Phrase(date, smallFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, PaddingTop = 4, PaddingBottom = 4 });
+                headerTable.AddCell(new PdfPCell(new Phrase(title, titleFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, PaddingTop = 4, PaddingBottom = 4 });
+                headerTable.AddCell(new PdfPCell(new Phrase(time, smallFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, PaddingTop = 4, PaddingBottom = 4 });
+
+                doc.Add(headerTable);
+
+                bool hideDoctor = userRole == "medico";
+                bool hidePatient = userRole == "paciente";
+
+                var headers = new List<string> { "Código", "Especialidad" };
+                if (!hideDoctor) headers.Add("Médico");
+                if (!hidePatient) headers.Add("Paciente");
+                headers.AddRange(new[] { "Tipo consulta", "Fecha cita", "Horario cita", "Estado" });
+
+                var table = new PdfPTable(headers.Count) { WidthPercentage = 100, SpacingBefore = 5f };
+                table.SetWidths(Enumerable.Repeat(1f, headers.Count).ToArray());
+
+                var headerColor = new BaseColor(0x0a, 0x76, 0xd8);
+                foreach (var h in headers)
+                {
+                    var cell = new PdfPCell(new Phrase(h, boldFont))
+                    {
+                        BackgroundColor = headerColor,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        Padding = 5
+                    };
+                    table.AddCell(cell);
+                }
+
+                foreach (var a in appointments)
+                {
+                    table.AddCell(new PdfPCell(new Phrase(a.AppointmentId.ToString(), smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(a.SpecialtyName, smallFont)) { Padding = 4 });
+                    if (!hideDoctor) table.AddCell(new PdfPCell(new Phrase(a.DoctorName, smallFont)) { Padding = 4 });
+                    if (!hidePatient) table.AddCell(new PdfPCell(new Phrase(a.PatientName, smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(a.ConsultationType.ToLower()), smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(a.Date.ToString("dd MMM yyyy"), smallFont)) { Padding = 4 });
+
+                    var startTime = DateTime.Today.Add(a.Time);
+                    var endTime = startTime.AddHours(1);
+                    var timeRange = $"{startTime:hh:mm tt} - {endTime:hh:mm tt}";
+                    table.AddCell(new PdfPCell(new Phrase(timeRange, smallFont)) { Padding = 4 });
+
+                    var status = a.Status?.Trim().ToLower();
+                    string statusText = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status ?? "Desconocido");
+                    BaseColor statusColor;
+
+                    switch (status)
+                    {
+                        case "confirmada":
+                            statusColor = new BaseColor(13, 110, 253);
+                            break;
+                        case "pendiente":
+                            statusColor = new BaseColor(255, 193, 7);
+                            break;
+                        case "cancelada":
+                            statusColor = new BaseColor(220, 53, 69);
+                            break;
+                        case "atendida":
+                            statusColor = new BaseColor(25, 135, 84);
+                            break;
+                        default:
+                            statusColor = BaseColor.DARK_GRAY;
+                            break;
+                    }
+
+                    var statusFont = FontFactory.GetFont("Arial", 9, Font.BOLD, statusColor);
+                    table.AddCell(new PdfPCell(new Phrase(statusText, statusFont)) { Padding = 4, HorizontalAlignment = Element.ALIGN_CENTER });
+                }
+
+                doc.Add(table);
+                doc.Close();
+
+                return File(ms.ToArray(), "application/pdf", $"{title.Replace(" ", "_")}.pdf");
+            }
+        }
+
+        private FileResult ExportToExcel(List<Appointment> appointments, string title, string userRole)
+        {
+            var stream = new MemoryStream();
+
+            using (var workbook = new XLWorkbook())
+            {
+                var sheet = workbook.Worksheets.Add("Citas");
+
+                var now = DateTime.Now;
+                string date = now.ToString("dd MMM yyyy");
+                string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
+
+                bool hideDoctor = userRole == "medico";
+                bool hidePatient = userRole == "paciente";
+
+                var headers = new List<string> { "Código", "Especialidad" };
+                if (!hideDoctor) headers.Add("Médico");
+                if (!hidePatient) headers.Add("Paciente");
+                headers.AddRange(new[] { "Tipo consulta", "Fecha cita", "Horario cita", "Estado" });
+
+                int totalCols = headers.Count;
+
+                sheet.Cell(1, 1).Value = date;
+                sheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                sheet.Cell(1, 1).Style.Font.FontSize = 10;
+
+                if (totalCols >= 3)
+                {
+                    sheet.Range(sheet.Cell(1, 2), sheet.Cell(1, totalCols - 1)).Merge();
+                    sheet.Cell(1, 2).Value = title;
+                    sheet.Cell(1, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    sheet.Cell(1, 2).Style.Font.Bold = true;
+                    sheet.Cell(1, 2).Style.Font.FontSize = 14;
+                }
+                else
+                {
+                    sheet.Cell(1, 2).Value = title;
+                    sheet.Cell(1, 2).Style.Font.Bold = true;
+                    sheet.Cell(1, 2).Style.Font.FontSize = 14;
+                }
+
+                sheet.Cell(1, totalCols).Value = time;
+                sheet.Cell(1, totalCols).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                sheet.Cell(1, totalCols).Style.Font.FontSize = 10;
+
+                for (int i = 0; i < headers.Count; i++)
+                {
+                    var cell = sheet.Cell(3, i + 1);
+                    cell.Value = headers[i];
+                    cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0a76d8");
+                    cell.Style.Font.FontColor = XLColor.White;
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Font.FontSize = 10;
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Border.OutsideBorderColor = XLColor.Black;
+                }
+
+                int row = 4;
+                foreach (var a in appointments)
+                {
+                    int col = 1;
+                    sheet.Cell(row, col++).Value = a.AppointmentId;
+                    sheet.Cell(row, col++).Value = a.SpecialtyName;
+                    if (!hideDoctor) sheet.Cell(row, col++).Value = a.DoctorName;
+                    if (!hidePatient) sheet.Cell(row, col++).Value = a.PatientName;
+                    sheet.Cell(row, col++).Value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(a.ConsultationType.ToLower());
+                    sheet.Cell(row, col++).Value = a.Date.ToString("dd MMM yyyy");
+
+                    var startTime = DateTime.Today.Add(a.Time);
+                    var endTime = startTime.AddHours(1);
+                    sheet.Cell(row, col++).Value = $"{startTime:hh:mm tt} - {endTime:hh:mm tt}";
+
+                    var status = a.Status?.Trim().ToLower() ?? "desconocido";
+                    var statusCell = sheet.Cell(row, col);
+                    statusCell.Value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status);
+                    statusCell.Style.Font.Bold = true;
+
+                    var statusColor = XLColor.Gray;
+                    switch (status)
+                    {
+                        case "confirmada":
+                            statusColor = XLColor.FromHtml("#0d6efd");
+                            break;
+                        case "pendiente":
+                            statusColor = XLColor.FromHtml("#ffc107");
+                            break;
+                        case "cancelada":
+                            statusColor = XLColor.FromHtml("#dc3545");
+                            break;
+                        case "atendida":
+                            statusColor = XLColor.FromHtml("#198754");
+                            break;
+                    }
+
+                    statusCell.Style.Font.FontColor = statusColor;
+
+                    for (int c = 1; c <= headers.Count; c++)
+                    {
+                        var cell = sheet.Cell(row, c);
+                        cell.Style.Font.FontSize = 9;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.OutsideBorderColor = XLColor.Black;
+                    }
+
+                    row++;
+                }
+
+                sheet.Columns().AdjustToContents();
+                workbook.SaveAs(stream);
+            }
+
+            stream.Position = 0;
+            return File(
+                stream,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"{title.Replace(" ", "_")}.xlsx"
+            );
         }
     }
 }
