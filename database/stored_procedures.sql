@@ -656,13 +656,12 @@ BEGIN
 				@formatted_time, ' ', @ampm
 			);
 
-			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
+			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, CreatedAt)
 			VALUES (
 				@doctor_id,
 				@patient_id,
 				@appointment_id,
 				@message,
-				0,
 				GETDATE()
 			);
 
@@ -745,13 +744,12 @@ BEGIN
 				' ha sido cancelada.'
 			);
 
-			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
+			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, CreatedAt)
 			VALUES (
 				@notif_doctor_id,
 				@notif_patient_id,
 				@appointment_id,
 				@message,
-				0,
 				GETDATE()
 			);
 
@@ -809,13 +807,12 @@ BEGIN
 				' ha sido confirmada.'
 			);
 
-			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, IsRead, CreatedAt)
+			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, CreatedAt)
 			VALUES (
 				@notif_doctor_id,
 				@notif_patient_id,
 				@appointment_id,
 				@message,
-				0,
 				GETDATE()
 			);
 
@@ -1063,50 +1060,45 @@ CREATE OR ALTER PROCEDURE Notification_CRUD
     @role VARCHAR(20) = NULL
 AS
 BEGIN
-    SET NOCOUNT ON;
+SET NOCOUNT ON;
 
-    IF @indicator = 'GET_UNREAD_DOC'
-    BEGIN
-        SELECT *
-        FROM Notifications
-        WHERE 
-            IsRead = 0 AND
-            DoctorId = @doctor_id AND
-            Message LIKE 'Nueva cita%'
-        ORDER BY CreatedAt DESC;
+	IF @indicator = 'GET_ALL_DOC_NOTIFICATIONS'
+	BEGIN
+		SELECT *
+		FROM Notifications
+		WHERE 
+			DoctorId = @doctor_id AND
+			Message LIKE 'Nueva cita%'
+		ORDER BY CreatedAt DESC;
 
-        RETURN;
-    END
+		RETURN;
+	END
 
-    IF @indicator = 'GET_UNREAD_PA'
-    BEGIN
-        SELECT *
-        FROM Notifications
-        WHERE 
-            IsRead = 0 AND
-            PatientId = @pacient_id AND
-            (
-                Message LIKE '%confirmada%' OR
-                Message LIKE '%cancelada%'
-            )
-        ORDER BY CreatedAt DESC;
+	IF @indicator = 'GET_ALL_PA_NOTIFICATIONS'
+	BEGIN
+		SELECT *
+		FROM Notifications
+		WHERE 
+			PatientId = @pacient_id AND
+			(
+				Message LIKE '%confirmada%' OR
+				Message LIKE '%cancelada%'
+			)
+		ORDER BY CreatedAt DESC;
 
-        RETURN;
-    END
+		RETURN;
+	END
 
-    ELSE IF @indicator = 'MARK_AS_READ'
-    BEGIN
-        UPDATE Notifications
-        SET IsRead = 1
-        WHERE NotificationId = @notification_id;
+	ELSE IF @indicator = 'DELETE_BY_ID'
+	BEGIN
+		DELETE FROM Notifications WHERE NotificationId = @notification_id;
+		RETURN;
+	END
 
-        RETURN;
-    END
-
-    ELSE
-    BEGIN
-        RAISERROR('Acción no válida: %s', 16, 1, @indicator);
-        RETURN;
-    END
+	ELSE
+	BEGIN
+		RAISERROR('Acción no válida: %s', 16, 1, @indicator);
+		RETURN;
+	END
 END
 GO

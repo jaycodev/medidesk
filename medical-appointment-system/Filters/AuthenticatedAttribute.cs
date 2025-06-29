@@ -43,6 +43,7 @@ namespace medical_appointment_system.Filters
                 "appointments/exporthistorialappointmentstoexcel",
                 "schedules/*",
                 "profile/*",
+                "notifications/delete",
                 "error/show"
             },
             ["paciente"] = new List<string>
@@ -63,6 +64,7 @@ namespace medical_appointment_system.Filters
                 "appointments/exporthistorialappointmentstoexcel",
                 "appointments/exporttoexcel",
                 "profile/*",
+                "notifications/delete",
                 "error/show"
             }
         };

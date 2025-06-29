@@ -84,7 +84,6 @@ CREATE TABLE Notifications (
     PatientId INT NOT NULL,
     AppointmentId INT NOT NULL,
     Message VARCHAR(500),
-    IsRead BIT DEFAULT 0,
     CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (DoctorId) REFERENCES Users(User_Id),
     FOREIGN KEY (PatientId) REFERENCES Users(User_Id),

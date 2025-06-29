@@ -11,13 +11,13 @@
         {
             noti.DoctorId = user.UserId;
             noti.Role = "medico";
-            notifications = notificationService.ExecuteRead("GET_UNREAD_DOC", noti);
+            notifications = notificationService.ExecuteRead("GET_ALL_DOC_NOTIFICATIONS", noti);
         }
         else if (user.ActiveRole == "paciente")
         {
             noti.PatientId = user.UserId;
             noti.Role = "paciente";
-            notifications = notificationService.ExecuteRead("GET_UNREAD_PA", noti);
+            notifications = notificationService.ExecuteRead("GET_ALL_PA_NOTIFICATIONS", noti);
         }
     }
 
@@ -85,104 +85,89 @@
                 <input type="search"
                        class="form-control mx-auto d-block d-lg-none me-sm-5"
                        placeholder="Buscar..."
-                       style="max-width: 200px; transform: translateX(-25px);"
-                >
+                       style="max-width: 200px; transform: translateX(-25px);">
             </div>
 
             <!-- Right section: Change theme and user -->
             <div class="d-flex align-items-center justify-content-end gap-3 ms-auto">
                 @Html.Partial("_ToggleTheme")
 
-                @{
-                    if (user != null && !string.IsNullOrEmpty(user.ActiveRole))
-                    {
-                        var notificationService = new medical_appointment_system.Services.NotificationService();
-                        medical_appointment_system.Models.Notification noti = new medical_appointment_system.Models.Notification();
-                        if (user.ActiveRole == "medico")
-                        {
-                            noti.DoctorId = user.UserId;
-                            noti.Role = "medico";
-                            notifications = notificationService.ExecuteRead("GET_UNREAD_DOC", noti);
-                        }
-                        else if (user.ActiveRole == "paciente")
-                        {
-                            noti.PatientId = user.UserId;
-                            noti.Role = "paciente";
-                            notifications = notificationService.ExecuteRead("GET_UNREAD_PA", noti);
-                        }
-                    }
-                }
-
-                <div class="dropdown">
-                    <button class="btn btn-link nav-link position-relative link-body-emphasis" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-bell"></i>
-                        @if (notifications.Any())
-                        {
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                @notifications.Count
-                            </span>
-                        }
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end p-2" style="width: 330px;">
-                        @if (notifications.Any())
-                        {
-                            var total = notifications.Count;
-                            var index = 0;
-
-                            foreach (var n in notifications)
+                @if (user?.ActiveRole != "administrador")
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-link nav-link position-relative link-body-emphasis" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-bell"></i>
+                            @if (notifications.Any())
                             {
-                                index++;
-
-                                string badgeClass = "";
-                                string iconClass = "";
-                                string label = "";
-
-                                if (n.Message.Contains("solicitada"))
-                                {
-                                    badgeClass = "bg-warning-subtle border-warning-subtle text-warning-emphasis";
-                                    iconClass = "fa-hourglass-half";
-                                    label = "Pendiente";
-                                }
-                                else if (n.Message.Contains("cancelada"))
-                                {
-                                    badgeClass = "bg-danger-subtle border-danger-subtle text-danger-emphasis";
-                                    iconClass = "fa-ban";
-                                    label = "Cancelada";
-                                }
-                                else if (n.Message.Contains("confirmada"))
-                                {
-                                    badgeClass = "bg-success-subtle border-success-subtle text-success-emphasis";
-                                    iconClass = "fa-calendar-check";
-                                    label = "Confirmada";
-                                }
-
-                                var liClass = (index < total) ? "mb-2" : "";
-
-                                <li class="@liClass">
-                                    <a class="dropdown-item rounded text-wrap" href="@Url.Action("Details", "Appointments", new { id = n.AppointmentId })">
-                                        <div class="d-flex flex-column text-break text-body-emphasis">
-                                            <span class="badge border @badgeClass rounded-pill mb-1 w-fit-content">
-                                                <i class="fa-solid @iconClass me-1"></i> @label
-                                            </span>
-                                            <span>@n.Message</span>
-                                        </div>
-                                        @{
-                                            var culture = new System.Globalization.CultureInfo("es-ES");
-                                            var fecha = n.CreatedAt.ToString("dd MMM yyyy", culture);
-                                            var hora = n.CreatedAt.ToString("hh:mm", culture);
-                                            var ampm = n.CreatedAt.ToString("tt", System.Globalization.CultureInfo.InvariantCulture) == "AM" ? "a. m." : "p. m.";
-                                        }
-                                        <small>@fecha - @hora @ampm</small>
-                                    </a>
-                                </li>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @notifications.Count
+                                </span>
                             }
-                        }
-                        else
-                        {
-                            <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
-                        }
-                    </ul>
-                </div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-2" style="width: 330px;">
+                            @if (notifications.Any())
+                            {
+                                var total = notifications.Count;
+                                var index = 0;
+
+                                foreach (var n in notifications)
+                                {
+                                    index++;
+
+                                    string badgeClass = "";
+                                    string iconClass = "";
+                                    string label = "";
+
+                                    if (n.Message.Contains("solicitada"))
+                                    {
+                                        badgeClass = "bg-warning-subtle border-warning-subtle text-warning-emphasis";
+                                        iconClass = "fa-hourglass-half";
+                                        label = "Pendiente";
+                                    }
+                                    else if (n.Message.Contains("cancelada"))
+                                    {
+                                        badgeClass = "bg-danger-subtle border-danger-subtle text-danger-emphasis";
+                                        iconClass = "fa-ban";
+                                        label = "Cancelada";
+                                    }
+                                    else if (n.Message.Contains("confirmada"))
+                                    {
+                                        badgeClass = "bg-success-subtle border-success-subtle text-success-emphasis";
+                                        iconClass = "fa-calendar-check";
+                                        label = "Confirmada";
+                                    }
+
+                                    var liClass = (index < total) ? "mb-2" : "";
+
+                                    <li class="@liClass">
+                                        <a class="dropdown-item rounded text-wrap notification-link"
+                                           href="@Url.Action("Details", "Appointments", new { id = n.AppointmentId })"
+                                           data-id="@n.NotificationId"
+                                           data-href="@Url.Action("Details", "Appointments", new { id = n.AppointmentId })">
+                                            <div class="d-flex flex-column text-break text-body-emphasis">
+                                                <span class="badge border @badgeClass rounded-pill mb-1 w-fit-content">
+                                                    <i class="fa-solid @iconClass me-1"></i> @label
+                                                </span>
+                                                <span>@n.Message</span>
+                                            </div>
+                                            @{
+                                                var culture = new System.Globalization.CultureInfo("es-ES");
+                                                var fecha = n.CreatedAt.ToString("dd MMM yyyy", culture);
+                                                var hora = n.CreatedAt.ToString("hh:mm", culture);
+                                                var ampm = n.CreatedAt.ToString("tt", System.Globalization.CultureInfo.InvariantCulture) == "AM" ? "a. m." : "p. m.";
+                                            }
+                                            <small>@fecha - @hora @ampm</small>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
+                            }
+                        </ul>
+                    </div>
+                }
 
                 <div class="dropdown">
                     <button type="button" class="btn btn-link nav-link d-flex align-items-center link-body-emphasis" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
@@ -346,5 +331,29 @@
             });
         </script>
     }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.notification-link').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const notiId = this.getAttribute('data-id');
+                    const href = this.getAttribute('data-href');
+
+                    fetch('/notifications/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: notiId })
+                    })
+                        .then(() => {
+                            window.location.href = href;
+                        });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
