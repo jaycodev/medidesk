@@ -132,9 +132,15 @@
                                     }
                                     else if (n.Message.Contains("confirmada"))
                                     {
-                                        badgeClass = "bg-success-subtle border-success-subtle text-success-emphasis";
+                                        badgeClass = "bg-primary-subtle border-primary-subtle text-primary-emphasis";
                                         iconClass = "fa-calendar-check";
                                         label = "Confirmada";
+                                    }
+                                    else if (n.Message.Contains("atendida"))
+                                    {
+                                        badgeClass = "bg-success-subtle border-success-subtle text-success-emphasis";
+                                        iconClass = "fa-check";
+                                        label = "Atendida";
                                     }
 
                                     var liClass = (index < total) ? "mb-2" : "";
@@ -348,9 +354,9 @@
                         },
                         body: JSON.stringify({ id: notiId })
                     })
-                        .then(() => {
-                            window.location.href = href;
-                        });
+                    .then(() => {
+                        window.location.href = href;
+                    });
                 });
             });
         });

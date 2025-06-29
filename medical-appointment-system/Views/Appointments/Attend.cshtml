@@ -2,17 +2,91 @@
 
 @{
     ViewBag.Title = "Atender cita";
+
+    var user = Session["user"] as medical_appointment_system.Models.User;
+    var culture = new System.Globalization.CultureInfo("es-PE");
+    var formattedDate = Model.Date.ToString("dd MMM yyyy", culture);
+    var startTime = DateTime.Today.Add(Model.Time);
+    var endTime = startTime.AddHours(1);
+    var formattedSchedule = $"{startTime:hh:mm tt} - {endTime:hh:mm tt}";
+
+    var type = Model.ConsultationType?.ToLower() ?? "";
+    var typeIcon = "fa-question-circle";
+
+    switch (type)
+    {
+        case "consulta":
+            typeIcon = "fa-stethoscope";
+            break;
+        case "examen":
+            typeIcon = "fa-file-waveform";
+            break;
+        case "operacion":
+            typeIcon = "fa-syringe";
+            break;
+    }
+
+    var typeText = char.ToUpper(type[0]) + type.Substring(1);
 }
 
-<h4 class="text-center mb-3 text-body-emphasis">
-    <i class="fa-solid fa-user-doctor me-1"></i>
-    Atender cita
+<h4 class="mb-4 text-center text-body-emphasis">
+    <i class="fa-solid fa-circle-exclamation me-1 text-warning"></i>
+    ¿Estás seguro de que deseas atender esta cita?
 </h4>
+
+<div class="container">
+    <div class="row">
+        <dl class="row">
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.AppointmentId)</dt>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">@Model.AppointmentId</span>
+                </dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.SpecialtyName)</dt>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">@Model.SpecialtyName</span>
+                </dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.PatientName)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.PatientName)</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ConsultationType)</dt>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">
+                        <i class="fa-solid @typeIcon me-1"></i>
+                        @typeText
+                    </span>
+                </dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Date)</dt>
+                <dd class="text-body">@formattedDate</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Time)</dt>
+                <dd class="text-body">@formattedSchedule</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Symptoms)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Symptoms)</dd>
+            </div>
+        </dl>
+    </div>
+</div>
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-
     <div class="d-flex justify-content-end gap-2 mt-4">
         <button type="button" class="btn"
                 onclick="history.length > 1 ? history.back() : window.location.href='@Url.Action("Home", "Appointments")';">

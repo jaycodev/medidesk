@@ -829,6 +829,70 @@ BEGIN
 		RETURN;
 	END
 
+	ELSE IF @indicator = 'ATTEND'
+	BEGIN
+		BEGIN TRY
+			BEGIN TRANSACTION;
+
+			UPDATE Appointments
+			SET status = 'atendida'
+			WHERE appointment_id = @appointment_id
+			  AND status = 'confirmada';
+
+			IF @@ROWCOUNT = 0
+			BEGIN
+				ROLLBACK TRANSACTION;
+				SELECT 0 AS affected_rows;
+				RETURN;
+			END
+
+			SELECT 
+				@notif_patient_id = patient_id,
+				@notif_doctor_id = doctor_id,
+				@notif_date = date,
+				@notif_time = time
+			FROM Appointments
+			WHERE appointment_id = @appointment_id;
+
+			SET LANGUAGE Spanish;
+
+			SET @ampm = CASE 
+				WHEN DATEPART(HOUR, @notif_time) < 12 THEN 'a. m.' 
+				ELSE 'p. m.' 
+			END;
+
+			SET @formatted_time = FORMAT(@notif_time, 'hh\:mm');
+			SET @formatted_date = LOWER(FORMAT(@notif_date, 'dd MMM yyyy', 'es-ES'));
+
+			SET @message = CONCAT(
+				'Tu cita del ',
+				@formatted_date, ' - ',
+				@formatted_time, ' ', @ampm,
+				' fue atendida. ¡Gracias por asistir!'
+			);
+
+			INSERT INTO Notifications (DoctorId, PatientId, AppointmentId, Message, CreatedAt)
+			VALUES (
+				@notif_doctor_id,
+				@notif_patient_id,
+				@appointment_id,
+				@message,
+				GETDATE()
+			);
+
+			COMMIT TRANSACTION;
+
+			SELECT 1 AS affected_rows;
+		END TRY
+		BEGIN CATCH
+			IF @@TRANCOUNT > 0
+				ROLLBACK TRANSACTION;
+			THROW;
+		END CATCH
+
+		RETURN;
+	END
+
     ELSE IF @indicator = 'GET_BY_ID'
     BEGIN
         SELECT 
@@ -1082,7 +1146,8 @@ SET NOCOUNT ON;
 			PatientId = @pacient_id AND
 			(
 				Message LIKE '%confirmada%' OR
-				Message LIKE '%cancelada%'
+				Message LIKE '%cancelada%' OR
+				Message LIKE '%atendida%'
 			)
 		ORDER BY CreatedAt DESC;
 
