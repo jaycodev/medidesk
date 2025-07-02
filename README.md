@@ -1,11 +1,11 @@
 <h1 align="center">🏥 Medical Appointment System</h1>
 
 <p align="center">
-  <img src="https://github.com/jason-vila/medical-appointment-system/tree/main/medical-appointment-system/Content/Img/preview1.png" alt="Preview 1" width="800"/>
+  <img src="https://github.com/jason-vila/medical-appointment-system/blob/main/medical-appointment-system/Content/Img/preview1.png" alt="Preview 1" width="800"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/jason-vila/medical-appointment-system/tree/main/medical-appointment-system/Content/Img/preview2.png" alt="Preview 2" width="800"/>
+  <img src="https://github.com/jason-vila/medical-appointment-system/blob/main/medical-appointment-system/Content/Img/preview2.png" alt="Preview 2" width="800"/>
 </p>
 
 A modern, responsive, and secure web application for managing medical appointments. Designed for administrators, doctors, and patients with features like light/dark mode, user roles, calendar scheduling, and exportable reports.
