@@ -1,0 +1,5 @@
+<appSettings>
+	<add key="CloudinaryCloudName" value="your_cloud_name"/>
+	<add key="CloudinaryApiKey" value="your_api_key"/>
+	<add key="CloudinaryApiSecret" value="your_api_secret"/>
+</appSettings>
