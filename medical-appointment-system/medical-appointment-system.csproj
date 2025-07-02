@@ -291,6 +291,8 @@
     <Content Include="Scripts\color-modes.js" />
     <Content Include="Scripts\dataTable-init.js" />
     <Content Include="cloudinary.config" />
+    <Content Include="cloudinary.config.example" />
+    <Content Include="connectionStrings.config.example" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
