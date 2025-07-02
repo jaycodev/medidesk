@@ -282,6 +282,8 @@
     <Content Include="Content\Img\Avatars\8.jpg" />
     <Content Include="Content\Img\Avatars\9.jpg" />
     <Content Include="Content\Img\login-foto.jpg" />
+    <Content Include="Content\Img\preview1.png" />
+    <Content Include="Content\Img\preview2.png" />
     <Content Include="Content\Img\registrar-foto.jpg" />
     <Content Include="Global.asax" />
     <Content Include="connectionStrings.config" />
