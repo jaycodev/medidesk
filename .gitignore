@@ -1,65 +1,45 @@
-# Ignore bin and obj folders completely
-[Bb]in/
-[Oo]bj/
+# Build results
+Api/bin/
+Api/obj/
+Web/bin/
+Web/obj/
+[Dd]ebug/
+[Rr]elease/
 
-# Allow bin/roslyn folder structure
-!medical-appointment-system/bin/roslyn/
-!medical-appointment-system/bin/roslyn/**/
-
-# Allow only DLL and EXE files inside bin/roslyn
-!medical-appointment-system/bin/roslyn/*.dll
-!medical-appointment-system/bin/roslyn/*.exe
-
-# Explicitly ignore XML files everywhere, even in roslyn
-*.xml
-
-# Ignore all other binaries globally
-*.pdb
-*.cache
-*.ilk
-*.iobj
-*.ipdb
-
-# User-specific and IDE config files
+# Visual Studio
+.vs/
 *.user
 *.suo
+
+# User-specific files
+*.rsuser
 *.userosscache
-*.sln.docstates
-.vs/
-.idea/
-.vscode/
 
-# Web publish and temporary folders
-Publish/
-.IISExpress/
-Temporary ASP.NET Files/
-
-# NuGet
+# NuGet packages
 packages/
 *.nupkg
-*.snupkg
-*.nuspec
 
-# ReSharper and Rider
-_ReSharper*/
-*.DotSettings.user
+# Environment and secrets
+Api/appsettings.Development.json
+Api/appsettings.Local.json
+Web/appsettings.Development.json
+Web/appsettings.Local.json
+.env
+secrets.json
 
-# Coverage and test results
-*.coverage
-*.coveragexml
-*.dotCover
-TestResults/
-
-# Logs and temp
+# Logs
 *.log
-*.bak
-*.backup
+logs/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary files
 *.tmp
+*.temp
 
-# Connection strings and secrets
-**/connectionStrings.config
-*.config.user
-*.Publish.xml
-*.cer
-
-cloudinary.config
+# System files
+Thumbs.db
+.DS_Store

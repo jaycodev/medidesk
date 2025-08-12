@@ -1,11 +1,7 @@
-<h1 align="center">🏥 Medical Appointment System</h1>
+<h1 align="center">🏥 Medical Appointments</h1>
 
 <p align="center">
-  <img src="https://github.com/jason-vila/medical-appointment-system/blob/main/medical-appointment-system/Content/Img/preview1.png" alt="Preview 1" width="800"/>
-</p>
-
-<p align="center">
-  <img src="https://github.com/jason-vila/medical-appointment-system/blob/main/medical-appointment-system/Content/Img/preview2.png" alt="Preview 2" width="800"/>
+  <img src="https://github.com/jaycodev/medical-appointments/blob/main/Assets/readme.jpg" alt="Preview"/>
 </p>
 
 A modern, responsive, and secure web application for managing medical appointments. Designed for administrators, doctors, and patients with features like light/dark mode, user roles, calendar scheduling, and exportable reports.
@@ -27,8 +23,8 @@ Follow these steps to run the project locally:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/jason-vila-medical-appointment-system.git
-   cd jason-vila-medical-appointment-system/medical-appointment-system
+   git clone https://github.com/jaycodev/medical-appointments.git
+   cd medical-appointments
    ```
 
 2. **Copy and edit configuration files**
@@ -46,7 +42,7 @@ Follow these steps to run the project locally:
 
 4. **Run the project**
 
-   Open `medical-appointment-system.sln` in Visual Studio and run it (requires .NET Framework 4.7.2).
+   Open `MedicalAppointments.sln` in Visual Studio and run it (requires .NET Framework 4.7.2).
 
 ## 📁 Configuration
 
@@ -94,8 +90,8 @@ Used to connect to your local or remote SQL Server database:
 
 ## 🧑‍💻 Contributors
 
-<a href="https://github.com/jason-vila/medical-appointment-system/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=jason-vila/medical-appointment-system" />
+<a href="https://github.com/jaycodev/medical-appointments/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jaycodev/medical-appointments" />
 </a>
 
 ## 📄 License

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<connectionStrings>
-	<add name="DefaultConnection" connectionString="your_connection_string"/>
-</connectionStrings>
