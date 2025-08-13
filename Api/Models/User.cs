@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace medical_appointment_system.Models
+namespace Api.Models
 {
     public class User
     {

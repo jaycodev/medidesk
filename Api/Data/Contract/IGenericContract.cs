@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace medical_appointment_system.Dao
+﻿namespace Api.Data.Contract
 {
     public interface IGenericContract<T>
     {

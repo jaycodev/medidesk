@@ -1,3 +1,7 @@
+using Api.Data.Contract;
+using Api.Data.Repository;
+using Api.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
@@ -8,6 +12,9 @@ builder.Configuration
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IGenericContract<Doctor>, DoctorRepository>();
+builder.Services.AddScoped<IGenericContract<Specialty>, SpecialtyRepository>();
 
 var app = builder.Build();
 
