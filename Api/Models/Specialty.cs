@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace medical_appointment_system.Models
+namespace Api.Models
 {
     public class Specialty
     {
