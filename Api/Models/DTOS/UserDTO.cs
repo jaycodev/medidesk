@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models
+namespace Api.Models.DTOS
 {
-    public class User
+    public class UserDTO
     {
-        [Display(Name = "Código")]
-        public int UserId { get; set; }
 
         [Display(Name = "Nombre(s)")]
         [Required(ErrorMessage = "Ingrese un(os) nombre(s)")]
@@ -31,29 +27,5 @@ namespace Api.Models
         [Display(Name = "Teléfono")]
         [RegularExpression(@"^\d{9,}$", ErrorMessage = "Ingrese al menos 9 dígitos numéricos")]
         public string Phone { get; set; }
-
-        [Display(Name = "Rol(es)")]
-        [Required(ErrorMessage = "Seleccione una combinación de rol(es)")]
-        public string SelectedRoleCombo { get; set; }
-
-        [Display(Name = "Rol(es)")]
-        public List<string> Roles { get; set; } = new List<string>();
-
-        [Display(Name = "Foto perfil")]
-        public string ProfilePicture { get; set; }
-
-        public string currentPassword { get; set; }
-
-        public string ActiveRole { get; set; }
-
-        public int? SpecialtyId { get; set; }
-        
-        public bool? Status { get; set; }
-        
-        public DateTime? BirthDate { get; set; }
-
-        public string BloodType { get; set; }
-
-        public bool CanDelete { get; set; }
     }
 }
