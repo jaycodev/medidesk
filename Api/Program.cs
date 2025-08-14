@@ -18,6 +18,8 @@ builder.Services.AddScoped<IGenericContract<Specialty>, SpecialtyRepository>();
 builder.Services.AddScoped<IGenericContract<User>, UserRepository>();
 builder.Services.AddScoped<IGenericContract<Schedule>, ScheduleRepository>();
 builder.Services.AddScoped<IGenericContract<Patient>, PatientRepository>();
+builder.Services.AddScoped<IGenericContract<Appointment>, AppointmentRepository>();
+builder.Services.AddScoped<IGenericContract<Notification>, NotificationRepository>();
 
 var app = builder.Build();
 
