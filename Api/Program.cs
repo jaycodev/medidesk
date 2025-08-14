@@ -15,6 +15,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IGenericContract<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IGenericContract<Specialty>, SpecialtyRepository>();
+builder.Services.AddScoped<IGenericContract<User>, UserRepository>();
 
 var app = builder.Build();
 
