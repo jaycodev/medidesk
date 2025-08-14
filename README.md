@@ -1,5 +1,3 @@
-<h1 align="center">🏥 Medical Appointments</h1>
-
 <p align="center">
   <img src="https://github.com/jaycodev/medical-appointments/blob/main/Assets/readme.jpg" alt="Preview"/>
 </p>
