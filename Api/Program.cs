@@ -1,5 +1,7 @@
 using Api.Data.Contract;
 using Api.Data.Repository;
+using Api.Domains.Doctors.Repositories;
+using Api.Domains.Specialties.Repositories;
 using Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +15,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IGenericContract<Doctor>, DoctorRepository>();
-builder.Services.AddScoped<IGenericContract<Specialty>, SpecialtyRepository>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 builder.Services.AddScoped<IGenericContract<User>, UserRepository>();
 builder.Services.AddScoped<IGenericContract<Schedule>, ScheduleRepository>();
 builder.Services.AddScoped<IGenericContract<Patient>, PatientRepository>();

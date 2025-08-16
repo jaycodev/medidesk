@@ -271,10 +271,15 @@ CREATE OR ALTER PROCEDURE Specialty_CRUD
     @indicator VARCHAR(20),
     @specialty_id INT = NULL,
     @name VARCHAR(100) = NULL,
-    @description VARCHAR(255) = NULL
+    @description VARCHAR(255) = NULL,
+	@new_id        INT = NULL OUTPUT,
+    @affected_rows INT = NULL OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
+
+	SET @new_id = NULL;
+    SET @affected_rows = NULL;
 
     IF @indicator = 'GET_ALL'
     BEGIN
@@ -296,7 +301,7 @@ BEGIN
 		INSERT INTO Specialties (name, description)
 		VALUES (@name, @description);
 
-		SELECT @@ROWCOUNT AS affected_rows;
+		SET @new_id = SCOPE_IDENTITY();
 
 		RETURN;
 	END
@@ -308,7 +313,7 @@ BEGIN
 			description = @description
 		WHERE specialty_id = @specialty_id;
 
-		SELECT @@ROWCOUNT AS affected_rows;
+		SET @affected_rows = @@ROWCOUNT;
 
 		RETURN;
 	END
@@ -336,18 +341,23 @@ CREATE OR ALTER PROCEDURE Doctor_CRUD
     @phone VARCHAR(20) = NULL,
     @specialty_id INT = NULL,
     @profile_picture VARCHAR(255) = NULL,
-    @status BIT = 1
+    @status BIT = 1,
+	@new_id INT = NULL OUTPUT,
+    @error_message NVARCHAR(4000) = NULL OUTPUT 
 AS
 BEGIN
 	SET NOCOUNT ON;
 
+	SET @new_id = NULL;
+    SET @error_message = NULL;
+
 	IF @indicator = 'INSERT'
 	BEGIN
-		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
-		BEGIN
-			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
-			RETURN;
-		END
+	    IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
+        BEGIN
+            SET @error_message = N'El correo ya está registrado. Por favor, ingrese otro.';
+            RETURN;
+        END
 
 		BEGIN TRY
 			BEGIN TRANSACTION;
@@ -355,22 +365,24 @@ BEGIN
 			INSERT INTO Users (first_name, last_name, email, password, phone)
 			VALUES (@first_name, @last_name, @email, @password, @phone);
 
-			SET @user_id = SCOPE_IDENTITY();
+			SET @new_id = CAST(SCOPE_IDENTITY() AS INT);
 
 			INSERT INTO Doctors (user_id, specialty_id, status)
-			VALUES (@user_id, @specialty_id, @status);
+			VALUES (@new_id, @specialty_id, @status);
 
 			INSERT INTO UserRoles (user_id, role)
-			VALUES (@user_id, 'medico');
+			VALUES (@new_id, 'medico');
 
 			COMMIT TRANSACTION;
 
-			SELECT 1 AS affected_rows;
+			SELECT @new_id AS new_id;
 		END TRY
 		BEGIN CATCH
-			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-			THROW;
-		END CATCH
+            IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+
+            SET @error_message = ERROR_MESSAGE();
+            RETURN;
+        END CATCH
 
 		RETURN;
 	END
