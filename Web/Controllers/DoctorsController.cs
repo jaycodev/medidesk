@@ -1,0 +1,386 @@
+﻿using System.Globalization;
+using ClosedXML.Excel;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using medical_appointment_system.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Web.Models.Doctors;
+
+namespace Web.Controllers
+{
+    public class DoctorsController : Controller
+    {
+        private readonly HttpClient _http;
+
+        public DoctorsController(IHttpClientFactory httpFactory)
+        {
+            _http = httpFactory.CreateClient("ApiClient");
+        }
+
+        private async Task<DoctorDetailDTO?> GetByIdAsync(int id)
+        {
+            var resp = await _http.GetAsync($"api/doctors/{id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                var doc = await resp.Content.ReadFromJsonAsync<DoctorDetailDTO>();
+                return doc;
+            }
+
+            return null;
+        }
+
+        private async Task LoadSpecialtiesAsync(int? selectedId = null)
+        {
+            try
+            {
+                var specialties = await _http.GetFromJsonAsync<List<Specialty>>("api/specialties");
+                ViewBag.Specialties = new SelectList(specialties ?? new List<Specialty>(), "SpecialtyId", "Name", selectedId);
+            }
+            catch
+            {
+                ViewBag.Specialties = new SelectList(new List<Specialty>(), "SpecialtyId", "Name", selectedId);
+            }
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var doctors = new List<DoctorListDTO>();
+            try
+            {
+                doctors = await _http.GetFromJsonAsync<List<DoctorListDTO>>("api/doctors") ?? new List<DoctorListDTO>();
+            }
+            catch
+            {
+            }
+
+            return View(doctors);
+        }
+
+        public async Task<ActionResult> Create()
+        {
+            await LoadSpecialtiesAsync();
+            return View(new CreateDoctorDTO());
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(CreateDoctorDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                await LoadSpecialtiesAsync(dto.SpecialtyId);
+                return View(dto);
+            }
+
+            try
+            {
+                var resp = await _http.PostAsJsonAsync("api/doctors", dto);
+
+                if (resp.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "¡Médico creado correctamente!";
+                    return RedirectToAction("Index");
+                }
+
+                var content = await resp.Content.ReadAsStringAsync();
+                ViewBag.Message = ExtractErrorMessage(content);
+            }
+            catch (ApplicationException ex)
+            {
+                ViewBag.Message = ex.Message;
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
+            }
+
+            await LoadSpecialtiesAsync(dto.SpecialtyId);
+            return View(dto);
+        }
+
+        public async Task<ActionResult> Edit(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Index");
+
+            var doctor = await GetByIdAsync(id);
+            if (doctor == null)
+                return RedirectToAction("Index");
+
+            await LoadSpecialtiesAsync(doctor.SpecialtyId);
+
+            ViewBag.StatusList = new SelectList(new[]
+            {
+                new { Value = true, Text = "Activo" },
+                new { Value = false, Text = "Inactivo" }
+            }, "Value", "Text", doctor.Status);
+
+            return View(doctor);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(DoctorDetailDTO dto)
+        {
+            await LoadSpecialtiesAsync(dto.SpecialtyId);
+
+            ViewBag.StatusList = new SelectList(new[]
+            {
+                new { Value = true, Text = "Activo" },
+                new { Value = false, Text = "Inactivo" }
+            }, "Value", "Text", dto.Status);
+
+            var toUpdate = new UpdateDoctorDTO();
+            toUpdate.SpecialtyId = dto.SpecialtyId;
+            toUpdate.Status = dto.Status;
+
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            try
+            {
+                var resp = await _http.PutAsJsonAsync($"api/doctors/{dto.UserId}", toUpdate);
+
+                if (resp.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "¡Médico actualizado correctamente!";
+                    return RedirectToAction("Index");
+                }
+
+                if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    ViewBag.Message = "Médico no encontrado o no se pudo actualizar";
+                }
+                else
+                {
+                    var content = await resp.Content.ReadAsStringAsync();
+                    ViewBag.Message = ExtractErrorMessage(content);
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
+            }
+
+            return View(dto);
+        }
+
+        public async Task<ActionResult> Details(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Index");
+
+            var doc = await GetByIdAsync(id);
+            if (doc == null)
+                return RedirectToAction("Index");
+
+            return View(doc);
+        }
+
+        private string ExtractErrorMessage(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return "No se pudo procesar la petición.";
+
+            try
+            {
+                if (content.Contains("\"message\""))
+                {
+                    var start = content.IndexOf("\"message\"", StringComparison.OrdinalIgnoreCase);
+                    var colon = content.IndexOf(':', start);
+                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
+                    return trimmed;
+                }
+
+                if (content.Contains("\"error\""))
+                {
+                    var start = content.IndexOf("\"error\"", StringComparison.OrdinalIgnoreCase);
+                    var colon = content.IndexOf(':', start);
+                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
+                    return trimmed;
+                }
+            }
+            catch
+            {
+
+            }
+
+            return content.Length > 300 ? content[..300] + "..." : content;
+        }
+
+        public async Task<ActionResult> ExportToPDF()
+        {
+            var doctors = await _http.GetFromJsonAsync<List<DoctorListDTO>>("api/doctors") ?? new List<DoctorListDTO>();
+
+            using (var ms = new System.IO.MemoryStream())
+            {
+                var doc = new Document(PageSize.A4, 36, 36, 36, 36);
+                PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                var smallFont = FontFactory.GetFont("Arial", 9, Font.NORMAL);
+                var boldFont = FontFactory.GetFont("Arial", 10, Font.BOLD, BaseColor.WHITE);
+                var titleFont = FontFactory.GetFont("Arial", 14, Font.BOLD);
+
+                var now = DateTime.Now;
+                string date = now.ToString("dd MMM yyyy");
+                string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
+
+                PdfPTable headerTable = new PdfPTable(3);
+                headerTable.WidthPercentage = 100;
+                headerTable.SpacingBefore = 5f;
+                headerTable.SpacingAfter = 10f;
+                headerTable.SetWidths(new float[] { 2f, 6f, 2f });
+
+                PdfPCell dateCell = new PdfPCell(new Phrase($"{date}", smallFont))
+                {
+                    Border = Rectangle.NO_BORDER,
+                    HorizontalAlignment = Element.ALIGN_LEFT,
+                    PaddingTop = 4,
+                    PaddingBottom = 4
+                };
+                PdfPCell titleCell = new PdfPCell(new Phrase("Lista de médicos", titleFont))
+                {
+                    Border = Rectangle.NO_BORDER,
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    PaddingTop = 4,
+                    PaddingBottom = 4
+                };
+                PdfPCell timeCell = new PdfPCell(new Phrase($"{time}", smallFont))
+                {
+                    Border = Rectangle.NO_BORDER,
+                    HorizontalAlignment = Element.ALIGN_RIGHT,
+                    PaddingTop = 4,
+                    PaddingBottom = 4
+                };
+
+                headerTable.AddCell(dateCell);
+                headerTable.AddCell(titleCell);
+                headerTable.AddCell(timeCell);
+                doc.Add(headerTable);
+
+                float[] columnWidths = { 1.5f, 2f, 2f, 3f, 2f, 2f };
+                var table = new PdfPTable(6)
+                {
+                    WidthPercentage = 100,
+                    SpacingBefore = 5f
+                };
+                table.SetWidths(columnWidths);
+
+                var headerColor = new BaseColor(0x0a, 0x76, 0xd8);
+                string[] headers = { "Código", "Nombre(s)", "Apellido(s)", "Correo electrónico", "Especialidad", "Estado" };
+                foreach (var h in headers)
+                {
+                    var cell = new PdfPCell(new Phrase(h, boldFont))
+                    {
+                        BackgroundColor = headerColor,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        Padding = 5
+                    };
+                    table.AddCell(cell);
+                }
+
+                foreach (var d in doctors)
+                {
+                    table.AddCell(new PdfPCell(new Phrase(d.UserId.ToString(), smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(d.FirstName, smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(d.LastName, smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(d.Email, smallFont)) { Padding = 4 });
+                    table.AddCell(new PdfPCell(new Phrase(d.SpecialtyName, smallFont)) { Padding = 4 });
+
+                    string statusText = d.Status ? "Activo" : "Inactivo";
+                    var statusColor = d.Status ? new BaseColor(40, 167, 69) : new BaseColor(220, 53, 69);
+                    var statusFont = FontFactory.GetFont("Arial", 9, Font.BOLD, statusColor);
+                    table.AddCell(new PdfPCell(new Phrase(statusText, statusFont)) { Padding = 4, HorizontalAlignment = Element.ALIGN_CENTER });
+                }
+
+                doc.Add(table);
+                doc.Close();
+
+                return File(ms.ToArray(), "application/pdf", "Medicos.pdf");
+            }
+        }
+
+        public async Task<ActionResult> ExportToExcel()
+        {
+            var doctors = await _http.GetFromJsonAsync<List<DoctorListDTO>>("api/doctors") ?? new List<DoctorListDTO>();
+
+            var stream = new MemoryStream();
+
+            using (var workbook = new XLWorkbook())
+            {
+                var sheet = workbook.Worksheets.Add("Médicos");
+
+                var now = DateTime.Now;
+                string date = now.ToString("dd MMM yyyy");
+                string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
+
+                sheet.Cell(1, 1).Value = date;
+                sheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                sheet.Cell(1, 1).Style.Font.FontSize = 10;
+
+                sheet.Range("B1:E1").Merge();
+                sheet.Cell(1, 2).Value = "Lista de médicos";
+                sheet.Cell(1, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                sheet.Cell(1, 2).Style.Font.Bold = true;
+                sheet.Cell(1, 2).Style.Font.FontSize = 14;
+
+                sheet.Cell(1, 6).Value = time;
+                sheet.Cell(1, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                sheet.Cell(1, 6).Style.Font.FontSize = 10;
+
+                var headers = new[] { "Código", "Nombre(s)", "Apellido(s)", "Correo electrónico", "Especialidad", "Estado" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    var cell = sheet.Cell(3, i + 1);
+                    cell.Value = headers[i];
+                    cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0a76d8");
+                    cell.Style.Font.FontColor = XLColor.White;
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Font.FontSize = 10;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Border.OutsideBorderColor = XLColor.Black;
+                }
+
+                int row = 4;
+                foreach (var d in doctors)
+                {
+                    sheet.Cell(row, 1).Value = d.UserId;
+                    sheet.Cell(row, 2).Value = d.FirstName;
+                    sheet.Cell(row, 3).Value = d.LastName;
+                    sheet.Cell(row, 4).Value = d.Email;
+                    sheet.Cell(row, 5).Value = d.SpecialtyName;
+
+                    var statusCell = sheet.Cell(row, 6);
+                    statusCell.Value = d.Status ? "Activo" : "Inactivo";
+                    statusCell.Style.Font.FontColor = d.Status ? XLColor.FromHtml("#28a745") : XLColor.FromHtml("#dc3545");
+                    statusCell.Style.Font.Bold = true;
+
+                    for (int c = 1; c <= 6; c++)
+                    {
+                        var cell = sheet.Cell(row, c);
+                        cell.Style.Font.FontSize = 9;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.OutsideBorderColor = XLColor.Black;
+                    }
+
+                    row++;
+                }
+
+                sheet.Columns().AdjustToContents();
+
+                workbook.SaveAs(stream);
+            }
+
+            stream.Position = 0;
+
+            return File(
+                stream,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "Medicos.xlsx"
+            );
+        }
+    }
+}

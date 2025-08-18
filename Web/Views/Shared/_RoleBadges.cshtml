@@ -1,0 +1,29 @@
+﻿@model IEnumerable<string>
+
+@foreach (var rol in Model)
+{
+    var r = rol?.ToLower();
+    var icon = "fa-user";
+    var text = "Desconocido";
+
+    switch (r)
+    {
+        case "paciente":
+            icon = "fa-bed-pulse";
+            text = "Paciente";
+            break;
+        case "medico":
+            icon = "fa-user-doctor";
+            text = "Médico";
+            break;
+        case "administrador":
+            icon = "fa-user-shield";
+            text = "Administrador";
+            break;
+    }
+
+    <span class="badge bg-body-tertiary text-body-emphasis border me-1">
+        <i class="fa-solid @icon me-1"></i>
+        @text
+    </span>
+}
