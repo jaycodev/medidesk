@@ -33,7 +33,7 @@ namespace Api.Domains.Specialties.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateSpecialtyDto dto)
+        public IActionResult Create([FromBody] CreateSpecialtyDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -50,7 +50,7 @@ namespace Api.Domains.Specialties.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] UpdateSpecialtyDto dto)
+        public IActionResult Update(int id, [FromBody] UpdateSpecialtyDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

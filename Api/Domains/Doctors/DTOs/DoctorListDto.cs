@@ -1,6 +1,6 @@
 ﻿namespace Api.Domains.Doctors.DTOs
 {
-    public class DoctorListDto
+    public class DoctorListDTO
     {
         public int UserId { get; set; }
         public string FirstName { get; set; } = string.Empty;

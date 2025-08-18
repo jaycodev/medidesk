@@ -7,7 +7,7 @@ namespace Api.Domains.Specialties.Repositories
     {
         List<Specialty> GetList();
         Specialty? GetById(int id);
-        int Create(CreateSpecialtyDto dto);
-        int Update(int id, UpdateSpecialtyDto dto);
+        int Create(CreateSpecialtyDTO dto);
+        int Update(int id, UpdateSpecialtyDTO dto);
     }
 }

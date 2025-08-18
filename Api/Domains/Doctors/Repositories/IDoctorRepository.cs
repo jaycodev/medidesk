@@ -4,9 +4,9 @@ namespace Api.Domains.Doctors.Repositories
 {
     public interface IDoctorRepository
     {
-        List<DoctorListDto> GetList();
-        DoctorDetailDto? GetById(int id);
-        (int newId, string? error) Create(CreateDoctorDto dto);
-        int Update(int id, UpdateDoctorDto dto);
+        List<DoctorListDTO> GetList();
+        DoctorDetailDTO? GetById(int id);
+        (int newId, string? error) Create(CreateDoctorDTO dto);
+        int Update(int id, UpdateDoctorDTO dto);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Api.Domains.Doctors.DTOs
 {
-    public class UpdateDoctorDto
+    public class UpdateDoctorDTO
     {
         public int SpecialtyId { get; set; }
         public bool Status { get; set; }

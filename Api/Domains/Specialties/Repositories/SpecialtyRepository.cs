@@ -64,7 +64,7 @@ namespace Api.Domains.Specialties.Repositories
             return null;
         }
 
-        public int Create(CreateSpecialtyDto dto)
+        public int Create(CreateSpecialtyDTO dto)
         {
             using var cn = GetConnection();
             cn.Open();
@@ -85,7 +85,7 @@ namespace Api.Domains.Specialties.Repositories
             return paramNewId.Value == DBNull.Value ? -1 : Convert.ToInt32(paramNewId.Value);
         }
 
-        public int Update(int id, UpdateSpecialtyDto dto)
+        public int Update(int id, UpdateSpecialtyDTO dto)
         {
             using var cn = GetConnection();
             cn.Open();

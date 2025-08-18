@@ -33,7 +33,7 @@ namespace Api.Domains.Doctors.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateDoctorDto dto)
+        public IActionResult Create([FromBody] CreateDoctorDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -53,7 +53,7 @@ namespace Api.Domains.Doctors.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] UpdateDoctorDto dto)
+        public IActionResult Update(int id, [FromBody] UpdateDoctorDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

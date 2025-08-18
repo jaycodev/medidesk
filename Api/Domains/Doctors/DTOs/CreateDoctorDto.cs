@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Api.Domains.Doctors.DTOs
+﻿namespace Api.Domains.Doctors.DTOs
 {
-    public class CreateDoctorDto
+    public class CreateDoctorDTO
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -12,9 +12,9 @@ namespace Api.Domains.Doctors.Repositories
 
         public DoctorRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<DoctorListDto> GetList()
+        public List<DoctorListDTO> GetList()
         {
-            var list = new List<DoctorListDto>();
+            var list = new List<DoctorListDTO>();
 
             using var cn = GetConnection();
             cn.Open();
@@ -27,7 +27,7 @@ namespace Api.Domains.Doctors.Repositories
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                list.Add(new DoctorListDto
+                list.Add(new DoctorListDTO
                 {
                     UserId = reader.SafeGetInt("user_id"),
                     FirstName = reader.SafeGetString("first_name"),
@@ -42,7 +42,7 @@ namespace Api.Domains.Doctors.Repositories
             return list;
         }
 
-        public DoctorDetailDto? GetById(int id)
+        public DoctorDetailDTO? GetById(int id)
         {
             using var cn = GetConnection();
             cn.Open();
@@ -56,7 +56,7 @@ namespace Api.Domains.Doctors.Repositories
             using var reader = cmd.ExecuteReader();
             if (reader.Read())
             {
-                return new DoctorDetailDto
+                return new DoctorDetailDTO
                 {
                     UserId = reader.SafeGetInt("user_id"),
                     FirstName = reader.SafeGetString("first_name"),
@@ -72,7 +72,7 @@ namespace Api.Domains.Doctors.Repositories
 
             return null;
         }
-        public (int newId, string? error) Create(CreateDoctorDto dto)
+        public (int newId, string? error) Create(CreateDoctorDTO dto)
         {
             using var cn = GetConnection();
             cn.Open();
@@ -114,7 +114,7 @@ namespace Api.Domains.Doctors.Repositories
             }
         }
 
-        public int Update(int id, UpdateDoctorDto dto)
+        public int Update(int id, UpdateDoctorDTO dto)
         {
             using var cn = GetConnection();
             cn.Open();
