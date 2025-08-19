@@ -5,7 +5,7 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
 
-    var user = new medical_appointment_system.Models.User
+    var user = new Web.Models.User.User
     {
         FirstName = "Demo",
         ActiveRole = "administrador"

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Web.Models.User;
 
 namespace medical_appointment_system.Models
 {

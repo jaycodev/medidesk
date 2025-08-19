@@ -1,4 +1,6 @@
-﻿namespace medical_appointment_system.Models.ViewModels
+﻿using Web.Models.User;
+
+namespace medical_appointment_system.Models.ViewModels
 {
     public class ProfileViewModel
     {

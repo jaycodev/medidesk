@@ -99,7 +99,9 @@ namespace Api.Domains.Users.Repository
                 LastName = reader.SafeGetString("last_name"),
                 Email = reader.SafeGetString("email"),
                 Phone = reader.SafeGetString("phone"),
-                Roles = reader.SafeGetString("roles")?.Split(',').ToList()
+                Roles = reader.SafeGetString("roles")?.Split(',').ToList(),
+                ProfilePicture = reader.SafeGetString("profile_picture")
+                
                });
             }
            return list;     
