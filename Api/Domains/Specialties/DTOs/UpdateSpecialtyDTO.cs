@@ -1,8 +1,8 @@
 ﻿namespace Api.Domains.Specialties.DTOs
 {
-    public class CreateSpecialtyDTO
+    public class UpdateSpecialtyDTO
     {
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }
