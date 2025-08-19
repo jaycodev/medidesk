@@ -9,9 +9,9 @@ namespace Api.Domains.Users.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUsers userDATA;
+        private readonly IUserRepository userDATA;
 
-        public UserController(IUsers usuario)
+        public UserController(IUserRepository usuario)
         {
             userDATA = usuario;
         }

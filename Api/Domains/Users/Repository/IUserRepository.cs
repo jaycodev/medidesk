@@ -4,7 +4,7 @@ using Api.Domains.Users.Models;
 
 namespace Api.Domains.Users.Repository
 {
-    public interface IUsers
+    public interface IUserRepository
     {
 
         List<User> GetList();
