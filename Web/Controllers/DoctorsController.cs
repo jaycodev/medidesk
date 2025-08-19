@@ -1,11 +1,18 @@
 ﻿using System.Globalization;
 using ClosedXML.Excel;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
+using iText.IO.Font.Constants;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.Kernel.Pdf;
+using iText.Layout.Properties;
+using iText.Kernel.Geom;
+using iText.Layout;
+using iText.Layout.Element;
 using medical_appointment_system.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Web.Models.Doctors;
+using iText.Layout.Borders;
 
 namespace Web.Controllers
 {
@@ -211,90 +218,119 @@ namespace Web.Controllers
         {
             var doctors = await _http.GetFromJsonAsync<List<DoctorListDTO>>("api/doctors") ?? new List<DoctorListDTO>();
 
-            using (var ms = new System.IO.MemoryStream())
+            using (var ms = new MemoryStream())
             {
-                var doc = new Document(PageSize.A4, 36, 36, 36, 36);
-                PdfWriter.GetInstance(doc, ms);
-                doc.Open();
+                var writer = new PdfWriter(ms);
+                var pdf = new PdfDocument(writer);
+                var document = new Document(pdf, PageSize.A4);
+                document.SetMargins(36, 36, 36, 36);
 
-                var smallFont = FontFactory.GetFont("Arial", 9, Font.NORMAL);
-                var boldFont = FontFactory.GetFont("Arial", 10, Font.BOLD, BaseColor.WHITE);
-                var titleFont = FontFactory.GetFont("Arial", 14, Font.BOLD);
+                PdfFont regularFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+                PdfFont boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+                const float smallFontSize = 9f;
+                const float headerFontSize = 10f;
+                const float titleFontSize = 14f;
 
                 var now = DateTime.Now;
                 string date = now.ToString("dd MMM yyyy");
                 string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
 
-                PdfPTable headerTable = new PdfPTable(3);
-                headerTable.WidthPercentage = 100;
-                headerTable.SpacingBefore = 5f;
-                headerTable.SpacingAfter = 10f;
-                headerTable.SetWidths(new float[] { 2f, 6f, 2f });
+                var headerTable = new Table(new float[] { 2f, 6f, 2f })
+                    .SetWidth(UnitValue.CreatePercentValue(100))
+                    .SetMarginTop(5)
+                    .SetMarginBottom(10);
 
-                PdfPCell dateCell = new PdfPCell(new Phrase($"{date}", smallFont))
-                {
-                    Border = Rectangle.NO_BORDER,
-                    HorizontalAlignment = Element.ALIGN_LEFT,
-                    PaddingTop = 4,
-                    PaddingBottom = 4
-                };
-                PdfPCell titleCell = new PdfPCell(new Phrase("Lista de médicos", titleFont))
-                {
-                    Border = Rectangle.NO_BORDER,
-                    HorizontalAlignment = Element.ALIGN_CENTER,
-                    PaddingTop = 4,
-                    PaddingBottom = 4
-                };
-                PdfPCell timeCell = new PdfPCell(new Phrase($"{time}", smallFont))
-                {
-                    Border = Rectangle.NO_BORDER,
-                    HorizontalAlignment = Element.ALIGN_RIGHT,
-                    PaddingTop = 4,
-                    PaddingBottom = 4
-                };
+                var dateCell = new Cell()
+                    .Add(new Paragraph(date).SetFont(regularFont).SetFontSize(smallFontSize))
+                    .SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.LEFT)
+                    .SetPaddingTop(4)
+                    .SetPaddingBottom(4);
+
+                var titleCell = new Cell()
+                    .Add(new Paragraph("Lista de médicos").SetFont(boldFont).SetFontSize(titleFontSize))
+                    .SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetPaddingTop(4)
+                    .SetPaddingBottom(4);
+
+                var timeCell = new Cell()
+                    .Add(new Paragraph(time).SetFont(regularFont).SetFontSize(smallFontSize))
+                    .SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.RIGHT)
+                    .SetPaddingTop(4)
+                    .SetPaddingBottom(4);
 
                 headerTable.AddCell(dateCell);
                 headerTable.AddCell(titleCell);
                 headerTable.AddCell(timeCell);
-                doc.Add(headerTable);
+
+                document.Add(headerTable);
 
                 float[] columnWidths = { 1.5f, 2f, 2f, 3f, 2f, 2f };
-                var table = new PdfPTable(6)
-                {
-                    WidthPercentage = 100,
-                    SpacingBefore = 5f
-                };
-                table.SetWidths(columnWidths);
+                var table = new Table(UnitValue.CreatePercentArray(columnWidths))
+                    .SetWidth(UnitValue.CreatePercentValue(100))
+                    .SetMarginTop(5);
 
-                var headerColor = new BaseColor(0x0a, 0x76, 0xd8);
+                var headerColor = new DeviceRgb(0x0a, 0x76, 0xd8);
                 string[] headers = { "Código", "Nombre(s)", "Apellido(s)", "Correo electrónico", "Especialidad", "Estado" };
+
                 foreach (var h in headers)
                 {
-                    var cell = new PdfPCell(new Phrase(h, boldFont))
-                    {
-                        BackgroundColor = headerColor,
-                        HorizontalAlignment = Element.ALIGN_CENTER,
-                        Padding = 5
-                    };
-                    table.AddCell(cell);
+                    var p = new Paragraph(h)
+                        .SetFont(boldFont)
+                        .SetFontSize(headerFontSize)
+                        .SetFontColor(ColorConstants.WHITE);
+
+                    var cell = new Cell()
+                        .Add(p)
+                        .SetBackgroundColor(headerColor)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPadding(5);
+
+                    table.AddHeaderCell(cell);
                 }
 
                 foreach (var d in doctors)
                 {
-                    table.AddCell(new PdfPCell(new Phrase(d.UserId.ToString(), smallFont)) { Padding = 4 });
-                    table.AddCell(new PdfPCell(new Phrase(d.FirstName, smallFont)) { Padding = 4 });
-                    table.AddCell(new PdfPCell(new Phrase(d.LastName, smallFont)) { Padding = 4 });
-                    table.AddCell(new PdfPCell(new Phrase(d.Email, smallFont)) { Padding = 4 });
-                    table.AddCell(new PdfPCell(new Phrase(d.SpecialtyName, smallFont)) { Padding = 4 });
+                    table.AddCell(new Cell()
+                        .Add(new Paragraph(d.UserId.ToString()).SetFont(regularFont).SetFontSize(smallFontSize))
+                        .SetPadding(4));
+
+                    table.AddCell(new Cell()
+                        .Add(new Paragraph(d.FirstName ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize))
+                        .SetPadding(4));
+
+                    table.AddCell(new Cell()
+                        .Add(new Paragraph(d.LastName ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize))
+                        .SetPadding(4));
+
+                    table.AddCell(new Cell()
+                        .Add(new Paragraph(d.Email ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize))
+                        .SetPadding(4));
+
+                    table.AddCell(new Cell()
+                        .Add(new Paragraph(d.SpecialtyName ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize))
+                        .SetPadding(4));
 
                     string statusText = d.Status ? "Activo" : "Inactivo";
-                    var statusColor = d.Status ? new BaseColor(40, 167, 69) : new BaseColor(220, 53, 69);
-                    var statusFont = FontFactory.GetFont("Arial", 9, Font.BOLD, statusColor);
-                    table.AddCell(new PdfPCell(new Phrase(statusText, statusFont)) { Padding = 4, HorizontalAlignment = Element.ALIGN_CENTER });
+                    var statusRgb = d.Status ? new DeviceRgb(40, 167, 69) : new DeviceRgb(220, 53, 69);
+
+                    var statusParagraph = new Paragraph(statusText)
+                        .SetFont(boldFont)
+                        .SetFontSize(smallFontSize)
+                        .SetFontColor(statusRgb);
+
+                    table.AddCell(new Cell()
+                        .Add(statusParagraph)
+                        .SetPadding(4)
+                        .SetTextAlignment(TextAlignment.CENTER));
                 }
 
-                doc.Add(table);
-                doc.Close();
+                document.Add(table);
+
+                document.Close();
 
                 return File(ms.ToArray(), "application/pdf", "Medicos.pdf");
             }
