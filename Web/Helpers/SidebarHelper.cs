@@ -2,7 +2,7 @@
 {
     public class SidebarHelper
     {
-        public static List<SidebarItem> GetSidebarItems(string activeRole)
+        public static List<SidebarItem> GetSidebarItems(string? activeRole)
         {
             if (string.IsNullOrEmpty(activeRole))
                 return new List<SidebarItem>();
@@ -21,9 +21,11 @@
                 new SidebarItem { Title = "Usuarios", Controller = "Users", Action = "Index", Icon = "fa-solid fa-users", Roles = new[] { "administrador" } }
             };
 
-            return allItems
-                .Where(item => item.Roles.Any(r => r.ToLower() == activeRole))
-                .ToList();
+            return allItems;
+
+            // return allItems
+            //     .Where(item => item.Roles.Any(r => r.ToLower() == activeRole))
+            //     .ToList();
         }
     }
 }
