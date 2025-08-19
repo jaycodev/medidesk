@@ -7,7 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <Content Remove="wwwroot\js\alerts.js" />
+    <Content Remove="wwwroot\js\bootstrap-validation.js" />
+    <Content Remove="wwwroot\js\calendar.js" />
+    <Content Remove="wwwroot\js\color-modes.js" />
+    <Content Remove="wwwroot\js\dataTable-init.js" />
+    <Content Remove="wwwroot\js\password.js" />
+    <Content Remove="wwwroot\js\profile-scrips.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\js\alerts.js" />
+    <None Include="wwwroot\js\bootstrap-validation.js" />
+    <None Include="wwwroot\js\calendar.js" />
+    <None Include="wwwroot\js\color-modes.js" />
+    <None Include="wwwroot\js\dataTable-init.js" />
+    <None Include="wwwroot\js\password.js" />
+    <None Include="wwwroot\js\profile-scrips.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="iTextSharp" Version="5.5.13.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
 </Project>
