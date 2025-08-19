@@ -1,6 +1,5 @@
 ﻿using Api.Data.Contract;
 using Api.Models;
-using Api.Models.DTOS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing;

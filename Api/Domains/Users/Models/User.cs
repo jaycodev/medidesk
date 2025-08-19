@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models
+namespace Api.Domains.Users.Models
 {
     public class User
     {
@@ -47,9 +47,9 @@ namespace Api.Models
         public string ActiveRole { get; set; }
 
         public int? SpecialtyId { get; set; }
-        
+
         public bool? Status { get; set; }
-        
+
         public DateTime? BirthDate { get; set; }
 
         public string BloodType { get; set; }
