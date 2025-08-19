@@ -7,12 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <Compile Remove="Models\DTOS\**" />
+    <Content Remove="Models\DTOS\**" />
+    <EmbeddedResource Remove="Models\DTOS\**" />
+    <None Remove="Models\DTOS\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\DTOS\" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
 </Project>
