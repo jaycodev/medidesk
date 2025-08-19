@@ -1,5 +1,5 @@
 ﻿using Api.Domains.Specialties.Models;
-using Api.Models;
+using Api.Domains.Users.Models;
 
 namespace Api.Domains.Doctors.Models
 {

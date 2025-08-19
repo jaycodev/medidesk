@@ -166,7 +166,6 @@ BEGIN
 
 		FROM Users u
 		LEFT JOIN UserRoles ur ON u.user_id = ur.user_id
-		WHERE u.user_id <> @user_id
 		GROUP BY 
 			u.user_id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture;
 
