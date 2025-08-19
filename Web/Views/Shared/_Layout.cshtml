@@ -1,5 +1,4 @@
 ﻿@{
-    // 🔹 Datos simulados para pruebas (no dependen de sesión ni modelo)
     var notifications = new List<string>
     {
         "Nueva cita creada",
@@ -7,9 +6,9 @@
         "Resultado de análisis disponible"
     };
 
-    bool hasPhoto = false; // Cambia a true si quieres mostrar una foto
+    bool hasPhoto = false;
     bool needsRoleSelection = false;
-    string activeRole = "paciente"; // "paciente", "medico", "administrador"
+    string activeRole = "paciente";
 }
 
 <!DOCTYPE html>
@@ -196,8 +195,6 @@
 
     <script src="~/js/dataTable-init.js" asp-append-version="true"></script>
     <script src="~/js/alerts.js" asp-append-version="true"></script>
-
-    <script src="~/js/bootstrap-validation.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
