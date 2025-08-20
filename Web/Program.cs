@@ -9,6 +9,12 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
+});
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -34,8 +40,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseMiddleware<Web.Middleware.LowercaseUrlMiddleware>();
 
 app.UseRouting();
 
