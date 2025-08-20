@@ -1,4 +1,4 @@
-﻿@model Web.Models.User.User
+﻿@model Web.Models.User.UserEditViewModel
 
 @{
     ViewBag.Title = "Editar usuario";
@@ -11,6 +11,17 @@
     <i class="fa-solid fa-pen me-1"></i>
     Editar usuario
 </h4>
+
+@if (ViewBag.Errors != null)
+{
+    <ul class="alert alert-danger">
+        @foreach (var error in ViewBag.Errors)
+        {
+            <li>@error</li>
+        }
+    </ul>
+}
+
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "editUserForm" }))
 {
@@ -86,7 +97,8 @@
         </div>
     </div>
 
-    @Html.HiddenFor(m => m.Password, new { @Value = "Mock1@pass" })
+    @Html.HiddenFor(m => m.Password)
+
 
     <div id="medico-fields" class="row mb-2 @(isDoctor ? "" : "d-none")">
         <hr class="my-4" />
@@ -110,7 +122,7 @@
             @Html.DropDownListFor(m => m.Status, new SelectList(new[] {
         new SelectListItem { Value = "true", Text = "Activo" },
         new SelectListItem { Value = "false", Text = "Inactivo" }
-        }, "Value", "Text", Model.Status?.ToString().ToLower()), new { @class = "form-select", id = "Status" })
+        }, "Value", "Text", Model.Status.ToString().ToLower()), new { @class = "form-select", id = "Status" })
             <span class="text-danger field-validation-error d-block" id="Status-error"></span>
         </div>
     </div>

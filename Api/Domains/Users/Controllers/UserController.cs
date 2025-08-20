@@ -52,7 +52,7 @@ namespace Api.Domains.Users.Controllers
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] UserDTO dto)
+        public IActionResult UpdateUser(int id, [FromBody] UserUpdateDTO dto)
         {
             try
             {
