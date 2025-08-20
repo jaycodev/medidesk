@@ -19,7 +19,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
-builder.Services.AddScoped<IUsers, UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGenericContract<Schedule>, ScheduleRepository>();
 builder.Services.AddScoped<IGenericContract<Patient>, PatientRepository>();
 builder.Services.AddScoped<IGenericContract<Appointment>, AppointmentRepository>();

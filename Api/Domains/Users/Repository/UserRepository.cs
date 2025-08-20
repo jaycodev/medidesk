@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Api.Domains.Users.Repository
 {
-    public class UserRepository : BaseRepository, IUsers
+    public class UserRepository : BaseRepository, IUserRepository
     {
         string crudCommand = "User_CRUD";
 
