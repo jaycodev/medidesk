@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace medical_appointment_system.Models
+namespace Web.Models.User
 {
     public class User
     {
@@ -45,9 +45,9 @@ namespace medical_appointment_system.Models
         public string ActiveRole { get; set; }
 
         public int? SpecialtyId { get; set; }
-        
+
         public bool? Status { get; set; }
-        
+
         public DateTime? BirthDate { get; set; }
 
         public string BloodType { get; set; }

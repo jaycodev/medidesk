@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Domains.Users.DTOs
+namespace Web.Models.User
 {
-    public class UserDTO
+    public class UserListDTO
     {
+
+        [Display(Name = "Código")]
+        public int UserId { get; set; }
 
         [Display(Name = "Nombre(s)")]
         [Required(ErrorMessage = "Ingrese un(os) nombre(s)")]
@@ -27,6 +30,13 @@ namespace Api.Domains.Users.DTOs
         [Display(Name = "Teléfono")]
         [RegularExpression(@"^\d{9,}$", ErrorMessage = "Ingrese al menos 9 dígitos numéricos")]
         public string Phone { get; set; }
+
+        [Display(Name = "Rol(es)")]
+        public List<string> Roles { get; set; } = new List<string>();
+
+        [Display(Name = "Foto perfil")]
+        public string ProfilePicture { get; set; }
+
 
     }
 }
