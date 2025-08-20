@@ -5,6 +5,9 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using Web.Models.Specialties;
 using Web.Models.User;
+using Web.Models.Doctors;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using Humanizer;
 
 namespace Web.Controllers
 {
@@ -64,17 +67,6 @@ namespace Web.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Edit(int id)
-        {
-            if (id <= 0)
-                return RedirectToAction("Index");
-
-            var user = await _http.GetFromJsonAsync<User>($"api/users/{id}");
-            if (user == null)
-                return RedirectToAction("Index");
-
-            return View(user);
-        }
 
         [HttpGet]
         public async Task<IActionResult> GetSpecialties()
@@ -90,33 +82,88 @@ namespace Web.Controllers
             }
         }
 
+        public async Task<IActionResult> Edit(int id)
+        {
+            if (id <= 0)
+                return RedirectToAction("Index");
+
+            var user = await _http.GetFromJsonAsync<UserEditViewModel>($"api/users/{id}");
+            if (user == null)
+                return RedirectToAction("Index");
+
+            return View(user);
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, User model)
+        public async Task<IActionResult> Edit(int id, UserEditViewModel model)
         {
             if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                ViewBag.Errors = errors;
                 return View(model);
-            
+            }
+
             try
             {
+                // 1. Primero, actualizas al usuario principal
                 var response = await _http.PutAsJsonAsync($"api/users/{id}", model);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    TempData["Success"] = "¡Usuario actualizado correctamente!";
-                    return RedirectToAction("Index");
+                    var content = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = ExtractErrorMessage(content);
+                    return View(model);
                 }
 
-                var content = await response.Content.ReadAsStringAsync();
-                ViewBag.Message = ExtractErrorMessage(content);
+                // 2. Si incluye el rol de médico, creas el médico
+                if (model.SelectedRoleCombo.Contains("medico"))
+                {
+                    CreateDoctorDTO doctorData = new CreateDoctorDTO { 
+                        SpecialtyId = (int)model.SpecialtyId,
+                        Status = (bool)model.Status,
+                        
+                    };
+                    var doctorResponse = await _http.PutAsJsonAsync($"api/doctors/{id}", doctorData);
+
+                    if (!doctorResponse.IsSuccessStatusCode)
+                    {
+                        var content = await doctorResponse.Content.ReadAsStringAsync();
+                        ViewBag.Message = $"Error al guardar médico: {ExtractErrorMessage(content)}";
+                        return View(model);
+                    }
+                }
+
+                // 3. Si incluye el rol de paciente, creas el paciente
+                if (model.SelectedRoleCombo.Contains("paciente"))
+                {
+                    var patientData = new
+                    {
+                        userId = id,
+                        birthDate = model.BirthDate,
+                        bloodType = model.BloodType
+                    };
+
+                    var patientResponse = await _http.PostAsJsonAsync("api/patients", patientData);
+
+                    if (!patientResponse.IsSuccessStatusCode)
+                    {
+                        var content = await patientResponse.Content.ReadAsStringAsync();
+                        ViewBag.Message = $"Error al guardar paciente: {ExtractErrorMessage(content)}";
+                        return View(model);
+                    }
+                }
+
+                TempData["Success"] = "¡Usuario actualizado correctamente!";
+                return RedirectToAction("Index");
             }
             catch
             {
                 ViewBag.Message = "Ocurrió un error al actualizar el usuario.";
+                return View(model);
             }
-
-            return View(model);
         }
+
 
         public async Task<IActionResult> Details(int id)
         {

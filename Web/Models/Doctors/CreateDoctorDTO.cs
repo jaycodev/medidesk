@@ -30,5 +30,7 @@ namespace Web.Models.Doctors
         [Display(Name = "Especialidad")]
         [Required(ErrorMessage = "Seleccione una especialidad")]
         public int SpecialtyId { get; set; }
+
+        public bool Status { get; set; }
     }
 }

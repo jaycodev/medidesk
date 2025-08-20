@@ -70,6 +70,7 @@ namespace Api.Domains.Users.Repository
                     Email = reader.SafeGetString("email"),
                     Phone = reader.SafeGetString("phone"),
                     Roles = reader.SafeGetString("roles")?.Split(',').ToList(),
+                    Password = reader.SafeGetString("password"),
                     ProfilePicture = reader.SafeGetString("profile_picture")
                 };
             }
@@ -109,7 +110,7 @@ namespace Api.Domains.Users.Repository
 
 
 
-        public int Update(int id, UserDTO dto)
+        public int Update(int id, UserUpdateDTO dto)
         {
             using var cn = GetConnection();
             cn.Open();
@@ -123,6 +124,7 @@ namespace Api.Domains.Users.Repository
             cmd.Parameters.AddWithValue("@last_name", dto.LastName);
             cmd.Parameters.AddWithValue("@email", dto.Email);
             cmd.Parameters.AddWithValue("@phone", dto.Phone);
+            cmd.Parameters.AddWithValue("@roles", dto.SelectedRoleCombo);
 
             // Si quieres pasar roles: cmd.Parameters.AddWithValue("@roles", "administrador,medico");
 
