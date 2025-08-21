@@ -1,11 +1,11 @@
 ﻿using Api.Data.Contract;
-using Api.Models;
+using Api.Domains.Patients.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing;
 using System.Globalization;
 
-namespace Api.Controllers
+namespace Api.Domains.Patients.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

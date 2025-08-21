@@ -1,4 +1,5 @@
 ﻿using Api.Data.Contract;
+using Api.Domains.Patients.Models;
 using Api.Helpers;
 using Api.Models;
 using Microsoft.Data.SqlClient;
