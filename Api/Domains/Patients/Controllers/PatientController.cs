@@ -1,5 +1,7 @@
 ﻿using Api.Data.Contract;
+using Api.Domains.Patients.DTOs;
 using Api.Domains.Patients.Models;
+using Api.Domains.Patients.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing;
@@ -11,9 +13,9 @@ namespace Api.Domains.Patients.Controllers
     [ApiController]
     public class PatientController : ControllerBase
     {
-        private readonly IGenericContract<Patient> patientDATA;
+        private readonly IPatient patientDATA;
 
-        public PatientController(IGenericContract<Patient> patient)
+        public PatientController(IPatient patient)
         {
             patientDATA = patient;
         }
@@ -22,7 +24,7 @@ namespace Api.Domains.Patients.Controllers
         public IActionResult FindById(int id)
         {
             Patient patient = new Patient { UserId = id };
-            var result = patientDATA.ExecuteRead("GET_BY_ID", patient).FirstOrDefault();
+            var result = patientDATA.GetById(id);
             if (result != null)
             {
                 return Ok(result);
@@ -34,18 +36,18 @@ namespace Api.Domains.Patients.Controllers
         public IActionResult ListPatients()
         {
             Patient patient = new Patient();
-            return Ok(patientDATA.ExecuteRead("GET_ALL", patient));
+            return Ok(patientDATA.GetList());
         }
 
         [HttpPost]
-        public IActionResult RegisterPatient(Patient patient)
+        public IActionResult RegisterPatient(PatientCreateDTO dto)
         {
-            if (patient == null)
+            if (dto == null)
             {
                 return BadRequest(new { message = "Datos del paciente no válidos" });
             }
-            patient.Roles = new List<string> { "paciente" };
-            var result = patientDATA.ExecuteWrite("INSERT", patient);
+
+            var result = patientDATA.Create(dto);
             if (result > 0)
             {
                 return Ok(new { message = "Paciente creado correctamente" });
@@ -54,14 +56,14 @@ namespace Api.Domains.Patients.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdatePatient(Patient patient)
+        public IActionResult UpdatePatient(PatientUpdateDTO dto)
         {
-            if (patient == null)
+            if (dto == null)
             {
                 return BadRequest(new { message = "Datos del paciente no válidos" });
             }
 
-            var result = patientDATA.ExecuteWrite("UPDATE", patient);
+            var result = patientDATA.Update(dto);
             if (result > 0)
             {
                 return Ok(new { message = "Paciente actualizado correctamente" });
