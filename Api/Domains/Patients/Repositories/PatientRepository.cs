@@ -3,7 +3,6 @@ using Api.Domains.Patients.DTOs;
 using Api.Domains.Patients.Models;
 using Api.Domains.Patients.Repositories;
 using Api.Helpers;
-using Api.Models;
 using Microsoft.Data.SqlClient;
 
 namespace Api.Data.Repository
