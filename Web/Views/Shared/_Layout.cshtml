@@ -1,14 +1,9 @@
 ﻿@{
-    var notifications = new List<string>
-    {
-        "Nueva cita creada",
-        "Recordatorio: cita mañana a las 10:00 AM",
-        "Resultado de análisis disponible"
-    };
-
     bool hasPhoto = false;
     bool needsRoleSelection = false;
-    string activeRole = "paciente";
+
+    int userId = 5;
+    string activeRole = "medico";
 }
 
 <!DOCTYPE html>
@@ -85,32 +80,14 @@
 
                 @if (activeRole != "administrador")
                 {
-                    <div class="dropdown">
-                        <button class="btn btn-link nav-link position-relative link-body-emphasis" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-bell"></i>
-                            @if (notifications.Any())
-                            {
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    @notifications.Count
-                                </span>
-                            }
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end p-2" style="width: 330px;">
-                            @if (notifications.Any())
-                            {
-                                foreach (var n in notifications)
-                                {
-                                    <li>
-                                        <span class="dropdown-item rounded text-wrap">@n</span>
-                                    </li>
-                                }
-                            }
-                            else
-                            {
-                                <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
-                            }
-                        </ul>
-                    </div>
+                    if (activeRole == "medico")
+                    {
+                        @await Component.InvokeAsync("Notifications", new { doctorId = userId, take = 10 })
+                    }
+                    else if (activeRole == "paciente")
+                    {
+                        @await Component.InvokeAsync("Notifications", new { patientId = userId, take = 10 })
+                    }
                 }
 
                 <div class="dropdown">
