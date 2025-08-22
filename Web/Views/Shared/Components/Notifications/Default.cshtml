@@ -1,0 +1,37 @@
+﻿@model IReadOnlyList<Web.Models.Notifications.NotificationDTO>
+@{
+    var count = Model?.Count ?? 0;
+    var error = ViewBag.Error as string;
+}
+<div class="dropdown">
+    <button class="btn btn-link nav-link position-relative link-body-emphasis" type="button" data-bs-toggle="dropdown">
+        <i class="fa-solid fa-bell"></i>
+        @if (count > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">@count</span>
+        }
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end p-2" style="width:330px;">
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <li><span class="dropdown-item text-danger small">Error: @error</span></li>
+        }
+        else if (count == 0)
+        {
+            <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
+        }
+        else
+        {
+            @foreach (var n in Model)
+            {
+                <li class="mb-1">
+                    <div class="dropdown-item rounded text-wrap">
+                        <div>@n.Message</div>
+                        <small class="text-muted">@n.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>

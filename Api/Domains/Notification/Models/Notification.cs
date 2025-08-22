@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models
+namespace Api.Domains.Notification.Models
 {
     public class Notification
     {
