@@ -15,16 +15,22 @@ namespace Api.Domains.Notification.Controllers
         }
 
         [HttpGet("doctor/{doctorId}")]
-        public IActionResult GetForDoctor(int doctorId)
+        public IActionResult GetForDoctor(int doctorId, [FromQuery] int take = 10, [FromQuery] int skip = 0)
         {
-            var items = _repository.GetForDoctor(doctorId);
+            var items = _repository.GetForDoctor(doctorId)
+                                   .OrderByDescending(n => n.CreatedAt)
+                                   .Skip(skip)
+                                   .Take(take);
             return Ok(items);
         }
 
         [HttpGet("patient/{patientId}")]
-        public IActionResult GetForPatient(int patientId)
+        public IActionResult GetForPatient(int patientId, [FromQuery] int take = 10,    [FromQuery] int skip = 0)
         {
-            var items = _repository.GetForPatient(patientId);
+            var items = _repository.GetForPatient(patientId)
+                                   .OrderByDescending(n => n.CreatedAt)
+                                   .Skip(skip)
+                                   .Take(take);
             return Ok(items);
         }
 
