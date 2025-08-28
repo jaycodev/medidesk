@@ -1,11 +1,9 @@
-﻿using Api.Data.Contract;
+﻿using System.Data;
+using System.Globalization;
 using Api.Data.Repository;
 using Api.Domains.Appointment.DTOs;
-using Api.Domains.Appointment.Models;
 using Api.Helpers;
 using Microsoft.Data.SqlClient;
-using System.Data;
-using System.Globalization;
 
 namespace Api.Domains.Appointment.Repositories
 {

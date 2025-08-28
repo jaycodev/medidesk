@@ -1,5 +1,4 @@
-﻿using Api.Data.Contract;
-using Api.Domains.Patients.DTOs;
+﻿using Api.Domains.Patients.DTOs;
 using Api.Domains.Patients.Models;
 using Api.Domains.Patients.Repositories;
 using Api.Helpers;
@@ -9,7 +8,7 @@ namespace Api.Data.Repository
 {
     public class PatientRepository : BaseRepository, IPatient
     {
-        public PatientRepository(IConfiguration configuration) : base(configuration) {}
+        public PatientRepository(IConfiguration configuration) : base(configuration) { }
 
         string crudCommand = "Patient_CRUD";
 
@@ -66,7 +65,7 @@ namespace Api.Data.Repository
                     {
                         if (reader.Read())
                         {
-                            patient=(new Patient
+                            patient = (new Patient
                             {
                                 UserId = reader.SafeGetInt("user_id"),
                                 FirstName = reader.SafeGetString("first_name"),
@@ -94,7 +93,7 @@ namespace Api.Data.Repository
                 {
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@indicator","INSERT");
+                    cmd.Parameters.AddWithValue("@indicator", "INSERT");
                     cmd.Parameters.AddWithValue("@first_name", dto.FirstName);
                     cmd.Parameters.AddWithValue("@last_name", dto.LastName);
                     cmd.Parameters.AddWithValue("@email", dto.Email);

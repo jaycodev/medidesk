@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using Api.Data.Contract;
 using Api.Data.Repository;
 using Api.Domains.Users.DTOs;
 using Api.Domains.Users.Models;
@@ -94,18 +93,18 @@ namespace Api.Domains.Users.Repository
             while (reader.Read())
             {
                 list.Add(new User
-               {
-                UserId = reader.SafeGetInt("user_id"),
-                FirstName = reader.SafeGetString("first_name"),
-                LastName = reader.SafeGetString("last_name"),
-                Email = reader.SafeGetString("email"),
-                Phone = reader.SafeGetString("phone"),
-                Roles = reader.SafeGetString("roles")?.Split(',').ToList(),
-                ProfilePicture = reader.SafeGetString("profile_picture")
-                
-               });
+                {
+                    UserId = reader.SafeGetInt("user_id"),
+                    FirstName = reader.SafeGetString("first_name"),
+                    LastName = reader.SafeGetString("last_name"),
+                    Email = reader.SafeGetString("email"),
+                    Phone = reader.SafeGetString("phone"),
+                    Roles = reader.SafeGetString("roles")?.Split(',').ToList(),
+                    ProfilePicture = reader.SafeGetString("profile_picture")
+
+                });
             }
-           return list;     
+            return list;
         }
 
 
