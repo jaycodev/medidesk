@@ -1,5 +1,4 @@
-﻿using Api.Data.Contract;
-using Api.Data.Repository;
+﻿using Api.Data.Repository;
 using Api.Domains.Schedules.DTOs;
 using Api.Domains.Schedules.Models;
 using Api.Helpers;

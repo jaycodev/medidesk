@@ -1,10 +1,8 @@
-﻿using Api.Data.Contract;
+﻿using System.Data;
 using Api.Data.Repository;
 using Api.Domains.Notification.DTOs;
-using Api.Domains.Notification.Models;
 using Api.Helpers;
 using Microsoft.Data.SqlClient;
-using System.Data;
 
 namespace Api.Domains.Notification.Repositories
 {
@@ -32,11 +30,11 @@ namespace Api.Domains.Notification.Repositories
                 list.Add(new NotificationDTO
                 {
                     NotificationId = reader.SafeGetInt("NotificationId"),
-                    DoctorId       = reader.SafeGetInt("DoctorId"),
-                    PatientId      = reader.SafeGetInt("PatientId"),
-                    AppointmentId  = reader.SafeGetInt("AppointmentId"),
-                    Message        = reader.SafeGetString("Message"),
-                    CreatedAt      = reader.SafeGetDateTime("CreatedAt")
+                    DoctorId = reader.SafeGetInt("DoctorId"),
+                    PatientId = reader.SafeGetInt("PatientId"),
+                    AppointmentId = reader.SafeGetInt("AppointmentId"),
+                    Message = reader.SafeGetString("Message"),
+                    CreatedAt = reader.SafeGetDateTime("CreatedAt")
                 });
             }
             return list;
@@ -62,11 +60,11 @@ namespace Api.Domains.Notification.Repositories
                 list.Add(new NotificationDTO
                 {
                     NotificationId = reader.SafeGetInt("NotificationId"),
-                    DoctorId       = reader.SafeGetInt("DoctorId"),
-                    PatientId      = reader.SafeGetInt("PatientId"),
-                    AppointmentId  = reader.SafeGetInt("AppointmentId"),
-                    Message        = reader.SafeGetString("Message"),
-                    CreatedAt      = reader.SafeGetDateTime("CreatedAt")
+                    DoctorId = reader.SafeGetInt("DoctorId"),
+                    PatientId = reader.SafeGetInt("PatientId"),
+                    AppointmentId = reader.SafeGetInt("AppointmentId"),
+                    Message = reader.SafeGetString("Message"),
+                    CreatedAt = reader.SafeGetDateTime("CreatedAt")
                 });
             }
             return list;

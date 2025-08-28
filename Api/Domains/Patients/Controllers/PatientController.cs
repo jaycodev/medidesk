@@ -1,11 +1,7 @@
-﻿using Api.Data.Contract;
-using Api.Domains.Patients.DTOs;
+﻿using Api.Domains.Patients.DTOs;
 using Api.Domains.Patients.Models;
 using Api.Domains.Patients.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Drawing;
-using System.Globalization;
 
 namespace Api.Domains.Patients.Controllers
 {
