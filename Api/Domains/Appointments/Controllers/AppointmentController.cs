@@ -1,5 +1,4 @@
-﻿using Api.Data.Repository;
-using Api.Domains.Appointment.DTOs;
+﻿using Api.Domains.Appointment.DTOs;
 using Api.Domains.Appointment.Repositories;
 using Api.Domains.Doctors.Repositories;
 using Api.Domains.Patients.Repositories;
@@ -8,29 +7,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Domains.Appointment.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/appointments")]
     [ApiController]
     public class AppointmentController : ControllerBase
     {
-        private readonly IAppointment _repository;
+        private readonly IAppointmentRepository _repository;
         private readonly IDoctorRepository _doctors;
         private readonly ISpecialtyRepository _specialties;
         private readonly IPatient _patients;
 
-        public AppointmentController(IAppointment repo, IDoctorRepository doctors,
+        public AppointmentController(IAppointmentRepository repo, IDoctorRepository doctors,
         ISpecialtyRepository specialties, IPatient patients)
         {
-            _repository   = repo;
-            _doctors      = doctors;
-            _specialties  = specialties;
-            _patients     = patients;
+            _repository = repo;
+            _doctors = doctors;
+            _specialties = specialties;
+            _patients = patients;
         }
 
         [HttpGet]
-        public IActionResult GetList()
+        public IActionResult GetAll()
         {
-            var items = _repository.GetList();
-            return Ok(items);
+            return Ok(_repository.GetAll());
         }
 
         [HttpGet("{id}")]

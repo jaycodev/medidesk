@@ -10,20 +10,20 @@ namespace Web.Models.Appointments
         [Display(Name = "Especialidad")]
         public string SpecialtyName { get; set; } = string.Empty;
 
-        [Display(Name = "Doctor(a)")]
+        [Display(Name = "Médico")]
         public string DoctorName { get; set; } = string.Empty;
 
         [Display(Name = "Paciente")]
         public string PatientName { get; set; } = string.Empty;
 
-        [Display(Name = "Tipo de Consulta")]
+        [Display(Name = "Tipo consulta")]
         public string ConsultationType { get; set; } = string.Empty;
 
-        [Display(Name = "Fecha")]
-        public string Date { get; set; } = string.Empty;
+        [Display(Name = "Fecha cita")]
+        public DateOnly Date { get; set; }
 
-        [Display(Name = "Hora")]
-        public string Time { get; set; } = string.Empty;
+        [Display(Name = "Horario cita")]
+        public TimeSpan Time { get; set; }
 
         [Display(Name = "Estado")]
         public string Status { get; set; } = string.Empty;

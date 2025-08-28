@@ -29,6 +29,13 @@ namespace Api.Helpers
                 : 0;
         }
 
+        public static DateOnly SafeGetDateOnly(this SqlDataReader reader, string column)
+        {
+            return reader.HasColumn(column) && reader[column] != DBNull.Value
+                ? DateOnly.FromDateTime(Convert.ToDateTime(reader[column]))
+                : DateOnly.MinValue;
+        }
+
         public static DateTime SafeGetDateTime(this SqlDataReader reader, string column)
         {
             return reader.HasColumn(column) && reader[column] != DBNull.Value
