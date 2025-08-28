@@ -7,13 +7,13 @@ using Microsoft.Data.SqlClient;
 
 namespace Api.Domains.Appointment.Repositories
 {
-    public class AppointmentRepository : BaseRepository, IAppointment
+    public class AppointmentRepository : BaseRepository, IAppointmentRepository
     {
         string crudCommand = "Appointment_CRUD";
 
         public AppointmentRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<AppointmentListDTO> GetList()
+        public List<AppointmentListDTO> GetAll()
         {
             var list = new List<AppointmentListDTO>();
 
@@ -35,8 +35,8 @@ namespace Api.Domains.Appointment.Repositories
                     DoctorName = reader.SafeGetString("doctor_name"),
                     PatientName = reader.SafeGetString("patient_name"),
                     ConsultationType = reader.SafeGetString("consultation_type"),
-                    Date = reader.SafeGetDateTime("date").ToString("yyyy-MM-dd"),
-                    Time = reader.SafeGetTimeSpan("time").ToString(@"hh\:mm"),
+                    Date = reader.SafeGetDateOnly("date"),
+                    Time = reader.SafeGetTimeSpan("time"),
                     Status = reader.SafeGetString("status")
                 });
             }
@@ -65,8 +65,8 @@ namespace Api.Domains.Appointment.Repositories
                     DoctorName = reader.SafeGetString("doctor_name"),
                     PatientName = reader.SafeGetString("patient_name"),
                     ConsultationType = reader.SafeGetString("consultation_type"),
-                    Date = reader.SafeGetDateTime("date").ToString("yyyy-MM-dd"),
-                    Time = reader.SafeGetTimeSpan("time").ToString(@"hh\:mm"),
+                    Date = reader.SafeGetDateOnly("date"),
+                    Time = reader.SafeGetTimeSpan("time"),
                     Status = reader.SafeGetString("status"),
                     Symptoms = reader.SafeGetString("symptoms")
                 };

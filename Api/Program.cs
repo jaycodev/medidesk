@@ -23,7 +23,7 @@ builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISchedule, ScheduleRepository>();
 builder.Services.AddScoped<IPatient, PatientRepository>();
-builder.Services.AddScoped<IAppointment, AppointmentRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<INotification, NotificationRepository>();
 
 var app = builder.Build();
