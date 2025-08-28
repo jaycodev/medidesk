@@ -44,6 +44,40 @@ namespace Api.Domains.Appointments.Repositories
             return list;
         }
 
+        public List<AppointmentListDTO> GetAppointmentsByStatus(int userId, string userRol, string status)
+        {
+            var list = new List<AppointmentListDTO>();
+
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_BY_USER_AND_STATUS");
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            cmd.Parameters.AddWithValue("@user_rol", userRol);
+            cmd.Parameters.AddWithValue("@status", status);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new AppointmentListDTO
+                {
+                    AppointmentId = reader.SafeGetInt("appointment_id"),
+                    SpecialtyName = reader.SafeGetString("specialty_name"),
+                    DoctorName = reader.SafeGetString("doctor_name"),
+                    PatientName = reader.SafeGetString("patient_name"),
+                    ConsultationType = reader.SafeGetString("consultation_type"),
+                    Date = reader.SafeGetDateOnly("date"),
+                    Time = reader.SafeGetTimeSpan("time"),
+                    Status = reader.SafeGetString("status")
+                });
+            }
+
+            return list;
+        }
+
         public AppointmentDetailDTO? GetById(int id)
         {
             using var cn = GetConnection();
@@ -104,7 +138,6 @@ namespace Api.Domains.Appointments.Repositories
 
         public int Update(int id, UpdateAppointmentStatusDTO dto)
         {
-            // Mapeo de estado -> indicador del SP
             string indicator = dto.Status switch
             {
                 "confirmada" => "CONFIRM",
@@ -123,53 +156,8 @@ namespace Api.Domains.Appointments.Repositories
             cmd.Parameters.AddWithValue("@indicator", indicator);
             cmd.Parameters.AddWithValue("@appointment_id", id);
 
-            // Tus SP de estado hacen SELECT 1 AS affected_rows; ó 0
             var result = cmd.ExecuteScalar();
             return result == null || result == DBNull.Value ? -1 : Convert.ToInt32(result);
-        }
-
-        public List<AppointmentListDTO> GetMyAppointments(int userId, string userRol)
-        {
-            var list = new List<AppointmentListDTO>();
-
-            using var cn = GetConnection();
-            cn.Open();
-
-            using var cmd = new SqlCommand(crudCommand, cn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@indicator", "GET_BY_USER_AND_STATUS");
-            cmd.Parameters.AddWithValue("@user_id", userId);
-            cmd.Parameters.AddWithValue("@user_rol", userRol);
-            cmd.Parameters.AddWithValue("@status", "confirmada");
-
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                list.Add(new AppointmentListDTO
-                {
-                    AppointmentId = reader.SafeGetInt("appointment_id"),
-                    SpecialtyName = reader.SafeGetString("specialty_name"),
-                    DoctorName = reader.SafeGetString("doctor_name"),
-                    PatientName = reader.SafeGetString("patient_name"),
-                    ConsultationType = reader.SafeGetString("consultation_type"),
-                    Date = reader.SafeGetDateOnly("date"),
-                    Time = reader.SafeGetTimeSpan("time"),
-                    Status = reader.SafeGetString("status")
-                });
-            }
-
-            return list;
-        }
-
-        public List<AppointmentListDTO> GetPendingAppointments(int patientId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<AppointmentListDTO> GetHistory(int patientId)
-        {
-            throw new NotImplementedException();
         }
     }
 }
