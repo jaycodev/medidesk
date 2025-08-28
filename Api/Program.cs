@@ -1,5 +1,5 @@
 using Api.Data.Repository;
-using Api.Domains.Appointment.Repositories;
+using Api.Domains.Appointments.Repositories;
 using Api.Domains.Doctors.Repositories;
 using Api.Domains.Notification.Repositories;
 using Api.Domains.Patients.Repositories;

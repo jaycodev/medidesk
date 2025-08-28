@@ -968,7 +968,6 @@ BEGIN
             a.consultation_type,
             a.date,
             a.time,
-            a.symptoms,
             a.status
         FROM Appointments a
         INNER JOIN Users u_d ON a.doctor_id = u_d.user_id

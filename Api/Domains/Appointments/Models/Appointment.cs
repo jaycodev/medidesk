@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace Api.Domains.Appointment.Models
+﻿namespace Api.Domains.Appointments.Models
 {
     public class Appointment
     {

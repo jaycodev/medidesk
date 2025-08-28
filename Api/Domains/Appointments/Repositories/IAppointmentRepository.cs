@@ -1,6 +1,6 @@
-﻿using Api.Domains.Appointment.DTOs;
+﻿using Api.Domains.Appointments.DTOs;
 
-namespace Api.Domains.Appointment.Repositories
+namespace Api.Domains.Appointments.Repositories
 {
     public interface IAppointmentRepository
     {
@@ -9,8 +9,8 @@ namespace Api.Domains.Appointment.Repositories
         int Create(CreateAppointmentDTO dto); 
         int Update(int id, UpdateAppointmentStatusDTO dto);
 
-        //List<MyAppointmentDTO> GetMyAppointments(int patientId);
-        //List<PendingAppointmentDTO> GetPendingAppointments(int patientId);
-        //List<AppointmentHistoryDTO> GetHistory(int patientId);
+        List<AppointmentListDTO> GetMyAppointments(int userId, string userRol);
+        List<AppointmentListDTO> GetPendingAppointments(int patientId);
+        List<AppointmentListDTO> GetHistory(int patientId);
     }
 }
