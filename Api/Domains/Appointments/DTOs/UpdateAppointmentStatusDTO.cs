@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Domains.Appointment.DTOs
+namespace Api.Domains.Appointments.DTOs
 {
     public class UpdateAppointmentStatusDTO
     {

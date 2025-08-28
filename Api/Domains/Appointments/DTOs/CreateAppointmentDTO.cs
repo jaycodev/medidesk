@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Api.Domains.Appointment.DTOs
+namespace Api.Domains.Appointments.DTOs
 {
     public class CreateAppointmentDTO
     {

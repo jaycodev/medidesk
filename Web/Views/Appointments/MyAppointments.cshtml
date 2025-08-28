@@ -1,24 +1,31 @@
 ﻿@model IEnumerable<Web.Models.Appointments.AppointmentListDTO>
 
+@using System.Text.Json
+@using System.Globalization
+@using Microsoft.AspNetCore.Http
+@using medical_appointment_system.Models
+
 @{
-    ViewData["Title"] = "Citas médicas";
-    var culture = new System.Globalization.CultureInfo("es-PE");
+    ViewBag.Title = "Mis citas";
+
+    var isDoctor = true;
+    var isPatient = false;
+
+    var culture = new CultureInfo("es-PE");
 }
 
 <h4 class="text-center mb-3 text-body-emphasis">
-    <i class="fa-solid fa-notes-medical me-1"></i>
-    Citas médicas
+    <i class="fa-solid fa-calendar-days me-1"></i>
+    Mis citas
 </h4>
 
 <div class="mb-3">
-    <button type="button" class="btn btn-danger me-1" data-export 
-            onclick="location.href='@Url.Action("ExportAllAppointmentsToPDF")'" disabled>
+    <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportMyAppointmentsToPDF")'" disabled>
         <i class="fa-solid fa-file-pdf me-1"></i>
         PDF
     </button>
 
-    <button type="button" class="btn btn-success" data-export 
-            onclick="location.href='@Url.Action("ExportAllAppointmentsToExcel")'" disabled>
+    <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportMyAppointmentsToExcel")'" disabled>
         <i class="fa-solid fa-file-excel me-1"></i>
         Excel
     </button>
@@ -36,8 +43,14 @@
             <tr>
                 <th class="text-start">@Html.DisplayNameFor(model => model.AppointmentId)</th>
                 <th class="text-start">@Html.DisplayNameFor(model => model.SpecialtyName)</th>
-                <th>@Html.DisplayNameFor(model => model.DoctorName)</th>
-                <th>@Html.DisplayNameFor(model => model.PatientName)</th>
+                @if (!isDoctor)
+                {
+                    <th>@Html.DisplayNameFor(model => model.DoctorName)</th>
+                }
+                @if (!isPatient)
+                {
+                    <th>@Html.DisplayNameFor(model => model.PatientName)</th>
+                }
                 <th class="text-center">@Html.DisplayNameFor(model => model.ConsultationType)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.Date)</th>
                 <th class="text-center">@Html.DisplayNameFor(model => model.Time)</th>
@@ -48,7 +61,7 @@
         <tbody>
             @foreach (var item in Model)
             {
-                var type = item.ConsultationType?.ToLower() ?? "";
+                var type = (item.ConsultationType ?? "").ToLowerInvariant();
                 var icon = "fa-question-circle";
                 var text = "Desconocido";
 
@@ -59,10 +72,11 @@
                         text = "Consulta";
                         break;
                     case "examen":
-                        icon = "fa-file-waveform";
+                        icon = "fa-file-medical";
                         text = "Examen";
                         break;
                     case "operacion":
+                    case "operación":
                         icon = "fa-syringe";
                         text = "Operación";
                         break;
@@ -71,19 +85,29 @@
                 var formattedDate = item.Date.ToString("dd MMM yyyy", culture);
                 var startTime = DateTime.Today.Add(item.Time);
                 var endTime = startTime.AddHours(1);
+
+                var statusText = !string.IsNullOrEmpty(item.Status)
+                    ? char.ToUpper(item.Status[0]) + item.Status.Substring(1).ToLower()
+                    : "-";
                 <tr>
                     <td class="text-start">
                         <span class="badge bg-body-tertiary text-body-emphasis border">
-                            @Html.DisplayFor(modelItem => item.AppointmentId)
+                            @item.AppointmentId
                         </span>
                     </td>
                     <td class="text-start">
                         <span class="badge bg-body-tertiary text-body-emphasis border">
-                            @Html.DisplayFor(modelItem => item.SpecialtyName)
+                            @item.SpecialtyName
                         </span>
                     </td>
-                    <td>@Html.DisplayFor(modelItem => item.DoctorName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
+                    @if (!isDoctor)
+                    {
+                        <td>@(item.DoctorName ?? "-")</td>
+                    }
+                    @if (!isPatient)
+                    {
+                        <td>@(item.PatientName ?? "-")</td>
+                    }
                     <td class="text-center">
                         <span class="badge bg-body-tertiary text-body-emphasis border">
                             <i class="fa-solid @icon me-1"></i>
@@ -95,48 +119,26 @@
                         @startTime.ToString("hh:mm tt", culture) - @endTime.ToString("hh:mm tt", culture)
                     </td>
                     <td class="text-center">
-                        @{
-                            var status = item.Status.ToLower();
-                            string statusBadge;
-                            string statusIcon;
-
-                            switch (status)
-                            {
-                                case "atendida":
-                                    statusBadge = "bg-success-subtle border-success-subtle text-success-emphasis";
-                                    statusIcon = "fa-check";
-                                    break;
-                                case "cancelada":
-                                    statusBadge = "bg-danger-subtle border-danger-subtle text-danger-emphasis";
-                                    statusIcon = "fa-ban";
-                                    break;
-                                case "pendiente":
-                                    statusBadge = "bg-warning-subtle border-warning-subtle text-warning-emphasis";
-                                    statusIcon = "fa-hourglass-half";
-                                    break;
-                                case "confirmada":
-                                    statusBadge = "bg-primary-subtle border-primary-subtle text-primary-emphasis";
-                                    statusIcon = "fa-calendar-check";
-                                    break;
-                                default:
-                                    statusBadge = "bg-secondary-subtle border-secondary-subtle text-secondary-emphasis";
-                                    statusIcon = "fa-circle-question";
-                                    break;
-                            }
-
-                            var formattedStatus = char.ToUpper(status[0]) + status.Substring(1);
-                        }
-
-                        <span class="badge border @statusBadge rounded-pill">
-                            <i class="fa-solid @statusIcon me-1"></i>
-                            @formattedStatus
+                        <span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill">
+                            <i class="fa-solid fa-calendar-check me-1"></i>
+                            @statusText
                         </span>
                     </td>
                     <td class="text-center">
-                        <a asp-action="Details" asp-controller="Appointments" asp-route-id="@item.AppointmentId" 
-                           class="btn btn-secondary btn-sm" title="Detalles">
+                        <a href="@Url.Action("Details", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Detalles">
                             <i class="fa-solid fa-circle-info"></i>
                         </a>
+
+                        @if (isDoctor)
+                        {
+                            <a href="@Url.Action("Attend", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Atender">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </a>
+
+                            <a href="@Url.Action("Cancel", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Cancelar">
+                                <i class="fa-solid fa-ban"></i>
+                            </a>
+                        }
                     </td>
                 </tr>
             }

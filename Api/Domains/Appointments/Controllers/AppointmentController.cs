@@ -1,11 +1,11 @@
-﻿using Api.Domains.Appointment.DTOs;
-using Api.Domains.Appointment.Repositories;
+﻿using Api.Domains.Appointments.DTOs;
+using Api.Domains.Appointments.Repositories;
 using Api.Domains.Doctors.Repositories;
 using Api.Domains.Patients.Repositories;
 using Api.Domains.Specialties.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Domains.Appointment.Controllers
+namespace Api.Domains.Appointments.Controllers
 {
     [Route("api/appointments")]
     [ApiController]
@@ -29,6 +29,16 @@ namespace Api.Domains.Appointment.Controllers
         public IActionResult GetAll()
         {
             return Ok(_repository.GetAll());
+        }
+
+        [HttpGet("my")]
+        public IActionResult GetMyAppointments([FromQuery] int userId, [FromQuery] string userRol)
+        {
+            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+                return BadRequest("Se requiere userId y userRol válidos.");
+
+            var list = _repository.GetMyAppointments(userId, userRol);
+            return Ok(list);
         }
 
         [HttpGet("{id}")]

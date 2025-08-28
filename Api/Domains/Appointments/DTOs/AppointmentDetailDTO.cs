@@ -1,4 +1,4 @@
-﻿namespace Api.Domains.Appointment.DTOs
+﻿namespace Api.Domains.Appointments.DTOs
 {
     public class AppointmentDetailDTO : AppointmentListDTO
     {
