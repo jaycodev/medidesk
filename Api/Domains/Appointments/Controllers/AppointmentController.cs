@@ -37,9 +37,20 @@ namespace Api.Domains.Appointments.Controllers
             if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
                 return BadRequest("Se requiere userId y userRol válidos.");
 
-            var list = _repository.GetMyAppointments(userId, userRol);
+            var list = _repository.GetAppointmentsByStatus(userId, userRol, "confirmada");
             return Ok(list);
         }
+
+        [HttpGet("pending")]
+        public IActionResult GetPendingAppointments([FromQuery] int userId, [FromQuery] string userRol)
+        {
+            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+                return BadRequest("Se requiere userId y userRol válidos.");
+
+            var list = _repository.GetAppointmentsByStatus(userId, userRol, "pendiente");
+            return Ok(list);
+        }
+
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
