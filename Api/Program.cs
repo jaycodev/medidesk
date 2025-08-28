@@ -1,13 +1,8 @@
-using Api.Data.Contract;
 using Api.Data.Repository;
-using Api.Domains.Appointment.Models;
 using Api.Domains.Appointment.Repositories;
 using Api.Domains.Doctors.Repositories;
-using Api.Domains.Notification.Models;
 using Api.Domains.Notification.Repositories;
-using Api.Domains.Patients.Models;
 using Api.Domains.Patients.Repositories;
-using Api.Domains.Schedules.Models;
 using Api.Domains.Schedules.Repositories;
 using Api.Domains.Specialties.Repositories;
 using Api.Domains.Users.Repository;
