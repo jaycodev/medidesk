@@ -31,7 +31,6 @@ namespace Api.Domains.Patients.Controllers
         [HttpGet]
         public IActionResult ListPatients()
         {
-            Patient patient = new Patient();
             return Ok(patientDATA.GetList());
         }
 
