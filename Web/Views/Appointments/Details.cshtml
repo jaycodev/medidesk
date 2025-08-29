@@ -1,10 +1,75 @@
 ﻿@model Web.Models.Appointments.AppointmentDetailDTO
+
+@using System
+@using System.Globalization
+@using System.Text.Json
+@using Microsoft.AspNetCore.Http
+
 @{
-    ViewData["Title"] = "Detalles de cita";
+    ViewData["Title"] = "Detalles cita";
+
+    var isDoctor = true;
+    var isPatient = false;
+
+    var culture = new CultureInfo("es-PE");
+    var formattedDate = Model.Date.ToString("dd MMM yyyy", culture);
+
+    var startTime = DateTime.Today.Add(Model.Time);
+    var endTime = startTime.AddHours(1);
+    var formattedSchedule = $"{startTime.ToString("hh:mm tt", culture)} - {endTime.ToString("hh:mm tt", culture)}";
+
+    var status = (Model.Status ?? string.Empty).ToLowerInvariant();
+    var statusBadge = string.Empty;
+    var statusIcon = string.Empty;
+    var statusText = string.IsNullOrEmpty(status) ? "Desconocido" : char.ToUpper(status[0]) + status.Substring(1);
+
+    switch (status)
+    {
+        case "atendida":
+            statusBadge = "bg-success-subtle border-success-subtle text-success-emphasis";
+            statusIcon = "fa-check";
+            break;
+        case "cancelada":
+            statusBadge = "bg-danger-subtle border-danger-subtle text-danger-emphasis";
+            statusIcon = "fa-ban";
+            break;
+        case "pendiente":
+            statusBadge = "bg-warning-subtle border-warning-subtle text-warning-emphasis";
+            statusIcon = "fa-hourglass-half";
+            break;
+        case "confirmada":
+            statusBadge = "bg-primary-subtle border-primary-subtle text-primary-emphasis";
+            statusIcon = "fa-calendar-check";
+            break;
+        default:
+            statusBadge = "bg-secondary-subtle border-secondary-subtle text-secondary-emphasis";
+            statusIcon = "fa-circle-question";
+            break;
+    }
+
+    var type = (Model.ConsultationType ?? string.Empty).ToLowerInvariant();
+    var typeIcon = "fa-question-circle";
+
+    switch (type)
+    {
+        case "consulta":
+            typeIcon = "fa-stethoscope";
+            break;
+        case "examen":
+            typeIcon = "fa-file-waveform";
+            break;
+        case "operacion":
+        case "operación":
+            typeIcon = "fa-syringe";
+            break;
+    }
+
+    var typeText = string.IsNullOrEmpty(type) ? "Desconocido" : char.ToUpper(type[0]) + type.Substring(1);
 }
 
 <h4 class="mb-4 text-body-emphasis text-center">
-    <i class="fa-solid fa-circle-info me-1"></i> Detalles de cita
+    <i class="fa-solid fa-circle-info me-1"></i>
+    Detalles cita
 </h4>
 
 <div class="container">
@@ -12,57 +77,76 @@
         <dl class="row">
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.AppointmentId)</dt>
-                <dd><span class="badge bg-body-tertiary text-body-emphasis border">@Model.AppointmentId</span></dd>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">@Model.AppointmentId</span>
+                </dd>
             </div>
 
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.SpecialtyName)</dt>
-                <dd class="text-body">@Model.SpecialtyName</dd>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">@Model.SpecialtyName</span>
+                </dd>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.DoctorName)</dt>
-                <dd class="text-body">@Model.DoctorName</dd>
-            </div>
+            @if (!isDoctor)
+            {
+                <div class="col-md-6 mb-3">
+                    <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.DoctorName)</dt>
+                    <dd class="text-body">@Html.DisplayFor(m => m.DoctorName)</dd>
+                </div>
+            }
 
-            <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.PatientName)</dt>
-                <dd class="text-body">@Model.PatientName</dd>
-            </div>
+            @if (!isPatient)
+            {
+                <div class="col-md-6 mb-3">
+                    <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.PatientName)</dt>
+                    <dd class="text-body">@Html.DisplayFor(m => m.PatientName)</dd>
+                </div>
+            }
 
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ConsultationType)</dt>
-                <dd class="text-body">@Model.ConsultationType</dd>
+                <dd>
+                    <span class="badge bg-body-tertiary text-body-emphasis border">
+                        <i class="fa-solid @typeIcon me-1"></i>
+                        @typeText
+                    </span>
+                </dd>
             </div>
 
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Date)</dt>
-                <dd class="text-body">@Model.Date</dd>
+                <dd class="text-body">@formattedDate</dd>
             </div>
 
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Time)</dt>
-                <dd class="text-body">@Model.Time</dd>
+                <dd class="text-body">@formattedSchedule</dd>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Symptoms)</dt>
+                <dd class="text-body">@Html.DisplayFor(m => m.Symptoms)</dd>
             </div>
 
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Status)</dt>
-                <dd><span class="badge bg-body-tertiary text-body-emphasis border">@Model.Status</span></dd>
-            </div>
-
-            <div class="col-md-12 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Symptoms)</dt>
-                <dd class="text-body">@Model.Symptoms</dd>
+                <dd>
+                    <span class="badge rounded-pill border @statusBadge">
+                        <i class="fa-solid @statusIcon me-1"></i>
+                        @statusText
+                    </span>
+                </dd>
             </div>
         </dl>
     </div>
 </div>
 
 <div class="d-flex justify-content-end gap-2 mt-4">
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="fa-solid fa-left-long me-1"></i> Volver
-    </a>
-    <a asp-action="Edit" asp-route-id="@Model.AppointmentId" class="btn btn-primary">
-        <i class="fa-solid fa-pen me-1"></i> Editar estado
-    </a>
+    <button type="button" class="btn btn-secondary"
+            onclick="history.length > 1 ? history.back() : window.location.href='@Url.Action("Home", "Appointments")';">
+        <i class="fa-solid fa-left-long me-1"></i>
+        Volver
+    </button>
 </div>
