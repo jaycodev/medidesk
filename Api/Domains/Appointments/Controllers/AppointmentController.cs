@@ -25,6 +25,16 @@ namespace Api.Domains.Appointments.Controllers
             _patients = patients;
         }
 
+        [HttpGet("all-by-user")]
+        public IActionResult GetAllByUser([FromQuery] int userId, [FromQuery] string userRol)
+        {
+            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+                return BadRequest("Se requiere userId y userRol válidos.");
+
+            var list = _repository.GetAppointmentsByStatus(userId, userRol, null);
+            return Ok(list);
+        }
+
         [HttpGet]
         public IActionResult GetAll()
         {

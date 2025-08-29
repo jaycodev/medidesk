@@ -39,6 +39,23 @@ namespace Web.Controllers
             }
         }
 
+        public async Task<IActionResult> Home()
+        {
+            int userId = 2; 
+            string userRol = "medico";
+
+            var list = new List<AppointmentListDTO>();
+            try
+            {
+                list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
+                    $"api/appointments/all-by-user?userId={userId}&userRol={userRol}")
+                    ?? new List<AppointmentListDTO>();
+            }
+            catch { }
+
+            return View(list);
+        }
+
         public async Task<IActionResult> AllAppointments()
         {
             var list = new List<AppointmentListDTO>();
