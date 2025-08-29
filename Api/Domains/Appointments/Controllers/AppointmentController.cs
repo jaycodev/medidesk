@@ -51,6 +51,15 @@ namespace Api.Domains.Appointments.Controllers
             return Ok(list);
         }
 
+        [HttpGet("historial")]
+        public IActionResult GetHistorial([FromQuery] int userId, [FromQuery] string userRol)
+        {
+            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+                return BadRequest("Se requiere userId y userRol válidos.");
+
+            var list = _repository.GetHistorial(userId, userRol);
+            return Ok(list);
+        }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)

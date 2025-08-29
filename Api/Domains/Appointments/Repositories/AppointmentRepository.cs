@@ -78,6 +78,39 @@ namespace Api.Domains.Appointments.Repositories
             return list;
         }
 
+        public List<AppointmentListDTO> GetHistorial(int userId, string userRol)
+        {
+            var list = new List<AppointmentListDTO>();
+
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_COMPLETED_OR_CANCELLED_BY_USER");
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            cmd.Parameters.AddWithValue("@user_rol", userRol);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new AppointmentListDTO
+                {
+                    AppointmentId = reader.SafeGetInt("appointment_id"),
+                    SpecialtyName = reader.SafeGetString("specialty_name"),
+                    DoctorName = reader.SafeGetString("doctor_name"),
+                    PatientName = reader.SafeGetString("patient_name"),
+                    ConsultationType = reader.SafeGetString("consultation_type"),
+                    Date = reader.SafeGetDateOnly("date"),
+                    Time = reader.SafeGetTimeSpan("time"),
+                    Status = reader.SafeGetString("status")
+                });
+            }
+
+            return list;
+        }
+
         public AppointmentDetailDTO? GetById(int id)
         {
             using var cn = GetConnection();
