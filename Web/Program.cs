@@ -1,3 +1,5 @@
+using Web.Filters;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
@@ -7,7 +9,10 @@ builder.Configuration
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<AuthenticatedAttribute>();
+});
 
 builder.Services.AddRouting(options =>
 {

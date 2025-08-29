@@ -1,24 +1,18 @@
-﻿
-using medical_appointment_system.Models.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
-using System.Net.Http.Json;
-using Web.Models.Specialties;
-using Web.Models.User;
-using Web.Models.Doctors;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using Humanizer;
+﻿using System.Globalization;
 using ClosedXML.Excel;
 using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
 using iText.Kernel.Font;
-using iText.Kernel.Pdf;
-using iText.Layout.Properties;
-using System.Globalization;
-using iText.Layout.Element;
-using iText.Layout.Borders;
-using iText.Layout;
 using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using Microsoft.AspNetCore.Mvc;
+using Web.Models.Doctors;
+using Web.Models.Specialties;
+using Web.Models.User;
 
 namespace Web.Controllers
 {
@@ -39,9 +33,7 @@ namespace Web.Controllers
                 users = await _http.GetFromJsonAsync<List<UserListDTO>>("api/users") ?? new List<UserListDTO>();
             }
             catch
-            {
-                // Puedes manejar errores globales o mostrar mensaje en la vista
-            }
+            { }
 
             return View(users);
         }
@@ -130,10 +122,11 @@ namespace Web.Controllers
                 // 2. Si incluye el rol de médico, creas el médico
                 if (model.SelectedRoleCombo.Contains("medico"))
                 {
-                    CreateDoctorDTO doctorData = new CreateDoctorDTO { 
+                    CreateDoctorDTO doctorData = new CreateDoctorDTO
+                    {
                         SpecialtyId = (int)model.SpecialtyId,
                         Status = (bool)model.Status,
-                        
+
                     };
                     var doctorResponse = await _http.PutAsJsonAsync($"api/doctors/{id}", doctorData);
 
@@ -437,4 +430,4 @@ namespace Web.Controllers
         }
     }
 }
-    
+

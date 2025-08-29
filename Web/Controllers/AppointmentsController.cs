@@ -1,18 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.Json;
 using Web.Models.Appointments;
 using Web.Models.Doctors;
 using Web.Models.Specialties;
+using Web.Models.User;
 
 namespace Web.Controllers
 {
     public class AppointmentsController : Controller
     {
         private readonly HttpClient _http;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AppointmentsController(IHttpClientFactory httpFactory)
+        public AppointmentsController(IHttpClientFactory httpFactory, IHttpContextAccessor httpContextAccessor)
         {
             _http = httpFactory.CreateClient("ApiClient");
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private LoggedUserDTO? GetLoggedUser()
+        {
+            var userJson = _httpContextAccessor.HttpContext!.Session.GetString("LoggedUser");
+            if (string.IsNullOrEmpty(userJson)) return null;
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<LoggedUserDTO>(userJson, options);
         }
 
         private async Task<AppointmentDetailDTO?> GetByIdAsync(int id)
@@ -41,14 +54,14 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Home()
         {
-            int userId = 2; 
-            string userRol = "medico";
+            var user = GetLoggedUser();
+            if (user == null) return RedirectToAction("Login", "Auth");
 
             var list = new List<AppointmentListDTO>();
             try
             {
                 list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                    $"api/appointments/all-by-user?userId={userId}&userRol={userRol}")
+                    $"api/appointments/all-by-user?userId={user.UserId}&userRol={user.ActiveRole}")
                     ?? new List<AppointmentListDTO>();
             }
             catch { }
@@ -71,14 +84,14 @@ namespace Web.Controllers
 
         public async Task<IActionResult> MyAppointments()
         {
-            int userId = 2;
-            string userRol = "medico";
+            var user = GetLoggedUser();
+            if (user == null) return RedirectToAction("Login", "Auth");
 
             var list = new List<AppointmentListDTO>();
             try
             {
                 list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                           $"api/appointments/my?userId={userId}&userRol={userRol}")
+                           $"api/appointments/my?userId={user.UserId}&userRol={user.ActiveRole}")
                        ?? new List<AppointmentListDTO>();
             }
             catch { }
@@ -88,14 +101,14 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Pending()
         {
-            int userId = 2;
-            string userRol = "medico";
+            var user = GetLoggedUser();
+            if (user == null) return RedirectToAction("Login", "Auth");
 
             var list = new List<AppointmentListDTO>();
             try
             {
                 list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                           $"api/appointments/pending?userId={userId}&userRol={userRol}")
+                           $"api/appointments/pending?userId={user.UserId}&userRol={user.ActiveRole}")
                        ?? new List<AppointmentListDTO>();
             }
             catch { }
@@ -105,14 +118,14 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Historial()
         {
-            int userId = 2;
-            string userRol = "medico";
+            var user = GetLoggedUser();
+            if (user == null) return RedirectToAction("Login", "Auth");
 
             var list = new List<AppointmentListDTO>();
             try
             {
                 list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                           $"api/appointments/historial?userId={userId}&userRol={userRol}")
+                           $"api/appointments/historial?userId={user.UserId}&userRol={user.ActiveRole}")
                        ?? new List<AppointmentListDTO>();
             }
             catch { }
@@ -212,7 +225,14 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Reserve(CreateAppointmentDTO dto)
         {
-            dto.PatientId = 3;
+            var user = GetLoggedUser();
+            if (user == null || user.ActiveRole?.ToLower() != "paciente")
+            {
+                TempData["Error"] = "Solo un paciente puede reservar citas.";
+                return RedirectToAction("Home");
+            }
+
+            dto.PatientId = user.UserId;
 
             var resp = await _http.PostAsJsonAsync("api/appointments", dto);
 

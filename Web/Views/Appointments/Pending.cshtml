@@ -1,12 +1,24 @@
 ﻿@model IEnumerable<Web.Models.Appointments.AppointmentListDTO>
 
 @using System.Globalization
+@using System.Text.Json
+@using Web.Models.User
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewBag.Title = "Citas pendientes";
 
-    var isDoctor = true;
-    var isPatient = false;
+    var userJson = HttpContextAccessor.HttpContext!.Session.GetString("LoggedUser");
+    LoggedUserDTO? user = null;
+
+    if (!string.IsNullOrEmpty(userJson))
+    {
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        user = JsonSerializer.Deserialize<LoggedUserDTO>(userJson, options);
+    }
+
+    var isDoctor = string.Equals(user?.ActiveRole, "medico", StringComparison.OrdinalIgnoreCase);
+    var isPatient = string.Equals(user?.ActiveRole, "paciente", StringComparison.OrdinalIgnoreCase);
 
     var culture = new CultureInfo("es-PE");
 }
