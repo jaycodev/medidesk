@@ -3,7 +3,7 @@
 @using System.Globalization
 
 @{
-    ViewBag.Title = "Citas pendientes";
+    ViewBag.Title = "Historial de citas";
 
     var isDoctor = true;
     var isPatient = false;
@@ -12,19 +12,17 @@
 }
 
 <h4 class="text-center mb-3 text-body-emphasis">
-    <i class="fa-solid fa-hourglass-half me-1"></i>
-    Citas pendientes
+    <i class="fa-solid fa-clock-rotate-left me-1"></i>
+    Historial de citas
 </h4>
 
 <div class="mb-3">
-    <button type="button" class="btn btn-danger me-1" data-export onclick="location.href='@Url.Action("ExportPendingAppointmentsToPDF")'" disabled>
-        <i class="fa-solid fa-file-pdf me-1"></i>
-        PDF
+    <button type="button" class="btn btn-danger me-1" onclick="location.href='@Url.Action("ExportHistorialAppointmentsToPDF")'">
+        <i class="fa-solid fa-file-pdf me-1"></i> PDF
     </button>
 
-    <button type="button" class="btn btn-success" data-export onclick="location.href='@Url.Action("ExportPendingAppointmentsToExcel")'" disabled>
-        <i class="fa-solid fa-file-excel me-1"></i>
-        Excel
+    <button type="button" class="btn btn-success" onclick="location.href='@Url.Action("ExportHistorialAppointmentsToExcel")'">
+        <i class="fa-solid fa-file-excel me-1"></i> Excel
     </button>
 </div>
 
@@ -38,20 +36,20 @@
     <table id="appointmentTable" class="table mb-0">
         <thead>
             <tr>
-                <th class="text-start">@Html.DisplayNameFor(model => model.AppointmentId)</th>
-                <th class="text-start">@Html.DisplayNameFor(model => model.SpecialtyName)</th>
+                <th class="text-start">@Html.DisplayNameFor(m => m.First().AppointmentId)</th>
+                <th class="text-start">@Html.DisplayNameFor(m => m.First().SpecialtyName)</th>
                 @if (!isDoctor)
                 {
-                    <th>@Html.DisplayNameFor(model => model.DoctorName)</th>
+                    <th>@Html.DisplayNameFor(m => m.First().DoctorName)</th>
                 }
                 @if (!isPatient)
                 {
-                    <th>@Html.DisplayNameFor(model => model.PatientName)</th>
+                    <th>@Html.DisplayNameFor(m => m.First().PatientName)</th>
                 }
-                <th class="text-center">@Html.DisplayNameFor(model => model.ConsultationType)</th>
-                <th class="text-center">@Html.DisplayNameFor(model => model.Date)</th>
-                <th class="text-center">@Html.DisplayNameFor(model => model.Time)</th>
-                <th class="text-center">@Html.DisplayNameFor(model => model.Status)</th>
+                <th class="text-center">@Html.DisplayNameFor(m => m.First().ConsultationType)</th>
+                <th class="text-center">@Html.DisplayNameFor(m => m.First().Date)</th>
+                <th class="text-center">@Html.DisplayNameFor(m => m.First().Time)</th>
+                <th class="text-center">@Html.DisplayNameFor(m => m.First().Status)</th>
                 <th class="text-center"></th>
             </tr>
         </thead>
@@ -83,9 +81,12 @@
                 var startTime = DateTime.Today.Add(item.Time);
                 var endTime = startTime.AddHours(1);
 
-                var statusText = !string.IsNullOrEmpty(item.Status)
-                    ? char.ToUpper(item.Status[0]) + item.Status.Substring(1).ToLower()
-                    : "-";
+                var statusClass = item.Status == "atendida"
+                    ? "bg-success-subtle border-success-subtle text-success-emphasis"
+                    : "bg-danger-subtle border-danger-subtle text-danger-emphasis";
+
+                var statusIcon = item.Status == "atendida" ? "fa-check" : "fa-ban";
+                var statusText = item.Status == "atendida" ? "Atendida" : "Cancelada";
 
                 <tr>
                     <td class="text-start">
@@ -113,12 +114,10 @@
                         </span>
                     </td>
                     <td class="text-center">@formattedDate</td>
+                    <td class="text-center">@startTime.ToString("hh:mm tt", culture) - @endTime.ToString("hh:mm tt", culture)</td>
                     <td class="text-center">
-                        @startTime.ToString("hh:mm tt", culture) - @endTime.ToString("hh:mm tt", culture)
-                    </td>
-                    <td class="text-center">
-                        <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">
-                            <i class="fa-solid fa-hourglass-half me-1"></i>
+                        <span class="badge rounded-pill border @statusClass">
+                            <i class="fa-solid @statusIcon me-1"></i>
                             @statusText
                         </span>
                     </td>
@@ -126,17 +125,6 @@
                         <a href="@Url.Action("Details", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Detalles">
                             <i class="fa-solid fa-circle-info"></i>
                         </a>
-
-                        @if (isDoctor)
-                        {
-                            <a href="@Url.Action("Confirm", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Confirmar">
-                                <i class="fa-solid fa-check"></i>
-                            </a>
-
-                            <a href="@Url.Action("Cancel", "Appointments", new { id = item.AppointmentId })" class="btn btn-secondary btn-sm" title="Cancelar">
-                                <i class="fa-solid fa-ban"></i>
-                            </a>
-                        }
                     </td>
                 </tr>
             }
