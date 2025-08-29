@@ -44,7 +44,13 @@ namespace Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var messages = await response.Content.ReadFromJsonAsync<List<string>>();
+
+                if (messages.Count()==0 || messages[0]== "✅ ¡Horarios actualizados correctamente!" ||
+                    messages[0] == "ℹ️ No se realizaron cambios.")
                 TempData["Success"] = string.Join(" | ", messages);
+                else
+                    TempData["Error"] = string.Join(" | ", messages);
+
                 return RedirectToAction(nameof(Index));
             }
 
