@@ -207,6 +207,128 @@ namespace Web.Controllers
             return RedirectToAction("Pending");
         }
 
+        public async Task<IActionResult> Confirm(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Home");
+
+            var appointment = await GetByIdAsync(id);
+            if (appointment == null || appointment.Status?.ToLower() != "pendiente")
+            {
+                TempData["Error"] = "Solo se pueden confirmar citas pendientes.";
+                return RedirectToAction("Pending");
+            }
+
+            return View(appointment);
+        }
+
+        [HttpPost, ActionName("Confirm")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmConfirmed(int id)
+        {
+            var dto = new { Status = "confirmada" };
+
+            var resp = await _http.PutAsJsonAsync($"api/appointments/{id}", dto);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "La cita fue confirmada correctamente.";
+            }
+            else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                TempData["Error"] = "Cita no encontrada.";
+            }
+            else
+            {
+                var content = await resp.Content.ReadAsStringAsync();
+                TempData["Error"] = ExtractErrorMessage(content);
+            }
+
+            return RedirectToAction("MyAppointments");
+        }
+
+        public async Task<IActionResult> Attend(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Home");
+
+            var appointment = await GetByIdAsync(id);
+            if (appointment == null || appointment.Status?.ToLower() != "confirmada")
+            {
+                TempData["Error"] = "Solo se pueden atender citas confirmadas.";
+                return RedirectToAction("MyAppointments");
+            }
+
+            return View(appointment);
+        }
+
+        [HttpPost, ActionName("Attend")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AttendConfirmed(int id)
+        {
+            var dto = new { Status = "atendida" };
+
+            var resp = await _http.PutAsJsonAsync($"api/appointments/{id}", dto);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "La cita fue atendida correctamente.";
+            }
+            else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                TempData["Error"] = "Cita no encontrada.";
+            }
+            else
+            {
+                var content = await resp.Content.ReadAsStringAsync();
+                TempData["Error"] = ExtractErrorMessage(content);
+            }
+
+            return RedirectToAction("Historial");
+        }
+
+        public async Task<IActionResult> Cancel(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Home");
+
+            var appointment = await GetByIdAsync(id);
+            var status = appointment?.Status?.ToLower();
+
+            if (appointment == null || status == "cancelada" || status == "atendida")
+            {
+                TempData["Error"] = "Solo se pueden cancelar citas pendientes o confirmadas.";
+                return RedirectToAction("Pending");
+            }
+
+            return View(appointment);
+        }
+
+        [HttpPost, ActionName("Cancel")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelConfirmed(int id)
+        {
+            var dto = new { Status = "cancelada" };
+
+            var resp = await _http.PutAsJsonAsync($"api/appointments/{id}", dto);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "La cita fue cancelada correctamente.";
+            }
+            else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                TempData["Error"] = "Cita no encontrada.";
+            }
+            else
+            {
+                var content = await resp.Content.ReadAsStringAsync();
+                TempData["Error"] = ExtractErrorMessage(content);
+            }
+
+            return RedirectToAction("Historial");
+        }
+
         private string ExtractErrorMessage(string content)
         {
             if (string.IsNullOrWhiteSpace(content))
