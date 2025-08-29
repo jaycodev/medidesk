@@ -145,7 +145,7 @@ namespace Api.Domains.Schedules.Repositories
             List<ScheduleDTO> fullSchedules = new List<ScheduleDTO>();
 
             // Si se encontraron horarios en la base de datos
-            if (currentSchedules != null && currentSchedules.Any())
+            if (true)
             {
                 // Lista de todos los días de la semana
                 var weekDays = new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
