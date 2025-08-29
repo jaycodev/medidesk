@@ -8,7 +8,9 @@ namespace Api.Domains.Appointments.Repositories
         List<AppointmentListDTO> GetAppointmentsByStatus(int userId, string userRol, string status);
         List<AppointmentListDTO> GetHistorial(int userId, string userRol);
         AppointmentDetailDTO? GetById(int id);
-        int Create(CreateAppointmentDTO dto); 
+        List<AppointmentTimeDTO> GetByDoctorAndDate(int doctorId, DateTime date);
+        List<ScheduleDTO> GetScheduleByDoctorAndDay(int doctorId, DateTime date);
+        int Reserve(CreateAppointmentDTO dto);
         int Update(int id, UpdateAppointmentStatusDTO dto);
     }
 }

@@ -1,5 +1,4 @@
-﻿using medical_appointment_system.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Web.Models.Appointments;
 using Web.Models.Doctors;
@@ -24,46 +23,6 @@ namespace Web.Controllers
             return null;
         }
 
-        private async Task LoadDoctorsAsync(int? selectedId = null)
-        {
-            try
-            {
-                var docs = await _http.GetFromJsonAsync<List<DoctorListDTO>>("api/doctors") ?? new();
-                ViewBag.Doctors = new SelectList(
-                    docs.Select(d => new
-                    {
-                        Id = d.UserId,
-                        Name = $"{d.FirstName} {d.LastName}".Trim()
-                    }),
-                    "Id", "Name", selectedId
-                );
-            }
-            catch
-            {
-                ViewBag.Doctors = new SelectList(Enumerable.Empty<SelectListItem>());
-            }
-        }
-
-        private async Task LoadPatientsAsync(int? selectedId = null)
-        {
-            try
-            {
-                var pats = await _http.GetFromJsonAsync<List<Patient>>("api/patients") ?? new();
-                ViewBag.Patients = new SelectList(
-                    pats.Select(p => new
-                    {
-                        Id = p.UserId,
-                        Name = $"{p.FirstName} {p.LastName}".Trim()
-                    }),
-                    "Id", "Name", selectedId
-                );
-            }
-            catch
-            {
-                ViewBag.Patients = new SelectList(Enumerable.Empty<SelectListItem>());
-            }
-        }
-
         private async Task LoadSpecialtiesAsync(int? selectedId = null)
         {
             try
@@ -78,63 +37,6 @@ namespace Web.Controllers
             {
                 ViewBag.Specialties = new SelectList(Enumerable.Empty<SelectListItem>());
             }
-        }
-
-        private void LoadConsultationTypes(string? selected = null)
-        {
-            ViewBag.ConsultationTypes = new SelectList(new[]
-            {
-                    new SelectListItem("Consulta",  "consulta"),
-                    new SelectListItem("Examen",    "examen"),
-                    new SelectListItem("Operación", "operacion"),
-                }, "Value", "Text", selected);
-        }
-
-        private void LoadStatusList(string? selected = null)
-        {
-            ViewBag.StatusList = new SelectList(new[]
-            {
-                    new SelectListItem("Pendiente", "pendiente"),
-                    new SelectListItem("Confirmada", "confirmada"),
-                    new SelectListItem("Cancelada", "cancelada"),
-                    new SelectListItem("Atendida", "atendida"),
-                }, "Value", "Text", selected);
-        }
-
-        private async Task LoadAllSelectsAsync(
-            int? doctorId = null, int? patientId = null, int? specialtyId = null, string? type = null)
-        {
-            await LoadDoctorsAsync(doctorId);
-            await LoadPatientsAsync(patientId);
-            await LoadSpecialtiesAsync(specialtyId);
-            LoadConsultationTypes(type);
-        }
-
-        private string ExtractErrorMessage(string content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-                return "No se pudo procesar la petición.";
-
-            try
-            {
-                if (content.Contains("\"message\""))
-                {
-                    var start = content.IndexOf("\"message\"", StringComparison.OrdinalIgnoreCase);
-                    var colon = content.IndexOf(':', start);
-                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
-                    return trimmed;
-                }
-                if (content.Contains("\"error\""))
-                {
-                    var start = content.IndexOf("\"error\"", StringComparison.OrdinalIgnoreCase);
-                    var colon = content.IndexOf(':', start);
-                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
-                    return trimmed;
-                }
-            }
-            catch { }
-
-            return content.Length > 300 ? content[..300] + "..." : content;
         }
 
         public async Task<IActionResult> AllAppointments()
@@ -201,7 +103,6 @@ namespace Web.Controllers
             return View(list);
         }
 
-
         public async Task<IActionResult> Details(int id)
         {
             if (id == 0) return RedirectToAction(nameof(Index));
@@ -212,108 +113,125 @@ namespace Web.Controllers
             return View(item);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Reserve()
         {
-            var vm = new CreateAppointmentDTO
-            {
-                Date = DateTime.Today.ToString("yyyy-MM-dd"),
-                Time = DateTime.Now.ToString("HH:mm")
-            };
-            await LoadAllSelectsAsync();
-            return View(vm);
+            await LoadSpecialtiesAsync();
+            return View(new CreateAppointmentDTO());
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateAppointmentDTO dto)
+        public async Task<JsonResult> GetDoctorsBySpecialty(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                await LoadAllSelectsAsync(dto.DoctorId, dto.PatientId, dto.SpecialtyId, dto.ConsultationType);
-                return View(dto);
-            }
-
             try
             {
-                var resp = await _http.PostAsJsonAsync("api/appointments", dto);
+                var response = await _http.GetAsync($"api/doctors/by-specialty?specialtyId={id}&userId=3");
+                if (!response.IsSuccessStatusCode)
+                    return Json(new { error = "No se pudieron obtener los médicos" });
 
-                if (resp.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "¡Cita creada correctamente!";
-                    return RedirectToAction(nameof(Index));
-                }
+                var doctors = await response.Content.ReadFromJsonAsync<List<DoctorBySpecialtyDTO>>()
+                                ?? new List<DoctorBySpecialtyDTO>();
 
-                var content = await resp.Content.ReadAsStringAsync();
-                ViewBag.Message = ExtractErrorMessage(content);
-            }
-            catch
-            {
-                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
-            }
-
-            await LoadAllSelectsAsync(dto.DoctorId, dto.PatientId, dto.SpecialtyId, dto.ConsultationType);
-            return View(dto);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            if (id == 0) return RedirectToAction(nameof(Index));
-
-            var item = await GetByIdAsync(id);
-            if (item == null) return RedirectToAction(nameof(Index));
-
-            LoadStatusList(item.Status);
-            return View(item);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [FromForm] UpdateAppointmentStatusDTO form)
-        {
-            if (!ModelState.IsValid)
-            {
-                var vm = await GetByIdAsync(id);
-                LoadStatusList(form.Status);
-                return View(vm!);
-            }
-
-            HttpResponseMessage resp;
-            try
-            {
-                resp = await _http.PutAsJsonAsync($"api/appointments/{id}", form);
+                return Json(doctors);
             }
             catch (Exception ex)
             {
-                ViewBag.Message = $"No se pudo contactar a la API: {ex.Message}";
-                var vmErr = await GetByIdAsync(id);
-                LoadStatusList(form.Status);
-                return View(vmErr!);
+                return Json(new { error = ex.Message });
             }
-
-            if (resp.IsSuccessStatusCode)
-            {
-                TempData["Success"] = $"¡Cita actualizada a '{form.Status}'!";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var raw = await resp.Content.ReadAsStringAsync();
-            ViewBag.Message = $"Error {(int)resp.StatusCode}: {resp.ReasonPhrase}. {ExtractErrorMessage(raw)}";
-            var vm2 = await GetByIdAsync(id);
-            LoadStatusList(form.Status);
-            return View(vm2!);
         }
 
-        private async Task HydrateAsync(AppointmentDetailDTO dto)
+        private async Task<List<ScheduleDTO>?> GetDoctorScheduleByDayAsync(int doctorId, DateTime date)
         {
-            var full = await GetByIdAsync(dto.AppointmentId);
-            if (full != null)
+            try
             {
-                dto.DoctorName = full.DoctorName;
-                dto.PatientName = full.PatientName;
-                dto.Date = full.Date;
-                dto.Time = full.Time;
+                var response = await _http.GetAsync(
+                    $"api/appointments/schedule-by-doctor-and-day?doctorId={doctorId}&date={date.ToString("yyyy-MM-dd")}");
+
+                if (!response.IsSuccessStatusCode) return null;
+
+                var schedule = await response.Content.ReadFromJsonAsync<List<ScheduleDTO>>();
+                return schedule;
             }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<JsonResult> GetAvailableTimes(int doctorId, DateTime date)
+        {
+            if (doctorId <= 0)
+                return Json(new { error = "Se requiere un doctorId válido." });
+
+            var shifts = await GetDoctorScheduleByDayAsync(doctorId, date);
+            if (shifts == null || !shifts.Any())
+                return Json(new { error = "El médico no tiene horario asignado ese día." });
+
+            var allTimes = new List<string>();
+            foreach (var shift in shifts)
+            {
+                for (var time = shift.StartTime; time < shift.EndTime; time = time.Add(TimeSpan.FromHours(1)))
+                {
+                    allTimes.Add(time.ToString(@"hh\:mm"));
+                }
+            }
+
+            var appointmentsResponse = await _http.GetAsync(
+                $"api/appointments/by-doctor-and-date?doctorId={doctorId}&date={date:yyyy-MM-dd}");
+
+            var appointments = appointmentsResponse.IsSuccessStatusCode
+                ? await appointmentsResponse.Content.ReadFromJsonAsync<List<AppointmentTimeDTO>>()
+                : new List<AppointmentTimeDTO>();
+
+            var takenTimes = appointments?.Select(a => a.Time.ToString(@"hh\:mm")).ToList() ?? new List<string>();
+
+            var available = allTimes.Select(t => new
+            {
+                Time = t,
+                IsAvailable = !takenTimes.Contains(t)
+            }).ToList();
+
+            return Json(available);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Reserve(CreateAppointmentDTO dto)
+        {
+            dto.PatientId = 3;
+
+            var resp = await _http.PostAsJsonAsync("api/appointments", dto);
+
+            if (resp.IsSuccessStatusCode)
+                TempData["Success"] = "¡Cita reservada correctamente!";
+            else
+                TempData["Error"] = "No se pudo reservar la cita.";
+
+            return RedirectToAction("Pending");
+        }
+
+        private string ExtractErrorMessage(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return "No se pudo procesar la petición.";
+
+            try
+            {
+                if (content.Contains("\"message\""))
+                {
+                    var start = content.IndexOf("\"message\"", StringComparison.OrdinalIgnoreCase);
+                    var colon = content.IndexOf(':', start);
+                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
+                    return trimmed;
+                }
+                if (content.Contains("\"error\""))
+                {
+                    var start = content.IndexOf("\"error\"", StringComparison.OrdinalIgnoreCase);
+                    var colon = content.IndexOf(':', start);
+                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
+                    return trimmed;
+                }
+            }
+            catch { }
+
+            return content.Length > 300 ? content[..300] + "..." : content;
         }
     }
 }

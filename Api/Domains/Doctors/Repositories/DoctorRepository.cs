@@ -72,6 +72,36 @@ namespace Api.Domains.Doctors.Repositories
 
             return null;
         }
+
+        public List<DoctorBySpecialtyDTO> GetBySpecialty(int specialtyId, int userId)
+        {
+            var list = new List<DoctorBySpecialtyDTO>();
+
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_BY_SPECIALTY");
+            cmd.Parameters.AddWithValue("@specialty_id", specialtyId);
+            cmd.Parameters.AddWithValue("@user_id", userId);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new DoctorBySpecialtyDTO
+                {
+                    UserId = reader.SafeGetInt("user_id"),
+                    FirstName = reader.SafeGetString("first_name"),
+                    LastName = reader.SafeGetString("last_name"),
+                    SpecialtyId = reader.SafeGetInt("specialty_id")
+                });
+            }
+
+            return list;
+        }
+
         public (int newId, string? error) Create(CreateDoctorDTO dto)
         {
             using var cn = GetConnection();

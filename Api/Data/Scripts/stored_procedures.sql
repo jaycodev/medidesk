@@ -679,7 +679,7 @@ BEGIN
 
 			COMMIT TRANSACTION;
 
-			SELECT @appointment_id AS appointment_id, 1 AS affected_rows;
+			SELECT @appointment_id AS new_id;
 		END TRY
 		BEGIN CATCH
 			IF @@TRANCOUNT > 0
@@ -925,19 +925,6 @@ BEGIN
 
 		RETURN;
     END
-
-	ELSE IF @indicator = 'GET_IDS_BY_ID'
-	BEGIN
-		SELECT 
-			appointment_id,
-			doctor_id,
-			patient_id,
-			specialty_id
-		FROM Appointments
-		WHERE appointment_id = @appointment_id;
-
-		RETURN;
-	END
 
 	ELSE IF @indicator = 'GET_ALL'
     BEGIN

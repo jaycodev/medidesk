@@ -32,6 +32,13 @@ namespace Api.Domains.Doctors.Controllers
             return Ok(doctor);
         }
 
+        [HttpGet("by-specialty")]
+        public IActionResult GetBySpecialty([FromQuery] int specialtyId, [FromQuery] int userId)
+        {
+            var doctors = _repository.GetBySpecialty(specialtyId, userId);
+            return Ok(doctors);
+        }
+
         [HttpPost]
         public IActionResult Create([FromBody] CreateDoctorDTO dto)
         {

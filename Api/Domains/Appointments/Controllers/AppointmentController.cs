@@ -71,8 +71,38 @@ namespace Api.Domains.Appointments.Controllers
             return Ok(item);
         }
 
+        [HttpGet("by-doctor-and-date")]
+        public IActionResult GetByDoctorAndDate([FromQuery] int doctorId, [FromQuery] DateTime date)
+        {
+            if (doctorId <= 0)
+                return BadRequest("Se requiere un doctorId válido.");
+
+            var doctor = _doctors.GetById(doctorId);
+            if (doctor == null)
+                return NotFound("El doctor no existe.");
+
+            var times = _repository.GetByDoctorAndDate(doctorId, date);
+
+            return Ok(times);
+        }
+
+        [HttpGet("schedule-by-doctor-and-day")]
+        public IActionResult GetScheduleByDoctorAndDay([FromQuery] int doctorId, [FromQuery] DateTime date)
+        {
+            if (doctorId <= 0)
+                return BadRequest("Se requiere un doctorId válido.");
+
+            var doctor = _doctors.GetById(doctorId);
+            if (doctor == null)
+                return NotFound("El doctor no existe.");
+
+            var schedule = _repository.GetScheduleByDoctorAndDay(doctorId, date);
+
+            return Ok(schedule);
+        }
+
         [HttpPost]
-        public IActionResult Create([FromBody] CreateAppointmentDTO dto)
+        public IActionResult Reserve([FromBody] CreateAppointmentDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -86,7 +116,7 @@ namespace Api.Domains.Appointments.Controllers
             if (_specialties.GetById(dto.SpecialtyId) is null)
                 return BadRequest(new { message = "La especialidad no existe." });
 
-            var newId = _repository.Create(dto);
+            var newId = _repository.Reserve(dto);
             if (newId > 0)
             {
                 var created = _repository.GetById(newId);
