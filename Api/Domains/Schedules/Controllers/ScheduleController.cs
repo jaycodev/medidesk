@@ -20,7 +20,7 @@ namespace Api.Domains.Schedules.Controllers
         {
             List<ScheduleDTO> fullschedules = scheduleDATA.GetListSchedulesByIdDoctor(idDoctor);
 
-            if (fullschedules.Count() != 0 && !fullschedules.Any())
+            if (fullschedules.Count() != 0)
                 return Ok(fullschedules);
 
             return NotFound(new { message = "No se encontraron horarios para el doctor especificado." });
