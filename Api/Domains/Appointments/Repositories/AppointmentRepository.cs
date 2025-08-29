@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Globalization;
 using Api.Data.Repository;
 using Api.Domains.Appointments.DTOs;
 using Api.Helpers;
@@ -142,7 +141,61 @@ namespace Api.Domains.Appointments.Repositories
             return null;
         }
 
-        public int Create(CreateAppointmentDTO dto)
+        public List<AppointmentTimeDTO> GetByDoctorAndDate(int doctorId, DateTime date)
+        {
+            var list = new List<AppointmentTimeDTO>();
+
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_BY_DOCTOR_AND_DATE");
+            cmd.Parameters.AddWithValue("@doctor_id", doctorId);
+            cmd.Parameters.AddWithValue("@date", date.Date);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new AppointmentTimeDTO
+                {
+                    Time = reader.SafeGetTimeSpan("time")
+                });
+            }
+
+            return list;
+        }
+
+        public List<ScheduleDTO> GetScheduleByDoctorAndDay(int doctorId, DateTime date)
+        {
+            var list = new List<ScheduleDTO>();
+
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_SCHEDULE_BY_DOCTOR_AND_DAY");
+            cmd.Parameters.AddWithValue("@doctor_id", doctorId);
+            cmd.Parameters.AddWithValue("@date", date.Date);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new ScheduleDTO
+                {
+                    DayWorkShift = reader.SafeGetString("day_work_shift"),
+                    StartTime = reader.SafeGetTimeSpan("start_time"),
+                    EndTime = reader.SafeGetTimeSpan("end_time")
+                });
+            }
+
+            return list;
+        }
+
+        public int Reserve(CreateAppointmentDTO dto)
         {
             using var cn = GetConnection();
             cn.Open();
@@ -150,23 +203,19 @@ namespace Api.Domains.Appointments.Repositories
             using var cmd = new SqlCommand(crudCommand, cn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
-            var date = DateTime.ParseExact(dto.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var time = TimeSpan.ParseExact(dto.Time, @"hh\:mm", CultureInfo.InvariantCulture);
+
             cmd.Parameters.AddWithValue("@indicator", "INSERT");
             cmd.Parameters.AddWithValue("@doctor_id", dto.DoctorId);
             cmd.Parameters.AddWithValue("@patient_id", dto.PatientId);
             cmd.Parameters.AddWithValue("@specialty_id", dto.SpecialtyId);
-            cmd.Parameters.Add("@date", SqlDbType.Date).Value = date.Date;
-            cmd.Parameters.Add("@time", SqlDbType.Time).Value = time;
+            cmd.Parameters.AddWithValue("@date", dto.Date);
+            cmd.Parameters.AddWithValue("@time", dto.Time);
             cmd.Parameters.AddWithValue("@consultation_type", dto.ConsultationType);
-            cmd.Parameters.AddWithValue("@symptoms", (object?)dto.Symptoms ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@symptoms", dto.Symptoms);
             cmd.Parameters.AddWithValue("@status", "pendiente");
 
-            using var reader = cmd.ExecuteReader();
-            if (reader.Read())
-                return reader.SafeGetInt("appointment_id");
-
-            return -1;
+            var newId = cmd.ExecuteScalar();
+            return newId != null ? Convert.ToInt32(newId) : -1;
         }
 
         public int Update(int id, UpdateAppointmentStatusDTO dto)
