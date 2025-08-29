@@ -34,6 +34,7 @@ namespace Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.Error = "Por favor complete los campos obligatorios.";
                 return View(patient);
             }
 
@@ -45,7 +46,7 @@ namespace Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Message = "No se pudo crear el paciente. Intenta nuevamente.";
+            ViewBag.Error = "No se pudo crear el paciente. Intenta nuevamente.";
             return View(patient);
         }
 
