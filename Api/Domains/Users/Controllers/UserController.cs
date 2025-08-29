@@ -84,5 +84,15 @@ namespace Api.Domains.Users.Controllers
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDTO dto)
+        {
+            var user = userDATA.Login(dto.Email, dto.Password);
+            if (user == null)
+                return Unauthorized("Correo o contraseña incorrectos");
+
+            return Ok(user);
+        }
     }
 }

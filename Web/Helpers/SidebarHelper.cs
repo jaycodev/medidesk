@@ -21,11 +21,9 @@
                 new SidebarItem { Title = "Usuarios", Controller = "Users", Action = "Index", Icon = "fa-solid fa-users", Roles = new[] { "administrador" } }
             };
 
-            return allItems;
-
-            // return allItems
-            //     .Where(item => item.Roles.Any(r => r.ToLower() == activeRole))
-            //     .ToList();
+            return allItems
+                .Where(item => item.Roles.Any(r => r.ToLower() == activeRole))
+                .ToList();
         }
     }
 }

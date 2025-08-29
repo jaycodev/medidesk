@@ -1,15 +1,25 @@
 ﻿@model IEnumerable<Web.Models.Appointments.AppointmentListDTO>
 
 @using System.Text.Json
-@using medical_appointment_system.Models
+@using Web.Models.User
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewBag.Title = "Inicio";
 
-    var activeRole = "medico";
+    var userJson = HttpContextAccessor.HttpContext!.Session.GetString("LoggedUser");
+    LoggedUserDTO? user = null;
+
+    if (!string.IsNullOrEmpty(userJson))
+    {
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        user = JsonSerializer.Deserialize<LoggedUserDTO>(userJson, options);
+    }
+
+    var activeRole = user?.ActiveRole?.ToLower();
     var isAdmin = activeRole == "administrador";
 }
+
 
 @if (isAdmin)
 {

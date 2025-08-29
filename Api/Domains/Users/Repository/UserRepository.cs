@@ -28,7 +28,6 @@ namespace Api.Domains.Users.Repository
             cmd.Parameters.AddWithValue("@password", dto.Password);
             cmd.Parameters.AddWithValue("@phone", dto.Phone);
 
-            // Devuelve las filas afectadas desde el procedimiento
             var result = cmd.ExecuteScalar();
             return result != null ? Convert.ToInt32(result) : 0;
         }
@@ -68,8 +67,10 @@ namespace Api.Domains.Users.Repository
                     LastName = reader.SafeGetString("last_name"),
                     Email = reader.SafeGetString("email"),
                     Phone = reader.SafeGetString("phone"),
-                    Roles = reader.SafeGetString("roles")?.Split(',').ToList(),
-                    Password = reader.SafeGetString("password"),
+                    Roles = reader.SafeGetString("roles")
+                                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(r => r.Trim())
+                                    .ToList(),
                     ProfilePicture = reader.SafeGetString("profile_picture")
                 };
             }
@@ -99,15 +100,16 @@ namespace Api.Domains.Users.Repository
                     LastName = reader.SafeGetString("last_name"),
                     Email = reader.SafeGetString("email"),
                     Phone = reader.SafeGetString("phone"),
-                    Roles = reader.SafeGetString("roles")?.Split(',').ToList(),
+                    Roles = reader.SafeGetString("roles")
+                                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(r => r.Trim())
+                                    .ToList(),
                     ProfilePicture = reader.SafeGetString("profile_picture")
 
                 });
             }
             return list;
         }
-
-
 
         public int Update(int id, UserUpdateDTO dto)
         {
@@ -125,11 +127,37 @@ namespace Api.Domains.Users.Repository
             cmd.Parameters.AddWithValue("@phone", dto.Phone);
             cmd.Parameters.AddWithValue("@roles", dto.SelectedRoleCombo);
 
-            // Si quieres pasar roles: cmd.Parameters.AddWithValue("@roles", "administrador,medico");
-
             var result = cmd.ExecuteScalar();
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
+        public LoggedUserDTO? Login(string email, string password)
+        {
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@indicator", "LOGIN");
+            cmd.Parameters.AddWithValue("@email", email);
+            cmd.Parameters.AddWithValue("@password", password);
+
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read()) return null;
+
+            return new LoggedUserDTO
+            {
+                UserId = reader.SafeGetInt("user_id"),
+                FirstName = reader.SafeGetString("first_name"),
+                LastName = reader.SafeGetString("last_name"),
+                Email = reader.SafeGetString("email"),
+                Roles = reader.SafeGetString("roles")
+                                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(r => r.Trim())
+                                    .ToList(),
+                ProfilePicture = reader.SafeGetString("profile_picture")
+            };
+        }
     }
 }

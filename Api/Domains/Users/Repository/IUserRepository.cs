@@ -6,11 +6,11 @@ namespace Api.Domains.Users.Repository
 {
     public interface IUserRepository
     {
-
         List<User> GetList();
         User GetById(int id);
         int Create(UserDTO dto);
         int Update(int id, UserUpdateDTO dto);
         int Delete(int id);
+        LoggedUserDTO? Login(string email, string password);
     }
 }

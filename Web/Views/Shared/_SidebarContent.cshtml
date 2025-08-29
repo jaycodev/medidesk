@@ -1,15 +1,20 @@
-﻿@using Web.Helpers
+﻿@using System.Text.Json
+@using Web.Models.User
+@using Web.Helpers
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
 
-    var user = new Web.Models.User.User
+    var userJson = HttpContextAccessor.HttpContext!.Session.GetString("LoggedUser");
+    LoggedUserDTO? user = null;
+
+    if (!string.IsNullOrEmpty(userJson))
     {
-        FirstName = "Demo",
-        ActiveRole = "doctor"
-    };
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        user = JsonSerializer.Deserialize<LoggedUserDTO>(userJson, options);
+    }
 
     var activeRole = user?.ActiveRole?.ToLower();
     var sidebarItems = SidebarHelper.GetSidebarItems(activeRole);
@@ -22,6 +27,7 @@
 
     var isAdmin = activeRole == "administrador";
 }
+
 
 <ul class="nav nav-pills flex-column mb-auto">
     @if (homeItem != null)
