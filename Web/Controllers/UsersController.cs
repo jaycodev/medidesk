@@ -25,12 +25,16 @@ namespace Web.Controllers
             _http = httpFactory.CreateClient("ApiClient");
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
+            if(!int.TryParse(HttpContext.Session.GetString("UserId"), out int loggedUserId))
+                return RedirectToAction("Login","Account");
+
+
             var users = new List<UserListDTO>();
             try
             {
-                users = await _http.GetFromJsonAsync<List<UserListDTO>>("api/users") ?? new List<UserListDTO>();
+                users = await _http.GetFromJsonAsync<List<UserListDTO>>($"api/users?id={loggedUserId}") ?? new List<UserListDTO>();
             }
             catch
             { }
