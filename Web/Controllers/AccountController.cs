@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Web.Models.Patients;
 using Web.Models.User;
 
 namespace Web.Controllers
@@ -70,6 +71,41 @@ namespace Web.Controllers
         {
             _httpContext.HttpContext!.Session.Clear();
             return RedirectToAction("Login");
+        }
+
+        public IActionResult Register()
+        {
+            return View(new PatientCreateDTO());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(PatientCreateDTO patient)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(patient);
+            }
+
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/patient", patient);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "¡Cuenta creada correctamente!";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                ViewBag.Error = $"No se pudo crear la cuenta: {errorMsg}";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Ocurrió un error inesperado: {ex.Message}";
+            }
+
+            return View(patient);
         }
 
         [HttpPost]
