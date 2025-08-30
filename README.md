@@ -1,6 +1,16 @@
-<p align="center">
-  <img src="https://github.com/jaycodev/medical-appointments/blob/main/Assets/readme.jpg" alt="Preview"/>
-</p>
+<div align="center">
+  <a href="#">
+    <img src="./Assets/readme.jpg" alt="Preview">
+  </a>
+  <p></p>
+</div>
+
+<div align="center">
+
+![.NET](https://img.shields.io/badge/.NET-512BD4?logo=.net&logoColor=white&style=flat)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-6f42c1?logo=bootstrap&logoColor=white&style=flat)
+
+</div>
 
 A modern, responsive, and secure web application for managing medical appointments. Designed for administrators, doctors, and patients with features like light/dark mode, user roles, calendar scheduling, and exportable reports.
 
@@ -21,8 +31,8 @@ Follow these steps to run the project locally:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/jaycodev/medical-appointments.git
-   cd medical-appointments
+   git clone https://github.com/jaycodev/medidesk.git
+   cd medidesk
    ```
 
 2. **Copy and edit configuration files**
@@ -88,8 +98,8 @@ Used to connect to your local or remote SQL Server database:
 
 ## 🧑‍💻 Contributors
 
-<a href="https://github.com/jaycodev/medical-appointments/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=jaycodev/medical-appointments" />
+<a href="https://github.com/jaycodev/medidesk/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jaycodev/medidesk" />
 </a>
 
 ## 📄 License
