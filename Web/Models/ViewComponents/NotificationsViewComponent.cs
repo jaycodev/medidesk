@@ -21,16 +21,16 @@ namespace Web.Models.ViewComponents
                     url = $"api/Notification/patient/{patientId.Value}?take={take}";
                 else
                     // si tienes un endpoint "global", si no, devuelve vacío:
-                    return View("Default", new List<NotificationDTO>());
+                    return View("Default", new List<NotificationListDTO>());
 
-                var list = await _http.GetFromJsonAsync<List<NotificationDTO>>(url) ?? new();
+                var list = await _http.GetFromJsonAsync<List<NotificationListDTO>>(url) ?? new();
                 // Ordena por fecha desc, por si el repo no lo hace:
                 list = list.OrderByDescending(n => n.CreatedAt).ToList();
                 return View("Default", list);
             }
             catch
             {
-                return View("Default", new List<NotificationDTO>());
+                return View("Default", new List<NotificationListDTO>());
             }
         }
     }
