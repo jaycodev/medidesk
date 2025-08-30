@@ -159,5 +159,39 @@ namespace Api.Domains.Users.Repository
                 ProfilePicture = reader.SafeGetString("profile_picture")
             };
         }
+
+        public int UpdatePassword(int userId, string newPassword,string currentPassword)
+        {
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@indicator", "UPDATE_PASSWORD");
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            cmd.Parameters.AddWithValue("@current_password", currentPassword);
+            cmd.Parameters.AddWithValue("@password", newPassword);
+
+            var result = cmd.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
+        }
+
+        public int UpdateProfilePicture(int userId, string profilePictureUrl)
+        {
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@indicator", "UPDATE_PROFILE_PICTURE");
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            cmd.Parameters.AddWithValue("@profile_picture", profilePictureUrl);
+
+            var result = cmd.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
+        }
+
     }
 }
