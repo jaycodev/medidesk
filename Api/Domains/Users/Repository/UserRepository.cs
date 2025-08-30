@@ -78,7 +78,7 @@ namespace Api.Domains.Users.Repository
             return null;
         }
 
-        public List<User> GetList()
+        public List<User> GetList(int id)
         {
             var list = new List<User>();
 
@@ -89,7 +89,7 @@ namespace Api.Domains.Users.Repository
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
-
+            cmd.Parameters.AddWithValue("@user_id", id);
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

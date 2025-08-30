@@ -6,7 +6,7 @@ namespace Api.Domains.Users.Repository
 {
     public interface IUserRepository
     {
-        List<User> GetList();
+        List<User> GetList(int id);
         User GetById(int id);
         int Create(UserDTO dto);
         int Update(int id, UserUpdateDTO dto);

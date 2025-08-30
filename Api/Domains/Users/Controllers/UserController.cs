@@ -17,9 +17,9 @@ namespace Api.Domains.Users.Controllers
         }
 
         [HttpGet]
-        public IActionResult ListarUsers()
+        public IActionResult ListarUsers(int id)
         {
-            var listado = userDATA.GetList();
+            var listado = userDATA.GetList(id);
             return Ok(listado);
         }
 

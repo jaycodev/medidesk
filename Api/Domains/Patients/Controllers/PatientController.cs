@@ -50,20 +50,24 @@ namespace Api.Domains.Patients.Controllers
             return BadRequest(new { message = "No se pudo crear el paciente" });
         }
 
-        [HttpPut]
-        public IActionResult UpdatePatient(PatientUpdateDTO dto)
+        [HttpPut("{id}")]
+        public IActionResult UpdatePatient(int id, [FromBody]PatientUpdateDTO dto)
         {
-            if (dto == null)
-            {
-                return BadRequest(new { message = "Datos del paciente no válidos" });
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var result = patientDATA.Update(dto);
+            var result = patientDATA.Update(id, dto);
+
             if (result > 0)
             {
-                return Ok(new { message = "Paciente actualizado correctamente" });
+                var updatePatint = patientDATA.GetById(id);
+                if (updatePatint == null)
+                    return NotFound("Paciente no encontrado después de actualizar.");
+
+                return Ok(updatePatint);
             }
-            return NotFound(new { message = "Paciente no encontrado" });
+
+            return NotFound("Paciente no encontrado o no se pudo actualizar");
         }
         /*
                 public ActionResult ExportToExcel()

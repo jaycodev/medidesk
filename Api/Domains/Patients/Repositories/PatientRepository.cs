@@ -126,7 +126,7 @@ namespace Api.Data.Repository
             return process;
         }
 
-        public int Update(PatientUpdateDTO dto)
+        public int Update(int id,PatientUpdateDTO dto)
         {
             int process = -1;
             using (SqlConnection cn = GetConnection())
@@ -137,7 +137,7 @@ namespace Api.Data.Repository
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@indicator", "UPDATE");
-                    cmd.Parameters.AddWithValue("@user_id", dto.UserId);
+                    cmd.Parameters.AddWithValue("@user_id", id);
                     cmd.Parameters.AddWithValue("@birth_date", dto.BirthDate);
                     cmd.Parameters.AddWithValue("@blood_type", dto.BloodType);
 
