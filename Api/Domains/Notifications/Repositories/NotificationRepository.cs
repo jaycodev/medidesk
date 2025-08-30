@@ -1,19 +1,19 @@
 ﻿using System.Data;
 using Api.Data.Repository;
-using Api.Domains.Notification.DTOs;
+using Api.Domains.Notifications.DTOs;
 using Api.Helpers;
 using Microsoft.Data.SqlClient;
 
-namespace Api.Domains.Notification.Repositories
+namespace Api.Domains.Notifications.Repositories
 {
-    public class NotificationRepository : BaseRepository, INotification
+    public class NotificationRepository : BaseRepository, INotificationRepository
     {
         private const string crudCommand = "Notification_CRUD";
         public NotificationRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<NotificationDTO> GetForDoctor(int doctorId)
+        public List<NotificationListDTO> GetForDoctor(int doctorId)
         {
-            var list = new List<NotificationDTO>();
+            var list = new List<NotificationListDTO>();
 
             using var cn = GetConnection();
             cn.Open();
@@ -27,7 +27,7 @@ namespace Api.Domains.Notification.Repositories
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                list.Add(new NotificationDTO
+                list.Add(new NotificationListDTO
                 {
                     NotificationId = reader.SafeGetInt("NotificationId"),
                     DoctorId = reader.SafeGetInt("DoctorId"),
@@ -40,9 +40,9 @@ namespace Api.Domains.Notification.Repositories
             return list;
         }
 
-        public List<NotificationDTO> GetForPatient(int patientId)
+        public List<NotificationListDTO> GetForPatient(int patientId)
         {
-            var list = new List<NotificationDTO>();
+            var list = new List<NotificationListDTO>();
 
             using var cn = GetConnection();
             cn.Open();
@@ -51,13 +51,12 @@ namespace Api.Domains.Notification.Repositories
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@indicator", "GET_ALL_PA_NOTIFICATIONS");
-            // OJO: el SP usa @pacient_id (con 'c')
-            cmd.Parameters.AddWithValue("@pacient_id", patientId);
+            cmd.Parameters.AddWithValue("@patient_id", patientId);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                list.Add(new NotificationDTO
+                list.Add(new NotificationListDTO
                 {
                     NotificationId = reader.SafeGetInt("NotificationId"),
                     DoctorId = reader.SafeGetInt("DoctorId"),

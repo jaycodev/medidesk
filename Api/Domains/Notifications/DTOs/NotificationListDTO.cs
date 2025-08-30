@@ -1,6 +1,6 @@
-﻿namespace Web.Models.Notifications
+﻿namespace Api.Domains.Notifications.DTOs
 {
-    public class NotificationDTO
+    public class NotificationListDTO
     {
         public int NotificationId { get; set; }
         public int? DoctorId { get; set; }

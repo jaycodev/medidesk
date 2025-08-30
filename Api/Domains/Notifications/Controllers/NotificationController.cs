@@ -1,15 +1,15 @@
-﻿using Api.Domains.Notification.Repositories;
+﻿using Api.Domains.Notifications.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Domains.Notification.Controllers
+namespace Api.Domains.Notifications.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/notifications")]
     [ApiController]
     public class NotificationController : ControllerBase
     {
-        private readonly INotification _repository;
+        private readonly INotificationRepository _repository;
 
-        public NotificationController(INotification repo)
+        public NotificationController(INotificationRepository repo)
         {
             _repository = repo;
         }

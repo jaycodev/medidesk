@@ -1114,18 +1114,16 @@ CREATE OR ALTER PROCEDURE Notification_CRUD
     @indicator VARCHAR(50),
     @notification_id INT = NULL,
     @doctor_id INT = NULL,
-    @pacient_id INT = NULL,
+    @patient_id INT = NULL,
     @appointment_id INT = NULL,
-    @message VARCHAR(500) = NULL,
-    @is_read BIT = NULL,
-    @role VARCHAR(20) = NULL
+    @message VARCHAR(500) = NULL
 AS
 BEGIN
 SET NOCOUNT ON;
 
 	IF @indicator = 'GET_ALL_DOC_NOTIFICATIONS'
 	BEGIN
-		SELECT *
+		SELECT NotificationId, DoctorId, PatientId, AppointmentId, Message, CreatedAt
 		FROM Notifications
 		WHERE 
 			DoctorId = @doctor_id AND
@@ -1137,10 +1135,10 @@ SET NOCOUNT ON;
 
 	IF @indicator = 'GET_ALL_PA_NOTIFICATIONS'
 	BEGIN
-		SELECT *
+		SELECT NotificationId, DoctorId, PatientId, AppointmentId, Message, CreatedAt
 		FROM Notifications
 		WHERE 
-			PatientId = @pacient_id AND
+			PatientId = @patient_id AND
 			(
 				Message LIKE '%confirmada%' OR
 				Message LIKE '%cancelada%' OR

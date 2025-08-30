@@ -1,7 +1,7 @@
 using Api.Data.Repository;
 using Api.Domains.Appointments.Repositories;
 using Api.Domains.Doctors.Repositories;
-using Api.Domains.Notification.Repositories;
+using Api.Domains.Notifications.Repositories;
 using Api.Domains.Patients.Repositories;
 using Api.Domains.Schedules.Repositories;
 using Api.Domains.Specialties.Repositories;
@@ -24,7 +24,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISchedule, ScheduleRepository>();
 builder.Services.AddScoped<IPatient, PatientRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-builder.Services.AddScoped<INotification, NotificationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 var app = builder.Build();
 
