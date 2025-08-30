@@ -10,6 +10,6 @@ namespace Api.Domains.Patients.Repositories
         List<Patient> GetList();
         Patient GetById(int id);
         int Create(PatientCreateDTO dto);
-        int Update(PatientUpdateDTO dto);
+        int Update(int id, PatientUpdateDTO dto);
     }
 }

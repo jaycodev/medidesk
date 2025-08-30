@@ -123,7 +123,6 @@ namespace Web.Controllers
                     return View(model);
                 }
 
-                // 2. Si incluye el rol de médico, creas el médico
                 if (model.SelectedRoleCombo.Contains("medico"))
                 {
                     CreateDoctorDTO doctorData = new CreateDoctorDTO
@@ -142,17 +141,15 @@ namespace Web.Controllers
                     }
                 }
 
-                // 3. Si incluye el rol de paciente, creas el paciente
                 if (model.SelectedRoleCombo.Contains("paciente"))
                 {
                     var patientData = new
                     {
-                        userId = id,
                         birthDate = model.BirthDate,
                         bloodType = model.BloodType
                     };
 
-                    var patientResponse = await _http.PostAsJsonAsync("api/patients", patientData);
+                    var patientResponse = await _http.PutAsJsonAsync($"api/Patient/{id}", patientData);
 
                     if (!patientResponse.IsSuccessStatusCode)
                     {

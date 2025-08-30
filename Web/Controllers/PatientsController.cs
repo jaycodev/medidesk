@@ -58,7 +58,7 @@ namespace Web.Controllers
 
             var patienteUpdate=new PatientUpdateDTO
             {
-                UserId = patient.UserId,
+                UserId = id,
                 BirthDate = patient.BirthDate,
                 BloodType = patient.BloodType
             };
@@ -70,7 +70,7 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(PatientUpdateDTO patient)
         {
-            var response = await _http.PutAsJsonAsync($"api/patient", patient);
+            var response = await _http.PutAsJsonAsync($"api/patient/{patient.UserId}", patient);
 
           
 
