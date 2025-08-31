@@ -182,7 +182,8 @@ BEGIN
 			u.email,
 			u.phone,
 			STRING_AGG(ur.role, ',') AS roles,
-			u.profile_picture
+			u.profile_picture,
+			u.phone
 		FROM Users u
 		LEFT JOIN UserRoles ur ON u.user_id = ur.user_id
 		WHERE 

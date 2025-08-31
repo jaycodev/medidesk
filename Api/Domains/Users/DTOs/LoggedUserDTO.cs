@@ -8,5 +8,6 @@
         public string Email { get; set; }
         public List<string>? Roles { get; set; }
         public string? ProfilePicture { get; set; }
+        public string? Phone { get; set; }
     }
 }

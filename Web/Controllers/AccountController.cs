@@ -59,6 +59,7 @@ namespace Web.Controllers
             _httpContext.HttpContext.Session.SetString("FullName", user.FullName ?? string.Empty);
             _httpContext.HttpContext.Session.SetString("Roles", string.Join(",", user.Roles ?? new List<string>()));
             _httpContext.HttpContext.Session.SetString("ProfilePicture", user.ProfilePicture ?? string.Empty);
+            _httpContext.HttpContext.Session.SetString("Phone", user.Phone ?? string.Empty);
             if (!string.IsNullOrEmpty(user.ActiveRole))
             {
                 _httpContext.HttpContext.Session.SetString("ActiveRole", user.ActiveRole);

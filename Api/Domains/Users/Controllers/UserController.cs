@@ -94,5 +94,57 @@ namespace Api.Domains.Users.Controllers
 
             return Ok(user);
         }
+
+        [HttpPut("{id}/password")]
+        public IActionResult UpdatePassword(int id, [FromBody] UpdatePasswordDTO dto)
+        {
+            try
+            {
+                var affected = userDATA.UpdatePassword(id, dto.NewPassword,dto.CurrentPassword);
+                if (affected <= 0)
+                    return NotFound("Usuario no encontrado o no se pudo actualizar la contraseña");
+
+                return Ok("Contraseña actualizada correctamente");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}/profile-picture")]
+        public IActionResult UpdateProfilePicture(int id, [FromBody] UpdateProfilePictureDTO dto)
+        {
+            try
+            {
+                var affected = userDATA.UpdateProfilePicture(id, dto.ProfilePictureUrl);
+                if (affected <= 0)
+                    return NotFound("Usuario no encontrado o no se pudo actualizar la foto de perfil");
+
+                return Ok("Foto de perfil actualizada correctamente");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}/profile")]
+        public IActionResult UpdateProfile(int id, [FromBody] string Phone)
+        {
+            try
+            {
+                var affected = userDATA.UpdateProfile(id, Phone);
+                if (affected <= 0)
+                    return NotFound("Usuario no encontrado o no se pudo actualizar el perfil");
+
+                return Ok("Perfil actualizado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
     }
 }
