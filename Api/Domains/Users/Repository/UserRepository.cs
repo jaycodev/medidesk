@@ -156,7 +156,8 @@ namespace Api.Domains.Users.Repository
                                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                     .Select(r => r.Trim())
                                     .ToList(),
-                ProfilePicture = reader.SafeGetString("profile_picture")
+                ProfilePicture = reader.SafeGetString("profile_picture"),
+                Phone = reader.SafeGetString("phone")
             };
         }
 
@@ -193,5 +194,20 @@ namespace Api.Domains.Users.Repository
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
+        public int UpdateProfile(int userId, string phone)
+        {
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@indicator", "UPDATE_PROFILE");
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            cmd.Parameters.AddWithValue("@phone", phone);
+
+            var result = cmd.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
+        }
     }
 }

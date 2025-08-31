@@ -128,5 +128,23 @@ namespace Api.Domains.Users.Controllers
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
+
+        [HttpPut("{id}/profile")]
+        public IActionResult UpdateProfile(int id, [FromBody] string Phone)
+        {
+            try
+            {
+                var affected = userDATA.UpdateProfile(id, Phone);
+                if (affected <= 0)
+                    return NotFound("Usuario no encontrado o no se pudo actualizar el perfil");
+
+                return Ok("Perfil actualizado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
     }
 }

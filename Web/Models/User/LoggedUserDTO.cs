@@ -10,5 +10,6 @@
         public string? ActiveRole { get; set; }
         public string? ProfilePicture { get; set; }
         public string FullName => $"{FirstName} {LastName}".Trim();
+        public string Phone { get; set; }
     }
 }

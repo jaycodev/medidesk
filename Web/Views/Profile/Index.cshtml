@@ -43,6 +43,19 @@
         box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
         transform: scale(1.15);
     }
+
+    .spinner-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+
 </style>
 
 <div class="container mt-3">
@@ -93,7 +106,7 @@
             </div>
         }
 
-        <form asp-action="Update" asp-controller="Profile" method="post">
+        <form asp-action="UpdatePhone" asp-controller="Profile" method="post">
             <input asp-for="UserId" type="hidden" />
 
             <div class="row mb-2">
@@ -201,8 +214,8 @@
 <!-- Modal Editar Foto de Perfil -->
 <div class="modal fade" id="editProfilePictureModal" tabindex="-1" aria-labelledby="editProfilePictureModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form asp-action="EditProfilePicture" asp-controller="Profile" method="post" enctype="multipart/form-data">
+        <div class="modal-content"> 
+            <form asp-action="EditProfilePicture" asp-controller="Profile" method="post" enctype="multipart/form-data" id="editProfileForm">
                 <input type="hidden" name="userId" value="@Model.UserId" />
 
                 <div class="modal-header">
@@ -269,7 +282,17 @@
     </div>
 }
 
+<!-- Overlay con spinner -->
+<div id="loadingSpinner" class="spinner-overlay d-none">
+    <img src="~/img/spinning/loading-waiting.gif" alt="Cargando..." style="width:100px; height:100px;">
+</div>
+
 @section Scripts {
+    <script>
+        document.getElementById("editProfileForm").addEventListener("submit", function () {
+            document.getElementById("loadingSpinner").classList.remove("d-none");
+        });
+    </script>
     <partial name="_ValidationScriptsPartial" />
     <script>
         function selectAvatar(element, avatarUrl) {

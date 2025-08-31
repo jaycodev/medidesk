@@ -16,5 +16,6 @@ namespace Api.Domains.Users.Repository
         LoggedUserDTO? Login(string email, string password);
         int UpdatePassword(int userId, string newPassword,string currentPassword);
         int UpdateProfilePicture(int userId, string profilePictureUrl);
+        public int UpdateProfile(int userId, string phone);
     }
 }
