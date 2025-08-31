@@ -14,10 +14,10 @@ namespace Api.Domains.Appointments.Controllers
         private readonly IAppointmentRepository _repository;
         private readonly IDoctorRepository _doctors;
         private readonly ISpecialtyRepository _specialties;
-        private readonly IPatient _patients;
+        private readonly IPatientRepository _patients;
 
         public AppointmentController(IAppointmentRepository repo, IDoctorRepository doctors,
-        ISpecialtyRepository specialties, IPatient patients)
+        ISpecialtyRepository specialties, IPatientRepository patients)
         {
             _repository = repo;
             _doctors = doctors;

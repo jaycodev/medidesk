@@ -1,82 +1,71 @@
-﻿@model Web.Models.Patients.PatientCreateDTO
+﻿@model Web.Models.Patients.CreatePatientDTO
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewData["Title"] = "Crear paciente";
-
-    // Lista de grupos sanguíneos
-    var bloodTypes = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "A+", Text = "A+" },
-        new SelectListItem { Value = "A-", Text = "A-" },
-        new SelectListItem { Value = "B+", Text = "B+" },
-        new SelectListItem { Value = "B-", Text = "B-" },
-        new SelectListItem { Value = "AB+", Text = "AB+" },
-        new SelectListItem { Value = "AB-", Text = "AB-" },
-        new SelectListItem { Value = "O+", Text = "O+" },
-        new SelectListItem { Value = "O-", Text = "O-" }
-    };
 }
 
 <h4 class="text-center mb-3 text-body-emphasis">
-    <i class="fa-solid fa-user-plus me-1"></i>
+    <i class="fa-solid fa-circle-plus me-1"></i>
     Crear paciente
 </h4>
 
-<!-- Alertas con ViewBag y TempData -->
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fa-solid fa-triangle-exclamation me-2"></i>
-        @ViewBag.Error
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-
 <form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-xmark me-1"></i>
+            @ViewBag.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <p class="text-danger mb-3">
         * Obligatorio
     </p>
 
     <div class="row mb-2">
-        <div class="col-md-6">
+        <div class="col-md-6 mb-2">
             <label asp-for="FirstName" class="form-label"></label>
             <span class="text-danger">*</span>
-            <input asp-for="FirstName" class="form-control" />
+            <input asp-for="FirstName" class="form-control" placeholder="Ingrese un(os) nombre(s)" />
             <span asp-validation-for="FirstName" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="LastName" class="form-label"></label>
             <span class="text-danger">*</span>
-            <input asp-for="LastName" class="form-control" />
+            <input asp-for="LastName" class="form-control" placeholder="Ingrese un(os) apellido(s)" />
             <span asp-validation-for="LastName" class="text-danger"></span>
         </div>
     </div>
 
     <div class="row mb-2">
-        <div class="col-md-6">
+        <div class="col-md-6 mb-2">
             <label asp-for="Email" class="form-label"></label>
             <span class="text-danger">*</span>
-            <input asp-for="Email" type="email" class="form-control" />
+            <input asp-for="Email" class="form-control" placeholder="correo@ejemplo.com" />
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
-            <label asp-for="Phone" class="form-label"></label>
-            <input asp-for="Phone" class="form-control" />
-            <span asp-validation-for="Phone" class="text-danger"></span>
+            <label asp-for="Password" class="form-label"></label>
+            <span class="text-danger">*</span>
+            <div class="input-group">
+                <input asp-for="Password" type="password" class="form-control password-field" placeholder="Ingrese una contraseña" data-toggle-id="1" />
+                <span class="input-group-text" style="cursor: pointer;" data-toggle-id="1">
+                    <i class="fa-solid fa-eye icon"></i>
+                </span>
+            </div>
+            <span asp-validation-for="Password" class="text-danger"></span>
         </div>
     </div>
 
     <div class="row mb-2">
-        <div class="col-md-6">
-            <label asp-for="Password" class="form-label"></label>
-            <span class="text-danger">*</span>
-            <input asp-for="Password" type="password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
+        <div class="col-md-6 mb-2">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" type="number" placeholder="Ingrese un número de telefóno" min="0" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
@@ -88,9 +77,15 @@
     </div>
 
     <div class="row mb-2">
-        <div class="col-md-6">
+        <div class="col-md-6 mb-2">
             <label asp-for="BloodType" class="form-label"></label>
-            <select asp-for="BloodType" class="form-select" asp-items="bloodTypes">
+            <select asp-for="BloodType" class="form-select"
+                    asp-items="@(new SelectList(new[] {
+                        new { Value = "A+", Text = "A+" }, new { Value = "A-", Text = "A-" },
+                        new { Value = "B+", Text = "B+" }, new { Value = "B-", Text = "B-" },
+                        new { Value = "AB+", Text = "AB+" }, new { Value = "AB-", Text = "AB-" },
+                        new { Value = "O+", Text = "O+" }, new { Value = "O-", Text = "O-" }
+                    }, "Value", "Text"))">
                 <option value="">Seleccione un grupo sanguíneo</option>
             </select>
             <span asp-validation-for="BloodType" class="text-danger"></span>
@@ -104,12 +99,13 @@
         </a>
 
         <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-floppy-disk me-1"></i>
-            Guardar
+            <i class="fa-solid fa-circle-plus me-1"></i>
+            Crear
         </button>
     </div>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/password.js"></script>
 }
