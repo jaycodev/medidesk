@@ -1,4 +1,5 @@
-﻿using Api.Domains.Patients.DTOs;
+﻿using System.Data;
+using Api.Domains.Patients.DTOs;
 using Api.Domains.Patients.Models;
 using Api.Domains.Patients.Repositories;
 using Api.Helpers;
@@ -6,163 +7,130 @@ using Microsoft.Data.SqlClient;
 
 namespace Api.Data.Repository
 {
-    public class PatientRepository : BaseRepository, IPatient
+    public class PatientRepository : BaseRepository, IPatientRepository
     {
-        public PatientRepository(IConfiguration configuration) : base(configuration) { }
-
         string crudCommand = "Patient_CRUD";
 
-        public List<Patient> GetList()
+        public PatientRepository(IConfiguration configuration) : base(configuration) { }
+
+        public List<PatientListDTO> GetList()
         {
-            List<Patient> list = new List<Patient>();
+            var list = new List<PatientListDTO>();
 
-            using (SqlConnection cn = GetConnection())
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
             {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
+                list.Add(new PatientListDTO
                 {
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            list.Add(new Patient
-                            {
-                                UserId = reader.SafeGetInt("user_id"),
-                                FirstName = reader.SafeGetString("first_name"),
-                                LastName = reader.SafeGetString("last_name"),
-                                Email = reader.SafeGetString("email"),
-                                Phone = reader.SafeGetString("phone"),
-                                ProfilePicture = reader.SafeGetString("profile_picture"),
-                                BirthDate = reader.SafeGetDateTime("birth_date"),
-                                BloodType = reader.SafeGetString("blood_type")
-                            });
-                        }
-                    }
-                }
+                    UserId = reader.SafeGetInt("user_id"),
+                    FirstName = reader.SafeGetString("first_name"),
+                    LastName = reader.SafeGetString("last_name"),
+                    Email = reader.SafeGetString("email"),
+                    ProfilePicture = reader.SafeGetString("profile_picture"),
+                    BirthDate = reader.SafeGetDateOnly("birth_date"),
+                    BloodType = reader.SafeGetString("blood_type")
+                });
             }
+
             return list;
         }
 
-        public Patient GetById(int id)
+        public PatientDetailDTO? GetById(int id)
         {
-            Patient patient = null;
+            using var cn = GetConnection();
+            cn.Open();
 
-            using (SqlConnection cn = GetConnection())
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "GET_BY_ID");
+            cmd.Parameters.AddWithValue("@user_id", id);
+
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
             {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
+                return new PatientDetailDTO
                 {
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@indicator", "GET_BY_ID");
-                    cmd.Parameters.AddWithValue("@user_id", id);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            patient = (new Patient
-                            {
-                                UserId = reader.SafeGetInt("user_id"),
-                                FirstName = reader.SafeGetString("first_name"),
-                                LastName = reader.SafeGetString("last_name"),
-                                Email = reader.SafeGetString("email"),
-                                Phone = reader.SafeGetString("phone"),
-                                ProfilePicture = reader.SafeGetString("profile_picture"),
-                                BirthDate = reader.SafeGetDateTime("birth_date"),
-                                BloodType = reader.SafeGetString("blood_type")
-                            });
-                        }
-                    }
-                }
+                    UserId = reader.SafeGetInt("user_id"),
+                    FirstName = reader.SafeGetString("first_name"),
+                    LastName = reader.SafeGetString("last_name"),
+                    Email = reader.SafeGetString("email"),
+                    Phone = reader.SafeGetString("phone"),
+                    ProfilePicture = reader.SafeGetString("profile_picture"),
+                    BirthDate = reader.SafeGetDateOnly("birth_date"),
+                    BloodType = reader.SafeGetString("blood_type")
+                };
             }
-            return patient;
+
+            return null;
+        }
+        public (int newId, string? error) Create(CreatePatientDTO dto)
+        {
+            using var cn = GetConnection();
+            cn.Open();
+
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@indicator", "INSERT");
+            cmd.Parameters.AddWithValue("@first_name", dto.FirstName);
+            cmd.Parameters.AddWithValue("@last_name", dto.LastName);
+            cmd.Parameters.AddWithValue("@email", dto.Email);
+            cmd.Parameters.AddWithValue("@password", dto.Password);
+            cmd.Parameters.AddWithValue("@phone", dto.Phone);
+            cmd.Parameters.AddWithValue("@birth_date", dto.BirthDate);
+            cmd.Parameters.AddWithValue("@blood_type", dto.BloodType);
+
+            var paramNewId = new SqlParameter("@new_id", SqlDbType.Int) { Direction = ParameterDirection.Output };
+            var paramError = new SqlParameter("@error_message", SqlDbType.NVarChar, 4000) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(paramNewId);
+            cmd.Parameters.Add(paramError);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+
+                var newIdObj = paramNewId.Value;
+                var errorObj = paramError.Value;
+
+                int newId = newIdObj == DBNull.Value ? -1 : Convert.ToInt32(newIdObj);
+                string? error = errorObj == DBNull.Value ? null : Convert.ToString(errorObj);
+
+                return (newId, error);
+            }
+            catch (SqlException ex)
+            {
+                var sqlMessage = ex.Errors.Count > 0 ? ex.Errors[0].Message : ex.Message;
+                throw new InvalidOperationException(sqlMessage, ex);
+            }
         }
 
-        public int Create(PatientCreateDTO dto)
+        public int Update(int id, UpdatePatientDTO dto)
         {
-            int process = -1;
-            using (SqlConnection cn = GetConnection())
-            {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
-                {
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@indicator", "INSERT");
-                    cmd.Parameters.AddWithValue("@first_name", dto.FirstName);
-                    cmd.Parameters.AddWithValue("@last_name", dto.LastName);
-                    cmd.Parameters.AddWithValue("@email", dto.Email);
-                    cmd.Parameters.AddWithValue("@password", dto.Password);
-                    cmd.Parameters.AddWithValue("@phone", dto.Phone);
-                    cmd.Parameters.AddWithValue("@birth_date", dto.BirthDate);
-                    cmd.Parameters.AddWithValue("@blood_type", dto.BloodType);
+            using var cn = GetConnection();
+            cn.Open();
 
-                    try
-                    {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                                process = Convert.ToInt32(reader["affected_rows"]);
-                        }
-                    }
-                    catch (SqlException ex)
-                    {
-                        if (ex.Number == 50000)
-                        {
-                            throw new ApplicationException(ex.Message);
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                }
-            }
-            return process;
-        }
+            using var cmd = new SqlCommand(crudCommand, cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Clear();
 
-        public int Update(int id,PatientUpdateDTO dto)
-        {
-            int process = -1;
-            using (SqlConnection cn = GetConnection())
-            {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(crudCommand, cn))
-                {
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@indicator", "UPDATE");
-                    cmd.Parameters.AddWithValue("@user_id", id);
-                    cmd.Parameters.AddWithValue("@birth_date", dto.BirthDate);
-                    cmd.Parameters.AddWithValue("@blood_type", dto.BloodType);
+            cmd.Parameters.AddWithValue("@indicator", "UPDATE");
+            cmd.Parameters.AddWithValue("@user_id", id);
+            cmd.Parameters.AddWithValue("@birth_date", dto.BirthDate);
+            cmd.Parameters.AddWithValue("@blood_type", dto.BloodType);
 
-                    try
-                    {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                                process = Convert.ToInt32(reader["affected_rows"]);
-                        }
-                    }
-                    catch (SqlException ex)
-                    {
-                        if (ex.Number == 50000)
-                        {
-                            throw new ApplicationException(ex.Message);
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                }
-                return process;
-            }
+            var result = cmd.ExecuteScalar();
+            return result == null || result == DBNull.Value ? -1 : Convert.ToInt32(result);
         }
     }
 }

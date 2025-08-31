@@ -1,4 +1,4 @@
-﻿@model medical_appointment_system.Models.Patient
+﻿@model Web.Models.Patients.PatientDetailDTO
 
 @{
     ViewData["Title"] = "Detalles paciente";
@@ -12,7 +12,6 @@
 <div class="container">
     <div class="row">
         <dl class="row">
-
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.UserId)</dt>
                 <dd>
@@ -40,11 +39,11 @@
                 <dd class="text-body">@Model.Phone</dd>
             </div>
 
-            @* Fecha de nacimiento con formato *@
             @{
                 var culture = new System.Globalization.CultureInfo("es-PE");
-                var formattedBirthDate = Model.BirthDate?.ToString("dd MMM yyyy", culture) ?? "";
+                var formattedBirthDate = Model.BirthDate.ToString("dd MMM yyyy", culture) ?? "";
             }
+
             <div class="col-md-6 mb-3">
                 <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.BirthDate)</dt>
                 <dd class="text-body">@formattedBirthDate</dd>
@@ -64,26 +63,10 @@
                     }
                     else
                     {
-                        <i class="fa-solid fa-circle-user" style="font-size: 64px;"></i>
+                        <i class="fa-solid fa-circle-user text-muted" style="font-size: 64px;"></i>
                     }
                 </dd>
             </div>
-
-            <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.Status)</dt>
-                <dd class="text-body">@Model.Status</dd>
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.ActiveRole)</dt>
-                <dd class="text-body">@Model.ActiveRole</dd>
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <dt class="text-body-emphasis">@Html.DisplayNameFor(m => m.SpecialtyId)</dt>
-                <dd class="text-body">@Model.SpecialtyId</dd>
-            </div>
-
         </dl>
     </div>
 </div>

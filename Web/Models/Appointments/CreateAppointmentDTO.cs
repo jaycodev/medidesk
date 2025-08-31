@@ -19,7 +19,7 @@ namespace Web.Models.Appointments
         [Display(Name = "Fecha cita")]
         [Required(ErrorMessage = "Ingrese una fecha de cita")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        public DateOnly Date { get; set; }
+        public DateOnly? Date { get; set; }
 
         [Display(Name = "Horario cita")]
         [Required(ErrorMessage = "Ingrese un horario de cita")]

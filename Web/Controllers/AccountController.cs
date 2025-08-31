@@ -76,12 +76,12 @@ namespace Web.Controllers
 
         public IActionResult Register()
         {
-            return View(new PatientCreateDTO());
+            return View(new CreatePatientDTO());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(PatientCreateDTO patient)
+        public async Task<IActionResult> Register(CreatePatientDTO patient)
         {
             if (!ModelState.IsValid)
             {
@@ -90,7 +90,7 @@ namespace Web.Controllers
 
             try
             {
-                var response = await _http.PostAsJsonAsync("api/patient", patient);
+                var response = await _http.PostAsJsonAsync("api/patients", patient);
 
                 if (response.IsSuccessStatusCode)
                 {

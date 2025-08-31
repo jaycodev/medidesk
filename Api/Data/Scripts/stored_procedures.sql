@@ -501,63 +501,67 @@ CREATE OR ALTER PROCEDURE Patient_CRUD
     @phone VARCHAR(20) = NULL,
     @profile_picture VARCHAR(255) = NULL,
     @birth_date DATE = NULL,
-    @blood_type VARCHAR(3) = NULL
+    @blood_type VARCHAR(3) = NULL,
+	@new_id INT = NULL OUTPUT,
+    @error_message NVARCHAR(4000) = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
 	IF @indicator = 'INSERT'
-	BEGIN
-		IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
-		BEGIN
-			RAISERROR('El correo ya está registrado. Por favor, ingrese otro.', 16, 1);
-			RETURN;
-		END
+    BEGIN
+        IF EXISTS (SELECT 1 FROM Users WHERE email = @email)
+        BEGIN
+            SET @error_message = N'El correo ya está registrado. Por favor, ingrese otro.';
+            RETURN;
+        END
 
-		BEGIN TRY
-			BEGIN TRANSACTION;
+        BEGIN TRY
+            BEGIN TRANSACTION;
 
-			INSERT INTO Users (first_name, last_name, email, password, phone)
-			VALUES (@first_name, @last_name, @email, @password, @phone);
+            INSERT INTO Users (first_name, last_name, email, password, phone)
+            VALUES (@first_name, @last_name, @email, @password, @phone);
 
-			SET @user_id = SCOPE_IDENTITY();
+            SET @new_id = CAST(SCOPE_IDENTITY() AS INT);
 
-			INSERT INTO Patients (user_id, birth_date, blood_type)
-			VALUES (@user_id, @birth_date, @blood_type);
+            INSERT INTO Patients (user_id, birth_date, blood_type)
+            VALUES (@new_id, @birth_date, @blood_type);
 
-			INSERT INTO UserRoles (user_id, role)
-			VALUES (@user_id, 'paciente');
+            INSERT INTO UserRoles (user_id, role)
+            VALUES (@new_id, 'paciente');
 
-			COMMIT TRANSACTION;
+            COMMIT TRANSACTION;
 
-			SELECT 1 AS affected_rows;
-		END TRY
-		BEGIN CATCH
-			IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-			THROW;
-		END CATCH
+            SELECT @new_id AS new_id;
+        END TRY
+        BEGIN CATCH
+            IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
 
-		RETURN;
-	END
+            SET @error_message = ERROR_MESSAGE();
+            RETURN;
+        END CATCH
 
-	ELSE IF @indicator = 'UPDATE'
-	BEGIN
-		IF EXISTS (SELECT 1 FROM Patients WHERE user_id = @user_id)
-		BEGIN
-			UPDATE Patients
-			SET birth_date = @birth_date,
-				blood_type = @blood_type
-			WHERE user_id = @user_id;
-		END
-		ELSE
-		BEGIN
-			INSERT INTO Patients (user_id, birth_date, blood_type)
-			VALUES (@user_id, @birth_date, @blood_type);
-		END
+        RETURN;
+    END
 
-		SELECT 1 AS affected_rows;
-		RETURN;
-	END
+    ELSE IF @indicator = 'UPDATE'
+    BEGIN
+        IF EXISTS (SELECT 1 FROM Patients WHERE user_id = @user_id)
+        BEGIN
+            UPDATE Patients
+            SET birth_date = @birth_date,
+                blood_type = @blood_type
+            WHERE user_id = @user_id;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Patients (user_id, birth_date, blood_type)
+            VALUES (@user_id, @birth_date, @blood_type);
+        END
+
+        SELECT 1 AS affected_rows;
+        RETURN;
+    END
 
 	ELSE IF @indicator = 'GET_ALL'
 	BEGIN

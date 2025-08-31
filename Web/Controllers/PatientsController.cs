@@ -1,7 +1,6 @@
-﻿using ClosedXML.Excel;
-using medical_appointment_system.Models;
+﻿using System.Globalization;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using Web.Models.Patients;
 
 namespace Web.Controllers
@@ -10,92 +9,170 @@ namespace Web.Controllers
     {
         private readonly HttpClient _http;
 
-        public PatientsController(IHttpClientFactory http) 
+        public PatientsController(IHttpClientFactory httpFactory)
         {
-            _http = http.CreateClient("ApiClient");
+            _http = httpFactory.CreateClient("ApiClient");
         }
 
-        // GET: Patients
+        private async Task<PatientDetailDTO?> GetByIdAsync(int id)
+        {
+            var resp = await _http.GetAsync($"api/patients/{id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                var patient = await resp.Content.ReadFromJsonAsync<PatientDetailDTO>();
+                return patient;
+            }
+
+            return null;
+        }
+
         public async Task<IActionResult> Index()
         {
-            var patients = await _http.GetFromJsonAsync<List<Patient>>("api/patient");
+            var patients = new List<PatientListDTO>();
+            try
+            {
+                patients = await _http.GetFromJsonAsync<List<PatientListDTO>>("api/patients") ?? new List<PatientListDTO>();
+            }
+            catch
+            { }
+
             return View(patients);
         }
 
-        // GET: Patients/Create
-        public IActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            return View(new PatientCreateDTO());
+            return View(new CreatePatientDTO());
         }
 
-        // POST: Patients/Create
         [HttpPost]
-        public async Task<IActionResult> Create(PatientCreateDTO patient)
+        public async Task<ActionResult> Create(CreatePatientDTO dto)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Error = "Por favor complete los campos obligatorios.";
-                return View(patient);
+                return View(dto);
             }
 
-            var response = await _http.PostAsJsonAsync("api/patient", patient);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                TempData["Success"] = "¡Paciente creado correctamente!";
-                return RedirectToAction(nameof(Index));
+                var resp = await _http.PostAsJsonAsync("api/patients", dto);
+
+                if (resp.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "¡Paciente creado correctamente!";
+                    return RedirectToAction("Index");
+                }
+
+                var content = await resp.Content.ReadAsStringAsync();
+                ViewBag.Message = ExtractErrorMessage(content);
+            }
+            catch (ApplicationException ex)
+            {
+                ViewBag.Message = ex.Message;
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
             }
 
-            ViewBag.Error = "No se pudo crear el paciente. Intenta nuevamente.";
+            return View(dto);
+        }
+
+        public async Task<ActionResult> Edit(int id)
+        {
+            if (id == 0)
+                return RedirectToAction("Index");
+
+            var patient = await GetByIdAsync(id);
+            if (patient == null)
+                return RedirectToAction("Index");
+
             return View(patient);
         }
 
-        // GET: Patients/Edit
-        public async Task<IActionResult> Edit(int id)
+        [HttpPost]
+        public async Task<ActionResult> Edit(PatientDetailDTO dto)
         {
-            var patient = await _http.GetFromJsonAsync<Patient>($"api/patient/{id}");
-            if (patient == null) return RedirectToAction(nameof(Index));
-
-            var patienteUpdate=new PatientUpdateDTO
+            var toUpdate = new UpdatePatientDTO
             {
-                UserId = id,
-                BirthDate = patient.BirthDate,
-                BloodType = patient.BloodType
+                BirthDate = dto.BirthDate,
+                BloodType = dto.BloodType
             };
 
-            return View(patienteUpdate);
-        }
+            if (!ModelState.IsValid)
+                return View(dto);
 
-        // PUT: Patients/Edit
-        [HttpPost]
-        public async Task<IActionResult> Edit(PatientUpdateDTO patient)
-        {
-            var response = await _http.PutAsJsonAsync($"api/patient/{patient.UserId}", patient);
-
-          
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                TempData["Success"] = "¡Paciente actualizado correctamente!";
-                return RedirectToAction("Index");
+                var resp = await _http.PutAsJsonAsync($"api/patients/{dto.UserId}", toUpdate);
+
+                if (resp.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "¡Paciente actualizado correctamente!";
+                    return RedirectToAction("Index");
+                }
+
+                if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    ViewBag.Message = "Paciente no encontrado o no se pudo actualizar";
+                }
+                else
+                {
+                    var content = await resp.Content.ReadAsStringAsync();
+                    ViewBag.Message = ExtractErrorMessage(content);
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
             }
 
-            ViewBag.Message = "No se pudo actualizar el paciente. Intenta nuevamente.";
-            return View(patient);
+            return View(dto);
         }
 
-        // GET: Patients/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            var patient = await _http.GetFromJsonAsync<Patient>($"api/patient/{id}");
-            if (patient == null) return RedirectToAction(nameof(Index));
+            if (id == 0)
+                return RedirectToAction("Index");
+
+            var patient = await GetByIdAsync(id);
+            if (patient == null)
+                return RedirectToAction("Index");
+
             return View(patient);
         }
 
-        // GET: Patients/ExportToExcel
+        private string ExtractErrorMessage(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return "No se pudo procesar la petición.";
+
+            try
+            {
+                if (content.Contains("\"message\""))
+                {
+                    var start = content.IndexOf("\"message\"", StringComparison.OrdinalIgnoreCase);
+                    var colon = content.IndexOf(':', start);
+                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
+                    return trimmed;
+                }
+
+                if (content.Contains("\"error\""))
+                {
+                    var start = content.IndexOf("\"error\"", StringComparison.OrdinalIgnoreCase);
+                    var colon = content.IndexOf(':', start);
+                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
+                    return trimmed;
+                }
+            }
+            catch
+            { }
+
+            return content.Length > 300 ? content[..300] + "..." : content;
+        }
+
         public async Task<IActionResult> ExportToExcel()
         {
-            var patients = await _http.GetFromJsonAsync<List<Patient>>("api/patient");
+            var patients = await _http.GetFromJsonAsync<List<PatientListDTO>>("api/patient");
 
             var stream = new MemoryStream();
 
@@ -142,7 +219,7 @@ namespace Web.Controllers
                     sheet.Cell(row, 2).Value = p.FirstName;
                     sheet.Cell(row, 3).Value = p.LastName;
                     sheet.Cell(row, 4).Value = p.Email;
-                    sheet.Cell(row, 5).Value = p.BirthDate?.ToString("dd MMM yyyy") ?? "-";
+                    sheet.Cell(row, 5).Value = p.BirthDate.ToString("dd MMM yyyy") ?? "-";
                     sheet.Cell(row, 6).Value = p.BloodType;
 
                     for (int c = 1; c <= 6; c++)
