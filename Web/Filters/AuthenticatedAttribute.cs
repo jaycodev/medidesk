@@ -124,7 +124,7 @@ namespace Web.Filters
                     return;
                 }
 
-                string role = sessionUser.ActiveRole?.ToLower();
+                string? role = sessionUser.ActiveRole?.ToLower();
 
                 if (!string.IsNullOrEmpty(role) && RolePermissions.ContainsKey(role))
                 {
