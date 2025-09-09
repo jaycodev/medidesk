@@ -1,0 +1,7 @@
+{
+  "Cloudinary": {
+    "CloudName": "your-cloud-name",
+    "ApiKey": "your-api-key",
+    "ApiSecret": "your-api-secret"
+  }
+}
