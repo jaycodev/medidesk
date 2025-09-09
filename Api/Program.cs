@@ -16,6 +16,9 @@ builder.Configuration
     .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
     .AddJsonFile("cloudinary.json", optional: true, reloadOnChange: true);
 
+var connectionString = builder.Configuration.GetConnectionString("DB")
+                       ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -38,8 +41,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    app.Urls.Add($"http://0.0.0.0:{port}");
+}
 
 app.Run();

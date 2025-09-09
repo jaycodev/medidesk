@@ -39,7 +39,11 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpClient("ApiClient", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7276/");
+    var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
+                     ?? Environment.GetEnvironmentVariable("API_BASE_URL")
+                     ?? "https://localhost:7276/";
+
+    client.BaseAddress = new Uri(apiBaseUrl);
     client.DefaultRequestHeaders.Accept.Add(
         new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 });
@@ -62,7 +66,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.Use(async (context, next) =>
@@ -91,5 +94,11 @@ app.MapControllerRoute(
     name: "controllerOnly",
     pattern: "{controller}",
     defaults: new { action = "Index" });
+
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    app.Urls.Add($"http://0.0.0.0:{port}");
+}
 
 app.Run();
