@@ -1,6 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY . .
+
+COPY Web/ ./Web/
+COPY Shared/ ./Shared/
+
 RUN dotnet restore "Web/Web.csproj" --force
 RUN dotnet publish "Web/Web.csproj" -c Release -o /app
 
