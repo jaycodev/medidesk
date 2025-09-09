@@ -65,6 +65,18 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.ToLower();
+    if (path != null && path.EndsWith("/index"))
+    {
+        var newPath = path.Replace("/index", "");
+        context.Response.Redirect(newPath);
+        return;
+    }
+    await next();
+});
+
 app.UseRouting();
 
 app.UseSession();
@@ -74,5 +86,10 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Appointments}/{action=Home}/{id?}");
+
+app.MapControllerRoute(
+    name: "controllerOnly",
+    pattern: "{controller}",
+    defaults: new { action = "Index" });
 
 app.Run();

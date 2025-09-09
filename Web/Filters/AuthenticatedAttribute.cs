@@ -78,7 +78,7 @@ namespace Web.Filters
                 sessionUser = JsonSerializer.Deserialize<UserSession>(userJson);
 
             string controller = context.RouteData.Values["controller"]?.ToString()?.ToLower() ?? "";
-            string action = context.RouteData.Values["action"]?.ToString()?.ToLower() ?? "";
+            string action = context.RouteData.Values["action"]?.ToString()?.ToLower() ?? "index";
 
             if (controller == "account" && action == "logout" && sessionUser == null)
             {
