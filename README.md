@@ -24,77 +24,105 @@ A modern, responsive, and secure web application for managing medical appointmen
 - 📊 Dashboard with real-time stats
 - 📱 Fully responsive interface
 
+## 📂 Project Structure
+
+```
+medidesk/
+├── MediDesk.sln
+├── Api/                  # REST API (.NET 8)
+│   ├── Controllers/       # API endpoints
+│   ├── Repositories/      # Data access layer
+│   ├── cloudinary.json.example
+│   ├── appsettings.json
+│   ├── appsettings.Local.json.example
+│   └── Program.cs
+├── Web/                  # ASP.NET Core MVC frontend
+│   ├── Controllers/
+│   ├── Views/
+│   ├── wwwroot/
+│   ├── appsettings.json
+│   └── appsettings.Local.json.example
+├── Shared/               # Shared DTOs & models
+│   └── DTOs/
+├── Database/             # Database scripts
+│   ├── schema.sql
+│   ├── data.sql
+│   ├── Procedures/
+│   └── init.sql
+└── LICENSE
+```
+
 ## 🔧 Setup Instructions
 
 Follow these steps to run the project locally:
 
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/jaycodev/medidesk.git
-   cd medidesk
-   ```
-
-2. **Copy and edit configuration files**
-
-   ```bash
-   cp cloudinary.config.example cloudinary.config
-   cp connectionStrings.config.example connectionStrings.config
-   ```
-
-   Then fill them with your own values.
-
-3. **Set up the database**
-
-   Use the scripts in the `/database/` folder (`schema.sql`, `data.sql`, `stored_procedures.sql`) to create and seed the database.
-
-4. **Run the project**
-
-   Open `MedicalAppointments.sln` in Visual Studio and run it (requires .NET Framework 4.7.2).
-
-## 📁 Configuration
-
-The app uses two external config files for security:
-
-### `cloudinary.config`
-
-Used to connect to your Cloudinary account (for image uploads):
-
-```xml
-<appSettings>
-  <add key="CloudinaryCloudName" value="your_cloud_name"/>
-  <add key="CloudinaryApiKey" value="your_api_key"/>
-  <add key="CloudinaryApiSecret" value="your_api_secret"/>
-</appSettings>
+### 1. Clone the repository
+```bash
+git clone https://github.com/jaycodev/medidesk.git
+cd medidesk
 ```
 
-### `connectionStrings.config`
+### 2. Configure settings
+Copy the example config files and edit them with your values:
 
-Used to connect to your local or remote SQL Server database:
-
-```xml
-<connectionStrings>
-  <add name="DefaultConnection" connectionString="your_connection_string"/>
-</connectionStrings>
+```bash
+cp Api/cloudinary.json.example Api/cloudinary.json
+cp Api/appsettings.Local.json.example Api/appsettings.Local.json
+cp Web/appsettings.Local.json.example Web/appsettings.Local.json
 ```
 
-> [!NOTE]
-> Both files are ignored via .gitignore. Do not commit sensitive credentials.
+#### `cloudinary.json`
+```json
+{
+  "Cloudinary": {
+    "CloudName": "your_cloud_name",
+    "ApiKey": "your_api_key",
+    "ApiSecret": "your_api_secret"
+  }
+}
+```
 
+#### `appsettings.Local.json`
+```json
+{
+  "ConnectionStrings": {
+    "DB": "server=YOUR_SERVER; database=MediDesk; Integrated Security=true; TrustServerCertificate=true"
+  }
+}
+```
+
+### 3. Set up the database
+Open **init.sql** in SQL Server Management Studio (SSMS) with **SQLCMD Mode enabled** ⚠️.  
+
+Edit the path variable if needed:
+```sql
+:setvar DatabasePath "C:\Repositories\medidesk\Database"
+```
+
+Then execute the script to create schema, seed data, and procedures.
+
+### 4. Run the solution
+Open `MediDesk.sln` and start both projects:
+
+- **Api** → REST API (.NET 8, Swagger enabled)  
+- **Web** → ASP.NET Core MVC frontend  
 
 ## 🛠️ Tech Stack
 
-- **Backend:** ASP.NET MVC (.NET Framework 4.7.2)
-- **Frontend:** Razor Views with HTML, CSS, JavaScript (jQuery, DataTables)
-- **Database:** SQL Server (or compatible)
-- **Cloud Storage:** [Cloudinary](https://cloudinary.com/) for image management
-- **Authentication:** ASP.NET Identity with role-based authorization
-- **PDF Generation:** [iTextSharp](https://github.com/itext/itextsharp) (`5.5.13.4`)
-- **Excel Export:** [ClosedXML](https://github.com/ClosedXML/ClosedXML) (`0.105.0`) and `DocumentFormat.OpenXml` (`3.1.1`)
-- **UI Enhancements:** Bootstrap, Modernizr, Light/Dark mode toggle
-- **Client-Side Validation:** jQuery Validation + Unobtrusive
+- **Backend API:** ASP.NET Core 8 (Minimal hosting, Swagger, Repositories pattern)  
+- **Frontend:** ASP.NET Core MVC (Razor Views, Bootstrap, jQuery, DataTables)  
+- **Database:** SQL Server 2019+  
+- **Cloud Storage:** [Cloudinary](https://cloudinary.com/) for image management  
+- **Authentication:** Custom role-based system (Admin, Doctor, Patient)  
+- **PDF Generation:** [iText7](https://itextpdf.com/) (`9.2.0`)  
+- **Excel Export:** [ClosedXML](https://github.com/ClosedXML/ClosedXML) (`0.105.0`)  
+- **UI Enhancements:** Bootstrap, Modernizr, Light/Dark mode toggle  
+- **Client-Side Validation:** jQuery Validation + Unobtrusive  
 
-💾 Database scripts are located in the `/database/` directory.
+## 💾 Database
+
+All scripts are inside `/Database/`.  
+Use `init.sql` for a complete setup, or run `schema.sql`, `data.sql`, and individual scripts from `/Procedures/`.
 
 ## 🧑‍💻 Contributors
 
