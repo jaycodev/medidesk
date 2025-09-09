@@ -39,8 +39,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpClient("ApiClient", client =>
 {
-    var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
-                     ?? Environment.GetEnvironmentVariable("API_BASE_URL")
+    var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL")
                      ?? "https://localhost:7276/";
 
     client.BaseAddress = new Uri(apiBaseUrl);
