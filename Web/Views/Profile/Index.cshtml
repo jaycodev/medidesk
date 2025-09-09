@@ -1,4 +1,4 @@
-﻿@model medical_appointment_system.Models.ViewModels.ProfileViewModel
+﻿@model Web.Models.Profile.ProfileViewModel
 
 @{
     ViewData["Title"] = "Perfil";
@@ -127,7 +127,11 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="Phone" class="form-label"></label>
-                    <input asp-for="Phone" class="form-control" type="number" placeholder="Ingrese un número de teléfono" min="0" />
+                    <input asp-for="Phone"
+                           type="tel"
+                           class="form-control"
+                           placeholder="Ingrese número telefónico"
+                           maxlength="9" />
                     <span asp-validation-for="Phone" class="text-danger"></span>
                 </div>
             </div>

@@ -1,56 +1,57 @@
-﻿using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Web.Mappers;
+using Web.Models.Account;
 using Web.Models.Patients;
-using Web.Models.User;
+using Web.Services.Account;
+using Web.Services.Patient;
 
 namespace Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly HttpClient _http;
+        private readonly IAccountService _accountService;
+        private readonly IPatientService _patientService;
         private readonly IHttpContextAccessor _httpContext;
 
-        public AccountController(IHttpClientFactory httpFactory, IHttpContextAccessor httpContext)
+        public AccountController(
+            IAccountService accountService,
+            IPatientService patientService,
+            IHttpContextAccessor httpContext)
         {
-            _http = httpFactory.CreateClient("ApiClient");
+            _accountService = accountService;
+            _patientService = patientService;
             _httpContext = httpContext;
         }
 
         public IActionResult Login()
         {
-            return View(new LoginDTO());
+            return View(new LoginViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginDTO model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
-            var response = await _http.PostAsJsonAsync("api/users/login", model);
+            var request = model.ToLoginRequest();
 
-            if (!response.IsSuccessStatusCode)
+            var (success, apiUser, message) = await _accountService.LoginAsync(request);
+
+            if (!success || apiUser == null)
             {
-                ViewBag.Message = "Correo o contraseña incorrectos";
+                ViewBag.Message = message ?? "Correo y/o contraseña incorrectos";
                 return View(model);
             }
 
-            var user = await response.Content.ReadFromJsonAsync<LoggedUserDTO>();
-
-            if (user == null)
-            {
-                ViewBag.Message = "Error al procesar el login";
-                return View(model);
-            }
+            var user = apiUser.ToUserSession();
 
             if (user.Roles != null && user.Roles.Count == 1)
-            {
                 user.ActiveRole = user.Roles.First();
-            }
 
             var userJson = JsonSerializer.Serialize(user);
-            _httpContext.HttpContext!.Session.SetString("LoggedUser", userJson);
+            _httpContext.HttpContext!.Session.SetString("UserSession", userJson);
 
             _httpContext.HttpContext.Session.SetString("UserId", user.UserId.ToString());
             _httpContext.HttpContext.Session.SetString("Email", user.Email ?? string.Empty);
@@ -76,49 +77,38 @@ namespace Web.Controllers
 
         public IActionResult Register()
         {
-            return View(new CreatePatientDTO());
+            return View(new PatientCreateViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(CreatePatientDTO patient)
+        public async Task<IActionResult> Register(PatientCreateViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+
+            var request = model.ToCreateRequest();
+            var (Success, Message) = await _patientService.CreateAsync(request);
+
+            if (Success)
             {
-                return View(patient);
+                TempData["Success"] = "¡Cuenta creada correctamente!";
+                return RedirectToAction("Login", "Account");
             }
 
-            try
-            {
-                var response = await _http.PostAsJsonAsync("api/patients", patient);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "¡Cuenta creada correctamente!";
-                    return RedirectToAction("Login", "Account");
-                }
-
-                var errorMsg = await response.Content.ReadAsStringAsync();
-                ViewBag.Error = $"No se pudo crear la cuenta: {errorMsg}";
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = $"Ocurrió un error inesperado: {ex.Message}";
-            }
-
-            return View(patient);
+            ViewBag.Message = Message;
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult SetActiveRole(string role)
         {
-            var userJson = _httpContext.HttpContext!.Session.GetString("LoggedUser");
+            var userJson = _httpContext.HttpContext!.Session.GetString("UserSession");
             if (string.IsNullOrEmpty(userJson))
                 return RedirectToAction("Login");
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var user = JsonSerializer.Deserialize<LoggedUserDTO>(userJson, options);
+            var user = JsonSerializer.Deserialize<UserSession>(userJson, options);
 
             if (user != null && user.Roles.Any(r => r.Equals(role, StringComparison.OrdinalIgnoreCase)))
             {
@@ -130,9 +120,9 @@ namespace Web.Controllers
             }
 
             var updatedUserJson = JsonSerializer.Serialize(user);
-            _httpContext.HttpContext.Session.SetString("LoggedUser", updatedUserJson);
+            _httpContext.HttpContext.Session.SetString("UserSession", updatedUserJson);
 
-            if (!string.IsNullOrEmpty(user.ActiveRole))
+            if (!string.IsNullOrEmpty(user!.ActiveRole))
                 _httpContext.HttpContext.Session.SetString("ActiveRole", user.ActiveRole);
 
             return RedirectToAction("Home", "Appointments");

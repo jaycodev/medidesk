@@ -1,4 +1,13 @@
 using Web.Filters;
+using Web.Services.Account;
+using Web.Services.Appointment;
+using Web.Services.Doctor;
+using Web.Services.Notification;
+using Web.Services.Patient;
+using Web.Services.Profile;
+using Web.Services.Schedule;
+using Web.Services.Specialty;
+using Web.Services.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +43,16 @@ builder.Services.AddHttpClient("ApiClient", client =>
     client.DefaultRequestHeaders.Accept.Add(
         new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 });
+
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

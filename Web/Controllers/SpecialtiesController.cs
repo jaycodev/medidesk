@@ -1,155 +1,88 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Shared.DTOs.Specialties.Requests;
+using Web.Mappers;
 using Web.Models.Specialties;
+using Web.Services.Specialty;
 
 namespace Web.Controllers
 {
     public class SpecialtiesController : Controller
     {
-        private readonly HttpClient _http;
+        private readonly ISpecialtyService _specialtyService;
 
-        public SpecialtiesController(IHttpClientFactory httpFactory)
+        public SpecialtiesController(ISpecialtyService specialtyService)
         {
-            _http = httpFactory.CreateClient("ApiClient");
-        }
-
-        private async Task<SpecialtyDTO?> GetByIdAsync(int id)
-        {
-            var resp = await _http.GetAsync($"api/specialties/{id}");
-            if (resp.IsSuccessStatusCode)
-            {
-                var specialty = await resp.Content.ReadFromJsonAsync<SpecialtyDTO>();
-                return specialty;
-            }
-            return null;
+            _specialtyService = specialtyService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var specialties = new List<SpecialtyDTO>();
-            try
-            {
-                specialties = await _http.GetFromJsonAsync<List<SpecialtyDTO>>("api/specialties") ?? new List<SpecialtyDTO>();
-            }
-            catch
-            {
-            }
-
-            return View(specialties);
+            var specialties = await _specialtyService.GetListAsync();
+            var viewModelList = specialties.Select(s => s.ToViewModel()).ToList();
+            return View(viewModelList);
         }
 
-        public IActionResult Create()
-        {
-            return View(new CreateSpecialtyDTO());
-        }
+        public IActionResult Create() => View(new SpecialtyCreateViewModel());
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateSpecialtyDTO dto)
+        public async Task<IActionResult> Create(SpecialtyCreateViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(dto);
+            if (!ModelState.IsValid) return View(model);
 
-            try
+            var success = await _specialtyService.CreateAsync(model.ToRequest());
+            if (success)
             {
-                var resp = await _http.PostAsJsonAsync("api/specialties", dto);
-                if (resp.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "¡Especialidad creada correctamente!";
-                    return RedirectToAction("Index");
-                }
-
-                var content = await resp.Content.ReadAsStringAsync();
-                ViewBag.Message = ExtractErrorMessage(content);
-            }
-            catch
-            {
-                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
+                TempData["Success"] = "¡Especialidad creada correctamente!";
+                return RedirectToAction("Index");
             }
 
-            return View(dto);
+            return View(model);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            if (id == 0)
-                return RedirectToAction("Index");
-
-            var specialty = await GetByIdAsync(id);
-            if (specialty == null)
-                return RedirectToAction("Index");
-
-            return View(specialty);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Edit(SpecialtyDTO dto)
-        {
-            if (!ModelState.IsValid)
-                return View(dto);
-
-            var toUpdate = new UpdateSpecialtyDTO
-            {
-                Name = dto.Name,
-                Description = dto.Description
-            };
+            if (id == 0) return RedirectToAction("Index");
 
             try
             {
-                var resp = await _http.PutAsJsonAsync($"api/specialties/{dto.SpecialtyId}", toUpdate);
-                if (resp.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "¡Especialidad actualizada correctamente!";
-                    return RedirectToAction("Index");
-                }
+                var specialty = await _specialtyService.GetByIdAsync(id);
+                if (specialty == null) return RedirectToAction("Index");
 
-                var content = await resp.Content.ReadAsStringAsync();
-                ViewBag.Message = ExtractErrorMessage(content);
+                var model = specialty.ToEditViewModel();
+                return View(model);
             }
             catch
             {
-                ViewBag.Message = "Ocurrió un error inesperado. Intenta más tarde.";
+                ViewBag.Message = "Ocurrió un error al cargar la especialidad";
+                return View(new SpecialtyEditViewModel { SpecialtyId = id });
             }
-
-            return View(dto);
         }
 
-        public async Task<IActionResult> Details(int id)
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, SpecialtyEditViewModel model)
         {
-            if (id == 0)
-                return RedirectToAction("Index");
+            if (id != model.SpecialtyId) return BadRequest();
+            if (!ModelState.IsValid) return View(model);
 
-            var specialty = await GetByIdAsync(id);
-            if (specialty == null)
-                return RedirectToAction("Index");
-
-            return View(specialty);
-        }
-
-        private string ExtractErrorMessage(string content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-                return "No se pudo procesar la petición.";
-
-            try
+            var success = await _specialtyService.UpdateAsync(id, model.ToRequest());
+            if (success)
             {
-                if (content.Contains("\"message\""))
-                {
-                    var start = content.IndexOf("\"message\"", StringComparison.OrdinalIgnoreCase);
-                    var colon = content.IndexOf(':', start);
-                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
-                    return trimmed;
-                }
-
-                if (content.Contains("\"error\""))
-                {
-                    var start = content.IndexOf("\"error\"", StringComparison.OrdinalIgnoreCase);
-                    var colon = content.IndexOf(':', start);
-                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
-                    return trimmed;
-                }
+                TempData["Success"] = "¡Especialidad actualizada correctamente!";
+                return RedirectToAction("Index");
             }
-            catch { }
 
-            return content.Length > 300 ? content[..300] + "..." : content;
+            return View(model);
+        }
+
+        public async Task<ActionResult> Details(int id)
+        {
+            if (id == 0) return RedirectToAction("Index");
+
+            var specialty = await _specialtyService.GetByIdAsync(id);
+            if (specialty == null) return RedirectToAction("Index");
+
+            var model = specialty.ToViewModel();
+            return View(model);
         }
     }
 }

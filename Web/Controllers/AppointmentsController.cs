@@ -1,176 +1,125 @@
-﻿using iText.IO.Font.Constants;
-using iText.Kernel.Colors;
-using iText.Kernel.Font;
-using iText.Kernel.Pdf;
-using iText.Layout.Properties;
-using iText.Layout;
-using iText.Layout.Element;
-using iText.Kernel.Geom;
-using iText.Layout.Borders;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Globalization;
-using System.Text.Json;
+using Shared.DTOs.Appointments.Requests;
+using Shared.DTOs.Appointments.Responses;
+using Shared.DTOs.Schedules.Responses;
+using Web.Helpers;
+using Web.Mappers;
+using Web.Models.Account;
 using Web.Models.Appointments;
-using Web.Models.Doctors;
-using Web.Models.Specialties;
-using Web.Models.User;
-using ClosedXML.Excel;
+using Web.Services.Appointment;
+using Web.Services.Doctor;
+using Web.Services.Schedule;
+using Web.Services.Specialty;
 
 
 namespace Web.Controllers
 {
     public class AppointmentsController : Controller
     {
-        private readonly HttpClient _http;
+        private readonly IAppointmentService _appointmentService;
+        private readonly IDoctorService _doctorService;
+        private readonly ISpecialtyService _specialtyService;
+        private readonly IScheduleService _scheduleService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AppointmentsController(IHttpClientFactory httpFactory, IHttpContextAccessor httpContextAccessor)
+        public AppointmentsController(IAppointmentService appointmentService, IDoctorService doctorService, ISpecialtyService specialtyService, IScheduleService scheduleService, IHttpContextAccessor httpContextAccessor)
         {
-            _http = httpFactory.CreateClient("ApiClient");
+            _appointmentService = appointmentService;
+            _doctorService = doctorService;
+            _specialtyService = specialtyService;
+            _scheduleService = scheduleService;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        private LoggedUserDTO? GetLoggedUser()
+        private UserSession? GetLoggedUser()
         {
-            var userJson = _httpContextAccessor.HttpContext!.Session.GetString("LoggedUser");
+            var userJson = _httpContextAccessor.HttpContext!.Session.GetString("UserSession");
             if (string.IsNullOrEmpty(userJson)) return null;
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            return JsonSerializer.Deserialize<LoggedUserDTO>(userJson, options);
-        }
-
-        private async Task<AppointmentDetailDTO?> GetByIdAsync(int id)
-        {
-            var resp = await _http.GetAsync($"api/appointments/{id}");
-            if (resp.IsSuccessStatusCode)
-                return await resp.Content.ReadFromJsonAsync<AppointmentDetailDTO>();
-            return null;
+            return JsonSerializer.Deserialize<UserSession>(userJson, options);
         }
 
         private async Task LoadSpecialtiesAsync(int? selectedId = null)
         {
-            try
-            {
-                var specs = await _http.GetFromJsonAsync<List<SpecialtyDTO>>("api/specialties") ?? new();
-                ViewBag.Specialties = new SelectList(
-                    specs.Select(s => new { Id = s.SpecialtyId, Name = s.Name }),
-                    "Id", "Name", selectedId
-                );
-            }
-            catch
-            {
-                ViewBag.Specialties = new SelectList(Enumerable.Empty<SelectListItem>());
-            }
+            ViewBag.Specialties = await _specialtyService.GetSelectListAsync(selectedId);
         }
 
         public async Task<IActionResult> Home()
         {
             var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
+            if (user == null) return RedirectToAction("Login", "Account");
 
-            var list = new List<AppointmentListDTO>();
-            try
-            {
-                list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                    $"api/appointments/all-by-user?userId={user.UserId}&userRol={user.ActiveRole}")
-                    ?? new List<AppointmentListDTO>();
-            }
-            catch { }
-
-            return View(list);
+            var list = await _appointmentService.GetListAsync("all-by-user", user.UserId, user.ActiveRole);
+            var viewModelList = list.Select(a => a.ToListViewModel()).ToList();
+            return View(viewModelList);
         }
 
         public async Task<IActionResult> AllAppointments()
         {
-            var list = new List<AppointmentListDTO>();
-            try
-            {
-                list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>("api/appointments")
-                       ?? new List<AppointmentListDTO>();
-            }
-            catch { }
+            var user = GetLoggedUser();
+            if (user == null) return RedirectToAction("Login", "Account");
 
-            return View(list);
+            var list = await _appointmentService.GetListAsync("all", user.UserId, user.ActiveRole);
+            var viewModelList = list.Select(a => a.ToListViewModel()).ToList();
+            return View(viewModelList);
         }
 
         public async Task<IActionResult> MyAppointments()
         {
             var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
+            if (user == null) return RedirectToAction("Login", "Account");
 
-            var list = new List<AppointmentListDTO>();
-            try
-            {
-                list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                           $"api/appointments/my?userId={user.UserId}&userRol={user.ActiveRole}")
-                       ?? new List<AppointmentListDTO>();
-            }
-            catch { }
-
-            return View(list);
+            var list = await _appointmentService.GetListAsync("my", user.UserId, user.ActiveRole);
+            var viewModelList = list.Select(a => a.ToListViewModel()).ToList();
+            return View(viewModelList);
         }
 
         public async Task<IActionResult> Pending()
         {
             var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
+            if (user == null) return RedirectToAction("Login", "Account");
 
-            var list = new List<AppointmentListDTO>();
-            try
-            {
-                list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                           $"api/appointments/pending?userId={user.UserId}&userRol={user.ActiveRole}")
-                       ?? new List<AppointmentListDTO>();
-            }
-            catch { }
-
-            return View(list);
+            var list = await _appointmentService.GetListAsync("pending", user.UserId, user.ActiveRole);
+            var viewModelList = list.Select(a => a.ToListViewModel()).ToList();
+            return View(viewModelList);
         }
 
         public async Task<IActionResult> Historial()
         {
             var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
+            if (user == null) return RedirectToAction("Login", "Account");
 
-            var list = new List<AppointmentListDTO>();
-            try
-            {
-                list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                           $"api/appointments/historial?userId={user.UserId}&userRol={user.ActiveRole}")
-                       ?? new List<AppointmentListDTO>();
-            }
-            catch { }
-
-            return View(list);
+            var list = await _appointmentService.GetListAsync("historial", user.UserId, user.ActiveRole);
+            var viewModelList = list.Select(a => a.ToListViewModel()).ToList();
+            return View(viewModelList);
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            if (id == 0) return RedirectToAction(nameof(Index));
+            if (id == 0) return RedirectToAction("Home");
 
-            var item = await GetByIdAsync(id);
-            if (item == null) return RedirectToAction(nameof(Index));
+            var appointment = await _appointmentService.GetByIdAsync(id);
+            if (appointment == null) return RedirectToAction("Home");
 
-            return View(item);
+            var model = appointment.ToViewModel();
+            return View(model);
         }
 
         public async Task<IActionResult> Reserve()
         {
             await LoadSpecialtiesAsync();
-            return View(new CreateAppointmentDTO());
+            return View(new AppointmentCreateViewModel());
         }
 
         public async Task<JsonResult> GetDoctorsBySpecialty(int id)
         {
             try
             {
-                var response = await _http.GetAsync($"api/doctors/by-specialty?specialtyId={id}&userId=3");
-                if (!response.IsSuccessStatusCode)
+                var doctors = await _doctorService.GetBySpecialtyAsync(id, userId: 3);
+                if (doctors == null || !doctors.Any())
                     return Json(new { error = "No se pudieron obtener los médicos" });
-
-                var doctors = await response.Content.ReadFromJsonAsync<List<DoctorBySpecialtyDTO>>()
-                                ?? new List<DoctorBySpecialtyDTO>();
 
                 return Json(doctors);
             }
@@ -180,22 +129,9 @@ namespace Web.Controllers
             }
         }
 
-        private async Task<List<ScheduleDTO>?> GetDoctorScheduleByDayAsync(int doctorId, DateTime date)
+        private async Task<List<ScheduleByDateResponse>?> GetDoctorScheduleByDayAsync(int doctorId, DateTime date)
         {
-            try
-            {
-                var response = await _http.GetAsync(
-                    $"api/appointments/schedule-by-doctor-and-day?doctorId={doctorId}&date={date.ToString("yyyy-MM-dd")}");
-
-                if (!response.IsSuccessStatusCode) return null;
-
-                var schedule = await response.Content.ReadFromJsonAsync<List<ScheduleDTO>>();
-                return schedule;
-            }
-            catch
-            {
-                return null;
-            }
+            return await _scheduleService.GetByDateAsync(doctorId, date);
         }
 
         public async Task<JsonResult> GetAvailableTimes(int doctorId, DateTime date)
@@ -216,13 +152,7 @@ namespace Web.Controllers
                 }
             }
 
-            var appointmentsResponse = await _http.GetAsync(
-                $"api/appointments/by-doctor-and-date?doctorId={doctorId}&date={date:yyyy-MM-dd}");
-
-            var appointments = appointmentsResponse.IsSuccessStatusCode
-                ? await appointmentsResponse.Content.ReadFromJsonAsync<List<AppointmentTimeDTO>>()
-                : new List<AppointmentTimeDTO>();
-
+            var appointments = await _appointmentService.GetByDateAsync(doctorId, date);
             var takenTimes = appointments?.Select(a => a.Time.ToString(@"hh\:mm")).ToList() ?? new List<string>();
 
             var available = allTimes.Select(t => new
@@ -235,7 +165,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Reserve(CreateAppointmentDTO dto)
+        public async Task<IActionResult> Reserve(AppointmentCreateViewModel model)
         {
             var user = GetLoggedUser();
             if (user == null || user.ActiveRole?.ToLower() != "paciente")
@@ -244,9 +174,9 @@ namespace Web.Controllers
                 return RedirectToAction("Home");
             }
 
-            dto.PatientId = user.UserId;
-
-            var resp = await _http.PostAsJsonAsync("api/appointments", dto);
+            model.PatientId = user.UserId;
+            var request = model.ToCreateRequest();
+            var resp = await _appointmentService.ReserveAsync(request);
 
             if (resp.IsSuccessStatusCode)
                 TempData["Success"] = "¡Cita reservada correctamente!";
@@ -258,39 +188,31 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Confirm(int id)
         {
-            if (id == 0)
-                return RedirectToAction("Home");
-
-            var appointment = await GetByIdAsync(id);
+            var appointment = await _appointmentService.GetByIdAsync(id);
             if (appointment == null || appointment.Status?.ToLower() != "pendiente")
             {
                 TempData["Error"] = "Solo se pueden confirmar citas pendientes.";
                 return RedirectToAction("Pending");
             }
 
-            return View(appointment);
+            var model = appointment.ToViewModel();
+            return View(model);
         }
 
         [HttpPost, ActionName("Confirm")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmConfirmed(int id)
         {
-            var dto = new { Status = "confirmada" };
-
-            var resp = await _http.PutAsJsonAsync($"api/appointments/{id}", dto);
+            var resp = await _appointmentService.UpdateStatusAsync(id, "confirmada");
 
             if (resp.IsSuccessStatusCode)
-            {
                 TempData["Success"] = "La cita fue confirmada correctamente.";
-            }
             else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
                 TempData["Error"] = "Cita no encontrada.";
-            }
             else
             {
                 var content = await resp.Content.ReadAsStringAsync();
-                TempData["Error"] = ExtractErrorMessage(content);
+                TempData["Error"] = HttpHelper.ExtractErrorMessage(content);
             }
 
             return RedirectToAction("MyAppointments");
@@ -298,39 +220,31 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Attend(int id)
         {
-            if (id == 0)
-                return RedirectToAction("Home");
-
-            var appointment = await GetByIdAsync(id);
+            var appointment = await _appointmentService.GetByIdAsync(id);
             if (appointment == null || appointment.Status?.ToLower() != "confirmada")
             {
                 TempData["Error"] = "Solo se pueden atender citas confirmadas.";
                 return RedirectToAction("MyAppointments");
             }
 
-            return View(appointment);
+            var model = appointment.ToViewModel();
+            return View(model);
         }
 
         [HttpPost, ActionName("Attend")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AttendConfirmed(int id)
         {
-            var dto = new { Status = "atendida" };
-
-            var resp = await _http.PutAsJsonAsync($"api/appointments/{id}", dto);
+            var resp = await _appointmentService.UpdateStatusAsync(id, "atendida");
 
             if (resp.IsSuccessStatusCode)
-            {
                 TempData["Success"] = "La cita fue atendida correctamente.";
-            }
             else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
                 TempData["Error"] = "Cita no encontrada.";
-            }
             else
             {
                 var content = await resp.Content.ReadAsStringAsync();
-                TempData["Error"] = ExtractErrorMessage(content);
+                TempData["Error"] = HttpHelper.ExtractErrorMessage(content);
             }
 
             return RedirectToAction("Historial");
@@ -338,10 +252,7 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Cancel(int id)
         {
-            if (id == 0)
-                return RedirectToAction("Home");
-
-            var appointment = await GetByIdAsync(id);
+            var appointment = await _appointmentService.GetByIdAsync(id);
             var status = appointment?.Status?.ToLower();
 
             if (appointment == null || status == "cancelada" || status == "atendida")
@@ -350,423 +261,67 @@ namespace Web.Controllers
                 return RedirectToAction("Pending");
             }
 
-            return View(appointment);
+            var model = appointment.ToViewModel();
+            return View(model);
         }
 
         [HttpPost, ActionName("Cancel")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelConfirmed(int id)
         {
-            var dto = new { Status = "cancelada" };
-
-            var resp = await _http.PutAsJsonAsync($"api/appointments/{id}", dto);
+            var resp = await _appointmentService.UpdateStatusAsync(id, "cancelada");
 
             if (resp.IsSuccessStatusCode)
-            {
                 TempData["Success"] = "La cita fue cancelada correctamente.";
-            }
             else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
                 TempData["Error"] = "Cita no encontrada.";
-            }
             else
             {
                 var content = await resp.Content.ReadAsStringAsync();
-                TempData["Error"] = ExtractErrorMessage(content);
+                TempData["Error"] = HttpHelper.ExtractErrorMessage(content);
             }
 
             return RedirectToAction("Historial");
         }
 
-        public async Task<IActionResult> ExportAllAppointmentsToPDF()
-        {
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>("api/appointments") ?? new List<AppointmentListDTO>();
-            var user = GetLoggedUser();
-            var role = user?.ActiveRole ?? "administrador";
-            return ExportAppointmentsToPdf(list, "Lista de citas", role);
-        }
-
-        public async Task<IActionResult> ExportMyAppointmentsToPDF()
+        public async Task<IActionResult> ExportToPdf(string filter)
         {
             var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
+            int? userId = user?.UserId;
+            string? userRol = user?.ActiveRole;
 
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                $"api/appointments/my?userId={user.UserId}&userRol={user.ActiveRole}")
-                ?? new List<AppointmentListDTO>();
-
-            return ExportAppointmentsToPdf(list, "Mis citas", user.ActiveRole);
-        }
-
-        public async Task<IActionResult> ExportPendingAppointmentsToPDF()
-        {
-            var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                $"api/appointments/pending?userId={user.UserId}&userRol={user.ActiveRole}")
-                ?? new List<AppointmentListDTO>();
-
-            return ExportAppointmentsToPdf(list, "Citas pendientes", user.ActiveRole);
-        }
-
-        public async Task<IActionResult> ExportHistorialAppointmentsToPDF()
-        {
-            var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                $"api/appointments/historial?userId={user.UserId}&userRol={user.ActiveRole}")
-                ?? new List<AppointmentListDTO>();
-
-            return ExportAppointmentsToPdf(list, "Historial de citas", user.ActiveRole);
-        }
-
-        public async Task<IActionResult> ExportAllAppointmentsToExcel()
-        {
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>("api/appointments")
-                       ?? new List<AppointmentListDTO>();
-            var user = GetLoggedUser();
-            var role = user?.ActiveRole ?? "administrador";
-            return ExportAppointmentsToExcel(list, "Lista de citas", role);
-        }
-
-        public async Task<IActionResult> ExportMyAppointmentsToExcel()
-        {
-            var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                $"api/appointments/my?userId={user.UserId}&userRol={user.ActiveRole}")
-                ?? new List<AppointmentListDTO>();
-
-            return ExportAppointmentsToExcel(list, "Mis citas", user.ActiveRole);
-        }
-
-        public async Task<IActionResult> ExportPendingAppointmentsToExcel()
-        {
-            var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                $"api/appointments/pending?userId={user.UserId}&userRol={user.ActiveRole}")
-                ?? new List<AppointmentListDTO>();
-
-            return ExportAppointmentsToExcel(list, "Citas pendientes", user.ActiveRole);
-        }
-
-        public async Task<IActionResult> ExportHistorialAppointmentsToExcel()
-        {
-            var user = GetLoggedUser();
-            if (user == null) return RedirectToAction("Login", "Auth");
-
-            var list = await _http.GetFromJsonAsync<List<AppointmentListDTO>>(
-                $"api/appointments/historial?userId={user.UserId}&userRol={user.ActiveRole}")
-                ?? new List<AppointmentListDTO>();
-
-            return ExportAppointmentsToExcel(list, "Historial de citas", user.ActiveRole);
-        }
-
-        private FileResult ExportAppointmentsToPdf(List<AppointmentListDTO> appointments, string title, string userRole)
-        {
-            using (var ms = new MemoryStream())
+            var list = await _appointmentService.GetListAsync(filter, userId, userRol);
+            var role = userRol ?? "administrador";
+            string title = filter.ToLower() switch
             {
-                var writer = new PdfWriter(ms);
-                var pdf = new PdfDocument(writer);
-                var document = new Document(pdf, PageSize.A4);
-                document.SetMargins(36, 36, 36, 36);
+                "all" => "Lista de citas",
+                "my" => "Mis citas",
+                "pending" => "Citas pendientes",
+                "historial" => "Historial de citas",
+                _ => "Citas"
+            };
 
-                PdfFont regularFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-                PdfFont boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-
-                const float smallFontSize = 9f;
-                const float headerFontSize = 10f;
-                const float titleFontSize = 14f;
-
-                var now = DateTime.Now;
-                string date = now.ToString("dd MMM yyyy");
-                string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
-
-                var headerTable = new Table(new float[] { 2f, 6f, 2f })
-                    .SetWidth(UnitValue.CreatePercentValue(100))
-                    .SetMarginTop(5)
-                    .SetMarginBottom(10);
-
-                var dateCell = new Cell()
-                    .Add(new Paragraph(date).SetFont(regularFont).SetFontSize(smallFontSize))
-                    .SetBorder(Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetPaddingTop(4)
-                    .SetPaddingBottom(4);
-
-                var titleCell = new Cell()
-                    .Add(new Paragraph(title).SetFont(boldFont).SetFontSize(titleFontSize))
-                    .SetBorder(Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.CENTER)
-                    .SetPaddingTop(4)
-                    .SetPaddingBottom(4);
-
-                var timeCell = new Cell()
-                    .Add(new Paragraph(time).SetFont(regularFont).SetFontSize(smallFontSize))
-                    .SetBorder(Border.NO_BORDER)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetPaddingTop(4)
-                    .SetPaddingBottom(4);
-
-                headerTable.AddCell(dateCell);
-                headerTable.AddCell(titleCell);
-                headerTable.AddCell(timeCell);
-
-                document.Add(headerTable);
-
-                bool hideDoctor = string.Equals(userRole, "medico", StringComparison.OrdinalIgnoreCase);
-                bool hidePatient = string.Equals(userRole, "paciente", StringComparison.OrdinalIgnoreCase);
-
-                var headers = new List<string> { "Código", "Especialidad" };
-                if (!hideDoctor) headers.Add("Médico");
-                if (!hidePatient) headers.Add("Paciente");
-                headers.AddRange(new[] { "Tipo consulta", "Fecha cita", "Horario cita", "Estado" });
-
-                float[] columnWidths = Enumerable.Repeat(1f, headers.Count).ToArray();
-                var table = new Table(UnitValue.CreatePercentArray(columnWidths))
-                    .SetWidth(UnitValue.CreatePercentValue(100))
-                    .SetMarginTop(5);
-
-                var headerColor = new DeviceRgb(0x0a, 0x76, 0xd8);
-
-                foreach (var h in headers)
-                {
-                    var p = new Paragraph(h)
-                        .SetFont(boldFont)
-                        .SetFontSize(headerFontSize)
-                        .SetFontColor(ColorConstants.WHITE);
-
-                    var cell = new Cell()
-                        .Add(p)
-                        .SetBackgroundColor(headerColor)
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetPadding(5);
-
-                    table.AddHeaderCell(cell);
-                }
-
-                foreach (var a in appointments)
-                {
-                    table.AddCell(new Cell().Add(new Paragraph(a.AppointmentId.ToString()).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    table.AddCell(new Cell().Add(new Paragraph(a.SpecialtyName ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    if (!hideDoctor)
-                        table.AddCell(new Cell().Add(new Paragraph(a.DoctorName ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    if (!hidePatient)
-                        table.AddCell(new Cell().Add(new Paragraph(a.PatientName ?? string.Empty).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    var consultationType = (a.ConsultationType ?? string.Empty).ToLower();
-                    var consultationDisplay = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(consultationType);
-                    table.AddCell(new Cell().Add(new Paragraph(consultationDisplay).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    var fecha = a.Date.ToString("dd MMM yyyy");
-                    table.AddCell(new Cell().Add(new Paragraph(fecha).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    DateTime startTime;
-                    try
-                    {
-                        startTime = DateTime.Today.Add(a.Time);
-                    }
-                    catch
-                    {
-                        if (TimeSpan.TryParse(a.Time.ToString() ?? "00:00", out var ts))
-                            startTime = DateTime.Today.Add(ts);
-                        else
-                            startTime = DateTime.Today;
-                    }
-                    var endTime = startTime.AddHours(1);
-                    var timeRange = $"{startTime:hh:mm tt} - {endTime:hh:mm tt}";
-                    table.AddCell(new Cell().Add(new Paragraph(timeRange).SetFont(regularFont).SetFontSize(smallFontSize)).SetPadding(4));
-
-                    var status = (a.Status ?? "Desconocido").Trim().ToLower();
-                    string statusText = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status);
-                    DeviceRgb statusRgb;
-                    switch (status)
-                    {
-                        case "confirmada":
-                            statusRgb = new DeviceRgb(13, 110, 253);
-                            break;
-                        case "pendiente":
-                            statusRgb = new DeviceRgb(255, 193, 7);
-                            break;
-                        case "cancelada":
-                            statusRgb = new DeviceRgb(220, 53, 69);
-                            break;
-                        case "atendida":
-                            statusRgb = new DeviceRgb(25, 135, 84);
-                            break;
-                        default:
-                            statusRgb = (DeviceRgb)ColorConstants.DARK_GRAY;
-                            break;
-                    }
-
-                    var statusPara = new Paragraph(statusText).SetFont(boldFont).SetFontSize(smallFontSize).SetFontColor(statusRgb);
-                    table.AddCell(new Cell().Add(statusPara).SetPadding(4).SetTextAlignment(TextAlignment.CENTER));
-                }
-
-                document.Add(table);
-                document.Close();
-
-                return File(ms.ToArray(), "application/pdf", $"{title.Replace(" ", "_")}.pdf");
-            }
+            return _appointmentService.GeneratePdf(list, title, role);
         }
 
-        private FileResult ExportAppointmentsToExcel(List<AppointmentListDTO> appointments, string title, string userRole)
+        public async Task<IActionResult> ExportToExcel(string filter)
         {
-            var stream = new MemoryStream();
+            var user = GetLoggedUser();
+            int? userId = user?.UserId;
+            string? userRol = user?.ActiveRole;
 
-            using (var workbook = new XLWorkbook())
+            var list = await _appointmentService.GetListAsync(filter, userId, userRol);
+            var role = userRol ?? "administrador";
+            string title = filter.ToLower() switch
             {
-                var sheet = workbook.Worksheets.Add("Citas");
+                "all" => "Lista de citas",
+                "my" => "Mis citas",
+                "pending" => "Citas pendientes",
+                "historial" => "Historial de citas",
+                _ => "Citas"
+            };
 
-                var now = DateTime.Now;
-                string date = now.ToString("dd MMM yyyy");
-                string time = now.ToString("hh:mm tt", new CultureInfo("es-PE"));
-
-                bool hideDoctor = string.Equals(userRole, "medico", StringComparison.OrdinalIgnoreCase);
-                bool hidePatient = string.Equals(userRole, "paciente", StringComparison.OrdinalIgnoreCase);
-
-                var headers = new List<string> { "Código", "Especialidad" };
-                if (!hideDoctor) headers.Add("Médico");
-                if (!hidePatient) headers.Add("Paciente");
-                headers.AddRange(new[] { "Tipo consulta", "Fecha cita", "Horario cita", "Estado" });
-
-                int totalCols = headers.Count;
-
-                sheet.Cell(1, 1).Value = date;
-                sheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                sheet.Cell(1, 1).Style.Font.FontSize = 10;
-
-                if (totalCols >= 3)
-                {
-                    sheet.Range(sheet.Cell(1, 2), sheet.Cell(1, totalCols - 1)).Merge();
-                    sheet.Cell(1, 2).Value = title;
-                    sheet.Cell(1, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    sheet.Cell(1, 2).Style.Font.Bold = true;
-                    sheet.Cell(1, 2).Style.Font.FontSize = 14;
-                }
-                else
-                {
-                    sheet.Cell(1, 2).Value = title;
-                    sheet.Cell(1, 2).Style.Font.Bold = true;
-                    sheet.Cell(1, 2).Style.Font.FontSize = 14;
-                }
-
-                sheet.Cell(1, totalCols).Value = time;
-                sheet.Cell(1, totalCols).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                sheet.Cell(1, totalCols).Style.Font.FontSize = 10;
-
-                for (int i = 0; i < headers.Count; i++)
-                {
-                    var cell = sheet.Cell(3, i + 1);
-                    cell.Value = headers[i];
-                    cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0a76d8");
-                    cell.Style.Font.FontColor = XLColor.White;
-                    cell.Style.Font.Bold = true;
-                    cell.Style.Font.FontSize = 10;
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    cell.Style.Border.OutsideBorderColor = XLColor.Black;
-                }
-
-                int row = 4;
-                foreach (var a in appointments)
-                {
-                    int col = 1;
-                    sheet.Cell(row, col++).Value = a.AppointmentId;
-                    sheet.Cell(row, col++).Value = a.SpecialtyName;
-                    if (!hideDoctor) sheet.Cell(row, col++).Value = a.DoctorName;
-                    if (!hidePatient) sheet.Cell(row, col++).Value = a.PatientName;
-                    sheet.Cell(row, col++).Value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(a.ConsultationType?.ToLower() ?? string.Empty);
-                    sheet.Cell(row, col++).Value = a.Date.ToString("dd MMM yyyy");
-
-                    DateTime startTime;
-                    try
-                    {
-                        startTime = DateTime.Today.Add(a.Time);
-                    }
-                    catch
-                    {
-                        if (TimeSpan.TryParse(a.Time.ToString() ?? "00:00", out var ts))
-                            startTime = DateTime.Today.Add(ts);
-                        else
-                            startTime = DateTime.Today;
-                    }
-                    var endTime = startTime.AddHours(1);
-                    sheet.Cell(row, col++).Value = $"{startTime:hh:mm tt} - {endTime:hh:mm tt}";
-
-                    var status = a.Status?.Trim().ToLower() ?? "desconocido";
-                    var statusCell = sheet.Cell(row, col);
-                    statusCell.Value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status);
-                    statusCell.Style.Font.Bold = true;
-
-                    var statusColor = XLColor.Gray;
-                    switch (status)
-                    {
-                        case "confirmada": statusColor = XLColor.FromHtml("#0d6efd"); break;
-                        case "pendiente": statusColor = XLColor.FromHtml("#ffc107"); break;
-                        case "cancelada": statusColor = XLColor.FromHtml("#dc3545"); break;
-                        case "atendida": statusColor = XLColor.FromHtml("#198754"); break;
-                    }
-                    statusCell.Style.Font.FontColor = statusColor;
-
-                    for (int c = 1; c <= headers.Count; c++)
-                    {
-                        var cell = sheet.Cell(row, c);
-                        cell.Style.Font.FontSize = 9;
-                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                        cell.Style.Border.OutsideBorderColor = XLColor.Black;
-                    }
-
-                    row++;
-                }
-
-                sheet.Columns().AdjustToContents();
-                workbook.SaveAs(stream);
-            }
-
-            stream.Position = 0;
-            return File(
-                stream,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                $"{title.Replace(" ", "_")}.xlsx"
-            );
-        }
-
-        private string ExtractErrorMessage(string content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-                return "No se pudo procesar la petición.";
-
-            try
-            {
-                if (content.Contains("\"message\""))
-                {
-                    var start = content.IndexOf("\"message\"", StringComparison.OrdinalIgnoreCase);
-                    var colon = content.IndexOf(':', start);
-                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
-                    return trimmed;
-                }
-                if (content.Contains("\"error\""))
-                {
-                    var start = content.IndexOf("\"error\"", StringComparison.OrdinalIgnoreCase);
-                    var colon = content.IndexOf(':', start);
-                    var trimmed = content.Substring(colon + 1).Trim().Trim('"', ' ', '}');
-                    return trimmed;
-                }
-            }
-            catch { }
-
-            return content.Length > 300 ? content[..300] + "..." : content;
+            return _appointmentService.GenerateExcel(list, title, role);
         }
     }
 }

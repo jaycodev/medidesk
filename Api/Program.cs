@@ -1,12 +1,12 @@
-using Api.Data.Repository;
-using Api.Domains.Appointments.Repositories;
-using Api.Domains.CloudinaryImplement.Repositories;
-using Api.Domains.Doctors.Repositories;
-using Api.Domains.Notifications.Repositories;
-using Api.Domains.Patients.Repositories;
-using Api.Domains.Schedules.Repositories;
-using Api.Domains.Specialties.Repositories;
-using Api.Domains.Users.Repository;
+using Api.Repositories.Account;
+using Api.Repositories.Appointments;
+using Api.Repositories.Cloudinary;
+using Api.Repositories.Doctors;
+using Api.Repositories.Notifications;
+using Api.Repositories.Patients;
+using Api.Repositories.Schedules;
+using Api.Repositories.Specialties;
+using Api.Repositories.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,13 +20,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ISchedule, ScheduleRepository>();
-builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 
 var app = builder.Build();

@@ -1,5 +1,5 @@
 {
     "ConnectionStrings": {
-        "DB": "server=YOUR_SERVER; database=MedicalAppointmentsDB; Integrated Security=true; TrustServerCertificate=true"
+        "DB": "server=YOUR_SERVER; database=MediDesk; Integrated Security=true; TrustServerCertificate=true"
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Text.Json;
-using Web.Models.User;
+using Web.Models.Account;
 
 namespace Web.Filters
 {
@@ -14,8 +14,8 @@ namespace Web.Filters
                 "appointments/allappointments",
                 "appointments/details",
                 "appointments/home",
-                "appointments/exportallappointmentstopdf",
-                "appointments/exportallappointmentstoexcel",
+                "appointments/exporttopdf?filter=all",
+                "appointments/exporttoexcel?filter=all",
                 "doctors/*",
                 "patients/*",
                 "specialties/*",
@@ -33,12 +33,12 @@ namespace Web.Filters
                 "appointments/attend",
                 "appointments/cancel",
                 "appointments/details",
-                "appointments/exportmyappointmentstopdf",
-                "appointments/exportpendingappointmentstopdf",
-                "appointments/exporthistorialappointmentstopdf",
-                "appointments/exportmyappointmentstoexcel",
-                "appointments/exportpendingappointmentstoexcel",
-                "appointments/exporthistorialappointmentstoexcel",
+                "appointments/exporttopdf?filter=my",
+                "appointments/exporttopdf?filter=pending",
+                "appointments/exporttopdf?filter=historial",
+                "appointments/exporttoexcel?filter=my",
+                "appointments/exporttoexcel?filter=pending",
+                "appointments/exporttoexcel?filter=historial",
                 "schedules/*",
                 "profile/*",
                 "notifications/delete",
@@ -54,13 +54,12 @@ namespace Web.Filters
                 "appointments/pending",
                 "appointments/historial",
                 "appointments/details",
-                "appointments/exportmyappointmentstopdf",
-                "appointments/exportpendingappointmentstopdf",
-                "appointments/exporthistorialappointmentstopdf",
-                "appointments/exportmyappointmentstoexcel",
-                "appointments/exportpendingappointmentstoexcel",
-                "appointments/exporthistorialappointmentstoexcel",
-                "appointments/exporttoexcel",
+                "appointments/exporttopdf?filter=my",
+                "appointments/exporttopdf?filter=pending",
+                "appointments/exporttopdf?filter=historial",
+                "appointments/exporttoexcel?filter=my",
+                "appointments/exporttoexcel?filter=pending",
+                "appointments/exporttoexcel?filter=historial",
                 "profile/*",
                 "notifications/delete",
                 "error/show"
@@ -72,11 +71,11 @@ namespace Web.Filters
             var httpContext = context.HttpContext;
             var session = httpContext.Session;
 
-            var userJson = session.GetString("LoggedUser");
-            LoggedUserDTO? sessionUser = null;
+            var userJson = session.GetString("UserSession");
+            UserSession? sessionUser = null;
 
             if (!string.IsNullOrEmpty(userJson))
-                sessionUser = JsonSerializer.Deserialize<LoggedUserDTO>(userJson);
+                sessionUser = JsonSerializer.Deserialize<UserSession>(userJson);
 
             string controller = context.RouteData.Values["controller"]?.ToString()?.ToLower() ?? "";
             string action = context.RouteData.Values["action"]?.ToString()?.ToLower() ?? "";
@@ -132,9 +131,12 @@ namespace Web.Filters
                     var allowed = RolePermissions[role];
                     string currentPath = $"{controller}/{action}";
 
+                    var queryFilter = context.HttpContext.Request.Query["filter"].ToString().ToLower();
+
                     bool hasAccess = allowed.Any(p =>
                         p.Equals(currentPath, StringComparison.OrdinalIgnoreCase) ||
-                        (p.EndsWith("/*") && p.StartsWith(controller + "/", StringComparison.OrdinalIgnoreCase))
+                        (p.EndsWith("/*") && p.StartsWith(controller + "/", StringComparison.OrdinalIgnoreCase)) ||
+                        (p.Contains("?filter=") && p.Equals($"{currentPath}?filter={queryFilter}", StringComparison.OrdinalIgnoreCase))
                     );
 
                     if (!hasAccess)
