@@ -69,8 +69,15 @@ namespace Web.Filters
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             var httpContext = context.HttpContext;
-            var session = httpContext.Session;
 
+            var path = httpContext.Request.Path.Value?.ToLower();
+            if (!string.IsNullOrEmpty(path) && path.StartsWith("/api"))
+            {
+                base.OnActionExecuting(context);
+                return;
+            }
+
+            var session = httpContext.Session;
             var userJson = session.GetString("UserSession");
             UserSession? sessionUser = null;
 
