@@ -1,5 +1,6 @@
 ﻿using Api.Data.Repository;
 using Api.Domains.Appointments.DTOs;
+using Api.Extensions;
 using Api.Helpers;
 using Api.Queries;
 using Microsoft.Data.SqlClient;
@@ -26,8 +27,8 @@ namespace Api.Domains.Appointments.Repositories
 
             // TODO: Invoke AddWithValue based on the query properties that are not null
             cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
-            cmd.Parameters.AddWithValue("@limit", listQuery.Limit);
-            cmd.Parameters.AddWithValue("@offset", listQuery.Offset);
+            cmd.Parameters.AddQueryAsParameters(listQuery);
+            cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -59,9 +60,7 @@ namespace Api.Domains.Appointments.Repositories
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@indicator", "GET_BY_USER_AND_STATUS");
-            cmd.Parameters.AddWithValue("@user_id", query.UserId);
-            cmd.Parameters.AddWithValue("@user_rol", query.UserRole);
-            cmd.Parameters.AddWithValue("@status", query.Status);
+            cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
