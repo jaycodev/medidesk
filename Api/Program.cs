@@ -16,8 +16,11 @@ builder.Configuration
     .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
     .AddJsonFile("cloudinary.json", optional: true, reloadOnChange: true);
 
-var connectionString = builder.Configuration.GetConnectionString("DB")
-                       ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+                       ?? builder.Configuration.GetConnectionString("DB");
+
+if (string.IsNullOrEmpty(connectionString))
+    throw new InvalidOperationException("Connection string 'DB' or environment variable 'DATABASE_URL' was not found.");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
