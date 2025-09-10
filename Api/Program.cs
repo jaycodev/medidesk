@@ -50,11 +50,13 @@ var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MediDesk API");
+    c.RoutePrefix = "";
+    c.DocumentTitle = "MediDesk API";
+});
 
 app.UseAuthorization();
 app.MapControllers();
