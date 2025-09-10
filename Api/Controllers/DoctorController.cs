@@ -18,65 +18,100 @@ namespace Api.Controllers
         [HttpGet]
         public IActionResult GetList()
         {
-            var doctors = _doctors.GetList();
-            return Ok(doctors);
+            try
+            {
+                var doctors = _doctors.GetList();
+                return Ok(doctors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, stack = ex.StackTrace });
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var doctor = _doctors.GetById(id);
-            if (doctor == null)
-                return NotFound();
+            try
+            {
+                var doctor = _doctors.GetById(id);
+                if (doctor == null)
+                    return NotFound(new { message = "Médico no encontrado" });
 
-            return Ok(doctor);
+                return Ok(doctor);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, stack = ex.StackTrace });
+            }
         }
 
         [HttpGet("by-specialty")]
         public IActionResult GetBySpecialty([FromQuery] int specialtyId, [FromQuery] int userId)
         {
-            var doctors = _doctors.GetBySpecialty(specialtyId, userId);
-            return Ok(doctors);
+            try
+            {
+                var doctors = _doctors.GetBySpecialty(specialtyId, userId);
+                return Ok(doctors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, stack = ex.StackTrace });
+            }
         }
 
         [HttpPost]
         public IActionResult Create([FromBody] CreateDoctorRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var (newId, error) = _doctors.Create(request);
-
-            if (!string.IsNullOrEmpty(error))
-                return BadRequest(new { message = error });
-
-            if (newId > 0)
+            try
             {
-                var createdDoctor = _doctors.GetById(newId);
-                return CreatedAtAction(nameof(GetById), new { id = newId }, createdDoctor);
-            }
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            return BadRequest("No se pudo crear el médico");
+                var (newId, error) = _doctors.Create(request);
+
+                if (!string.IsNullOrEmpty(error))
+                    return BadRequest(new { message = error });
+
+                if (newId > 0)
+                {
+                    var createdDoctor = _doctors.GetById(newId);
+                    return CreatedAtAction(nameof(GetById), new { id = newId }, createdDoctor);
+                }
+
+                return BadRequest(new { message = "No se pudo crear el médico" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, stack = ex.StackTrace });
+            }
         }
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] UpdateDoctorRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = _doctors.Update(id, request);
-
-            if (result > 0)
+            try
             {
-                var updatedDoctor = _doctors.GetById(id);
-                if (updatedDoctor == null)
-                    return NotFound("Médico no encontrado después de actualizar.");
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-                return Ok(updatedDoctor);
+                var result = _doctors.Update(id, request);
+
+                if (result > 0)
+                {
+                    var updatedDoctor = _doctors.GetById(id);
+                    if (updatedDoctor == null)
+                        return NotFound(new { message = "Médico no encontrado después de actualizar." });
+
+                    return Ok(updatedDoctor);
+                }
+
+                return NotFound(new { message = "Médico no encontrado o no se pudo actualizar" });
             }
-
-            return NotFound("Médico no encontrado o no se pudo actualizar");
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, stack = ex.StackTrace });
+            }
         }
     }
 }

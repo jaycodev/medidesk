@@ -26,6 +26,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddScoped<IAccountRepository>(sp => new AccountRepository(connectionString));
 builder.Services.AddScoped<IAppointmentRepository>(sp => new AppointmentRepository(connectionString));
 builder.Services.AddScoped<IDoctorRepository>(sp => new DoctorRepository(connectionString));
@@ -37,6 +47,8 @@ builder.Services.AddScoped<IUserRepository>(sp => new UserRepository(connectionS
 builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
 {
