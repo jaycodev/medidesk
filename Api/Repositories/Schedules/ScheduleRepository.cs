@@ -10,7 +10,7 @@ namespace Api.Repositories.Schedules
     {
         private const string CrudCommand = "Schedule_CRUD";
 
-        public ScheduleRepository(IConfiguration configuration) : base(configuration) { }
+        public ScheduleRepository(string connectionString) : base(connectionString) { }
 
         public List<ScheduleResponse> GetList(int idDoctor)
         {

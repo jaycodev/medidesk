@@ -10,7 +10,7 @@ namespace Api.Repositories.Users
     {
         private const string CrudCommand = "User_CRUD";
 
-        public UserRepository(IConfiguration configuration) : base(configuration) { }
+        public UserRepository(string connectionString) : base(connectionString) { }
 
         public List<UserListResponse> GetList(int id)
         {

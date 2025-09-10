@@ -10,7 +10,7 @@ namespace Api.Repositories.Patients
     {
         private const string CrudCommand = "Patient_CRUD";
 
-        public PatientRepository(IConfiguration configuration) : base(configuration) { }
+        public PatientRepository(string connectionString) : base(connectionString) { }
 
         public List<PatientListResponse> GetList()
         {

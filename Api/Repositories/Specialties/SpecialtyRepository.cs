@@ -10,7 +10,7 @@ namespace Api.Repositories.Specialties
     {
         private const string CrudCommand = "Specialty_CRUD";
 
-        public SpecialtyRepository(IConfiguration configuration) : base(configuration) { }
+        public SpecialtyRepository(string connectionString) : base(connectionString) { }
 
         public List<SpecialtyResponse> GetList()
         {

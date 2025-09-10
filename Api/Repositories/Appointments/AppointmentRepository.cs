@@ -10,7 +10,7 @@ namespace Api.Repositories.Appointments
     {
         private const string CrudCommand = "Appointment_CRUD";
 
-        public AppointmentRepository(IConfiguration configuration) : base(configuration) { }
+        public AppointmentRepository(string connectionString) : base(connectionString) { }
 
         public List<AppointmentListResponse> GetAll()
         {

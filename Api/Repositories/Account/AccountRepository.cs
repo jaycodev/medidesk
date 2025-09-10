@@ -10,7 +10,7 @@ namespace Api.Repositories.Account
     {
         private const string CrudCommand = "User_CRUD";
 
-        public AccountRepository(IConfiguration configuration) : base(configuration) { }
+        public AccountRepository(string connectionString) : base(connectionString) { }
 
         public LoggedUserResponse? Login(LoginRequest request)
         {

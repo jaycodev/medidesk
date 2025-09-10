@@ -9,7 +9,7 @@ namespace Api.Repositories.Notifications
     {
         private const string CrudCommand = "Notification_CRUD";
 
-        public NotificationRepository(IConfiguration configuration) : base(configuration) { }
+        public NotificationRepository(string connectionString) : base(connectionString) { }
 
         public List<NotificationResponse> GetForDoctor(int doctorId)
         {

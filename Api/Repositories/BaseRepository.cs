@@ -6,10 +6,9 @@ namespace Api.Repositories
     {
         private readonly string _connectionString;
 
-        protected BaseRepository(IConfiguration configuration)
+        protected BaseRepository(string connectionString)
         {
-            _connectionString = configuration.GetConnectionString("DB")
-                ?? throw new InvalidOperationException("Connection string 'DB' was not found in the configuration.");
+            _connectionString = connectionString ?? throw new InvalidOperationException("Connection string was not provided.");
         }
 
         protected SqlConnection GetConnection()

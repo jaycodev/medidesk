@@ -26,14 +26,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
-builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAccountRepository>(sp => new AccountRepository(connectionString));
+builder.Services.AddScoped<IAppointmentRepository>(sp => new AppointmentRepository(connectionString));
+builder.Services.AddScoped<IDoctorRepository>(sp => new DoctorRepository(connectionString));
+builder.Services.AddScoped<INotificationRepository>(sp => new NotificationRepository(connectionString));
+builder.Services.AddScoped<IPatientRepository>(sp => new PatientRepository(connectionString));
+builder.Services.AddScoped<IScheduleRepository>(sp => new ScheduleRepository(connectionString));
+builder.Services.AddScoped<ISpecialtyRepository>(sp => new SpecialtyRepository(connectionString));
+builder.Services.AddScoped<IUserRepository>(sp => new UserRepository(connectionString));
 builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 
 var app = builder.Build();
