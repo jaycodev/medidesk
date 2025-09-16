@@ -3,6 +3,7 @@ using Api.Domains.Appointments.Repositories;
 using Api.Domains.Doctors.Repositories;
 using Api.Domains.Patients.Repositories;
 using Api.Domains.Specialties.Repositories;
+using Api.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Domains.Appointments.Controllers
@@ -26,38 +27,33 @@ namespace Api.Domains.Appointments.Controllers
         }
 
         [HttpGet("all-by-user")]
-        public IActionResult GetAllByUser([FromQuery] int userId, [FromQuery] string userRol)
+        public IActionResult GetAllByUser([FromQuery] AppointmentQuery query)
         {
-            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+            if (query.UserId <= 0 || string.IsNullOrWhiteSpace(query.UserRole))
                 return BadRequest("Se requiere userId y userRol válidos.");
 
-            var list = _repository.GetAppointmentsByStatus(userId, userRol, null);
+            var list = _repository.GetAppointmentsByStatus(query);
             return Ok(list);
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] ListQuery listQuery, [FromQuery] AppointmentQuery query)
         {
-            return Ok(_repository.GetAll());
+            return Ok(_repository.GetAll(listQuery, query));
         }
 
         [HttpGet("my")]
-        public IActionResult GetMyAppointments([FromQuery] int userId, [FromQuery] string userRol)
+        public IActionResult GetMyAppointments([FromQuery] AppointmentQuery query)
         {
-            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+            if (query.UserId <= 0 || string.IsNullOrWhiteSpace(query.UserRole))
                 return BadRequest("Se requiere userId y userRol válidos.");
 
-            var list = _repository.GetAppointmentsByStatus(userId, userRol, "confirmada");
-            return Ok(list);
-        }
+            query = new AppointmentQuery()
+            {
+                Status = "confirmada"
+            };
 
-        [HttpGet("pending")]
-        public IActionResult GetPendingAppointments([FromQuery] int userId, [FromQuery] string userRol)
-        {
-            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
-                return BadRequest("Se requiere userId y userRol válidos.");
-
-            var list = _repository.GetAppointmentsByStatus(userId, userRol, "pendiente");
+            var list = _repository.GetAppointmentsByStatus(query);
             return Ok(list);
         }
 

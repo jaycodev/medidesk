@@ -1,8 +1,10 @@
-﻿using System.Data;
-using Api.Data.Repository;
+﻿using Api.Data.Repository;
 using Api.Domains.Appointments.DTOs;
+using Api.Extensions;
 using Api.Helpers;
+using Api.Queries;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Api.Domains.Appointments.Repositories
 {
@@ -12,7 +14,7 @@ namespace Api.Domains.Appointments.Repositories
 
         public AppointmentRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<AppointmentListDTO> GetAll()
+        public List<AppointmentListDTO> GetAll(ListQuery listQuery, AppointmentQuery query)
         {
             var list = new List<AppointmentListDTO>();
 
@@ -22,7 +24,10 @@ namespace Api.Domains.Appointments.Repositories
             using var cmd = new SqlCommand(crudCommand, cn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
+
+            // TODO: Invoke AddWithValue based on the query properties that are not null
             cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
+            cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -43,7 +48,7 @@ namespace Api.Domains.Appointments.Repositories
             return list;
         }
 
-        public List<AppointmentListDTO> GetAppointmentsByStatus(int userId, string userRol, string status)
+        public List<AppointmentListDTO> GetAppointmentsByStatus(AppointmentQuery query)
         {
             var list = new List<AppointmentListDTO>();
 
@@ -54,9 +59,7 @@ namespace Api.Domains.Appointments.Repositories
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@indicator", "GET_BY_USER_AND_STATUS");
-            cmd.Parameters.AddWithValue("@user_id", userId);
-            cmd.Parameters.AddWithValue("@user_rol", userRol);
-            cmd.Parameters.AddWithValue("@status", status);
+            cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
