@@ -27,7 +27,6 @@ namespace Api.Domains.Appointments.Repositories
 
             // TODO: Invoke AddWithValue based on the query properties that are not null
             cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
-            cmd.Parameters.AddQueryAsParameters(listQuery);
             cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();

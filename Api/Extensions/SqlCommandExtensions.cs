@@ -18,9 +18,7 @@ public static class SqlCommandExtensions
 
             var propValue = property.GetValue(query, null);
 
-            collection.AddWithValue(string.Concat(["@", sqlFilterParater]), propValue);
+            collection.AddWithValue(string.Concat(["@", sqlFilterParater.Name]), propValue);
         }
-
-
     }
 }
