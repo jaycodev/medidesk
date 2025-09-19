@@ -1,5 +1,7 @@
 ﻿using System.Data;
+using Api.Extensions;
 using Api.Helpers;
+using Api.Queries;
 using Microsoft.Data.SqlClient;
 using Shared.DTOs.Appointments.Requests;
 using Shared.DTOs.Appointments.Responses;
@@ -12,7 +14,7 @@ namespace Api.Repositories.Appointments
 
         public AppointmentRepository(string connectionString) : base(connectionString) { }
 
-        public List<AppointmentListResponse> GetAll()
+        public List<AppointmentListResponse> GetAll(ListQuery listQuery, AppointmentQuery query)
         {
             var list = new List<AppointmentListResponse>();
 
@@ -22,7 +24,10 @@ namespace Api.Repositories.Appointments
             using var cmd = new SqlCommand(CrudCommand, cn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
+
+            // TODO: Invoke AddWithValue based on the query properties that are not null
             cmd.Parameters.AddWithValue("@indicator", "GET_ALL");
+            cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -43,7 +48,7 @@ namespace Api.Repositories.Appointments
             return list;
         }
 
-        public List<AppointmentListResponse> GetAppointmentsByStatus(int userId, string userRol, string? status)
+        public List<AppointmentListResponse> GetAppointmentsByStatus(AppointmentQuery query)
         {
             var list = new List<AppointmentListResponse>();
 
@@ -54,9 +59,7 @@ namespace Api.Repositories.Appointments
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@indicator", "GET_BY_USER_AND_STATUS");
-            cmd.Parameters.AddWithValue("@user_id", userId);
-            cmd.Parameters.AddWithValue("@user_rol", userRol);
-            cmd.Parameters.AddWithValue("@status", status);
+            cmd.Parameters.AddQueryAsParameters(query);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())

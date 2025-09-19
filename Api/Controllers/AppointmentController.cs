@@ -1,4 +1,5 @@
-﻿using Api.Repositories.Appointments;
+﻿using Api.Queries;
+using Api.Repositories.Appointments;
 using Api.Repositories.Doctors;
 using Api.Repositories.Patients;
 using Api.Repositories.Specialties;
@@ -26,38 +27,33 @@ namespace Api.Controllers
         }
 
         [HttpGet("all-by-user")]
-        public IActionResult GetAllByUser([FromQuery] int userId, [FromQuery] string userRol)
+        public IActionResult GetAllByUser([FromQuery] AppointmentQuery query)
         {
-            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+            if (query.UserId <= 0 || string.IsNullOrWhiteSpace(query.UserRole))
                 return BadRequest("Se requiere userId y userRol válidos.");
 
-            var list = _appointments.GetAppointmentsByStatus(userId, userRol, null);
+            var list = _appointments.GetAppointmentsByStatus(query);
             return Ok(list);
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] ListQuery listQuery, [FromQuery] AppointmentQuery query)
         {
-            return Ok(_appointments.GetAll());
+            return Ok(_appointments.GetAll(listQuery, query));
         }
 
         [HttpGet("my")]
-        public IActionResult GetMyAppointments([FromQuery] int userId, [FromQuery] string userRol)
+        public IActionResult GetMyAppointments([FromQuery] AppointmentQuery query)
         {
-            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
+            if (query.UserId <= 0 || string.IsNullOrWhiteSpace(query.UserRole))
                 return BadRequest("Se requiere userId y userRol válidos.");
 
-            var list = _appointments.GetAppointmentsByStatus(userId, userRol, "confirmada");
-            return Ok(list);
-        }
+            query = new AppointmentQuery()
+            {
+                Status = "confirmada"
+            };
 
-        [HttpGet("pending")]
-        public IActionResult GetPendingAppointments([FromQuery] int userId, [FromQuery] string userRol)
-        {
-            if (userId <= 0 || string.IsNullOrWhiteSpace(userRol))
-                return BadRequest("Se requiere userId y userRol válidos.");
-
-            var list = _appointments.GetAppointmentsByStatus(userId, userRol, "pendiente");
+            var list = _appointments.GetAppointmentsByStatus(query);
             return Ok(list);
         }
 
