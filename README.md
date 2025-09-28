@@ -8,7 +8,7 @@
 <div align="center">
 
 ![.NET](https://img.shields.io/badge/.NET-512BD4?logo=.net&logoColor=white&style=flat)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-6f42c1?logo=bootstrap&logoColor=white&style=flat)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-702cf5?logo=bootstrap&logoColor=white&style=flat)
 
 </div>
 
