@@ -665,3 +665,5 @@ secrets.json
 
 # Ignore cloudinary credentials (if present) anywhere
 cloudinary.json
+
+!src/Web/wwwroot/lib/
