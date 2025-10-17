@@ -657,10 +657,11 @@ LogFiles/
 .vercel
 
 # Environment and secrets
-Api/appsettings.Development.json
-Api/appsettings.Local.json
-Web/appsettings.Development.json
-Web/appsettings.Local.json
+# Ignore per-project appsettings and local secrets anywhere in the repo
+appsettings.Development.json
+appsettings.Local.json
 .env
 secrets.json
-Api/cloudinary.json
+
+# Ignore cloudinary credentials (if present) anywhere
+cloudinary.json
