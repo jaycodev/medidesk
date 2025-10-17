@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://medidesk.onrender.com">
-    <img src="./docs/Assets/readme.jpg" alt="Preview">
+    <img src="./docs/assets/readme.jpg" alt="Preview">
   </a>
   <p></p>
 </div>
